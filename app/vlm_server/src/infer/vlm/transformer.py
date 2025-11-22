@@ -28,7 +28,7 @@ class VLMTransformer(VLM):
 
     def load(self) -> None:
         import torch
-        
+
         model_name = self.config.get("model_name")
         model_class = self.config.get("model_class")
         use_gpu = self.config.get("use_gpu", True)
@@ -39,7 +39,7 @@ class VLMTransformer(VLM):
         attn_implementation = self.config.get("attn_implementation")
         if attn_implementation is None:
             attn_implementation = "flash_attention_2" if use_gpu else "sdpa"
-        
+
         # Convert dtype string to torch dtype
         if dtype_str == "auto":
             torch_dtype = None
@@ -60,9 +60,11 @@ class VLMTransformer(VLM):
         if model_class not in MODEL_CLASS:
             raise ValueError(f"unsupported model class {model_class}")
         t0 = time.perf_counter()
-        logger.info(f"loading {model_name} class={model_class} use_gpu={use_gpu} device_map={device_map}")
+        logger.info(
+            f"loading {model_name} class={model_class} use_gpu={use_gpu} device_map={device_map}"
+        )
         self.processor = AutoProcessor.from_pretrained(model_name)
-        
+
         # Load model with proper kwargs
         load_kwargs = {
             "attn_implementation": attn_implementation,
@@ -71,11 +73,8 @@ class VLMTransformer(VLM):
             load_kwargs["torch_dtype"] = torch_dtype
         if device_map:
             load_kwargs["device_map"] = device_map
-        
-        self.model = MODEL_CLASS[model_class].from_pretrained(
-            model_name,
-            **load_kwargs
-        )
+
+        self.model = MODEL_CLASS[model_class].from_pretrained(model_name, **load_kwargs)
         logger.info(f"loaded {model_name} in {time.perf_counter() - t0:.2f}s")
 
     def run(self, image: Any, prompt: str) -> str:
