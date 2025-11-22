@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class VLMResponseFormat(BaseModel):
     html: Optional[str] = None
-    json: Optional[str] = None
+    json_data: Optional[str] = None
     csv: Optional[str] = None
     text: Optional[str] = None
     markdown: Optional[str] = None

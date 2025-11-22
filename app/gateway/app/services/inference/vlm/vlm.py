@@ -4,7 +4,7 @@ import json
 import re
 import os
 
-from models.vlm_models import (
+from app.models.vlm_models import (
     VLMOutput,
     ModelInfo,
     InferenceConfig,

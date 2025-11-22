@@ -7,7 +7,7 @@ from transformers import (
 )
 
 from .vlm import VLM
-from utils.logging import get_logger
+from app.utils.logging import get_logger
 
 MODEL_CLASS = {"AutoModelForImageTextToText": AutoModelForImageTextToText}
 

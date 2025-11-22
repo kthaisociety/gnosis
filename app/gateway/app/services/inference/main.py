@@ -1,7 +1,7 @@
 from typing import Any, List
 import os
 
-from models.vlm_models import InferenceConfig
+from app.models.vlm_models import InferenceConfig
 from .vlm import (
     VLM,
     VLMTransformer,
