@@ -2,11 +2,14 @@ from typing import Any, List
 import os
 
 from app.models.vlm_models import InferenceConfig
+from app.utils.logging import get_logger
 from .vlm import (
     VLM,
     VLMTransformer,
     VLMGemini,
 )
+
+logger = get_logger(__name__)
 
 
 def infer(
@@ -36,6 +39,7 @@ def infer(
     # Set prompt
     if not prompt:
         prompt = get_prompt(model_info.default_prompt_name)
+        logger.info(f"No prompt provided, using default prompt: {prompt[:min(10, len(prompt))]}...")
         if not prompt:
             raise ValueError(
                 f"no prompt supplied and no default prompt for {config.model_name}"
