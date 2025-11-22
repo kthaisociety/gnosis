@@ -6,27 +6,28 @@ router = APIRouter(prefix="/health", tags=["Health Check"])
 
 START_TIME_UTC = datetime.utcnow()
 
+
 @router.get(
-    "/", 
-    summary="Health Check Dashboard", 
-    description="Performs a health check.", 
-    response_class=HTMLResponse
+    "/",
+    summary="Health Check Dashboard",
+    description="Performs a health check.",
+    response_class=HTMLResponse,
 )
 async def get_health():
     # Get the current time in UTC.
     current_time_utc = datetime.utcnow()
-    
+
     # Calculate the timedelta since the application started.
     uptime_delta: timedelta = current_time_utc - START_TIME_UTC
-    
+
     # Format the uptime into a human-readable string (e.g., "1 day, 4:05:10")
     # We split off the microseconds for a cleaner display
-    human_readable_uptime = str(uptime_delta).split('.')[0]
+    human_readable_uptime = str(uptime_delta).split(".")[0]
     uptime_in_seconds = uptime_delta.total_seconds()
-    
-    status = "OK" # Static as of now
+
+    status = "OK"  # Static as of now
     status_color = "green"
-    
+
     html_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -176,7 +177,7 @@ async def get_health():
     </body>
     </html>
     """
-    
+
     return HTMLResponse(content=html_content, status_code=200)
 
 
@@ -192,11 +193,11 @@ async def get_health_json():
     """
     current_time_utc = datetime.utcnow()
     uptime_delta: timedelta = current_time_utc - START_TIME_UTC
-    human_readable_uptime = str(uptime_delta).split('.')[0]
-    
+    human_readable_uptime = str(uptime_delta).split(".")[0]
+
     return {
         "status": "OK",
         "uptime_seconds": uptime_delta.total_seconds(),
         "uptime_human": human_readable_uptime,
-        "last_checked_utc": current_time_utc.strftime('%Y-%m-%d %H:%M:%S') + " UTC"
+        "last_checked_utc": current_time_utc.strftime("%Y-%m-%d %H:%M:%S") + " UTC",
     }

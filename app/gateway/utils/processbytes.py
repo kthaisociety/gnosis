@@ -2,10 +2,12 @@ import base64
 import cv2
 import numpy as np
 
+
 def decode_image_from_base64(image_bytes: bytes) -> np.ndarray:
     """Decode base64-encoded image bytes to numpy array."""
     raw_bytes = base64.b64decode(image_bytes)
     return decode_image_from_bytes(raw_bytes)
+
 
 def decode_image_from_bytes(image_bytes: bytes) -> np.ndarray:
     """Decode raw image bytes to numpy array."""
