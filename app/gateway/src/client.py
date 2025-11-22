@@ -5,6 +5,7 @@ import time
 from grpc import aio
 from models.vlm_models import VLMResponseFormat
 from utils.logging import get_logger
+from gRPC.generated import request_pb2, request_pb2_grpc
 
 CURRENT_DIR = os.path.dirname(__file__)
 GRPC_DIR = os.path.join(CURRENT_DIR, "gRPC")
@@ -16,8 +17,6 @@ logger = get_logger(__name__)
 
 
 async def query_vlm(img_bytes: bytes, filename: str = "") -> VLMResponseFormat:
-    from generated import request_pb2, request_pb2_grpc
-
     GRPC_PORT = os.getenv("GRPC_PORT", "50051")
     IP = os.getenv("SERVER_IP", "localhost")
     ADDRESS = f"{IP}:{GRPC_PORT}"
