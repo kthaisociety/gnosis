@@ -1,3 +1,0 @@
-1. Fix grpc_runner.py in gateway/
-2. Fix structured output of vlm inference (from vlm library in gateway) to vlm_server/app/server.py
-3. Remove utils dependency in vlm_server/app/server.py. Should only need one image utils file in gateway~utils
