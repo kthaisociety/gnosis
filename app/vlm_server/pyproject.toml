@@ -18,7 +18,6 @@ dependencies = [
     "torch>=2.9.0",
     "torchvision>=0.24.0",
     "transformers>=4.57.1",
-    "triton>=3.5.0",
 ]
 
 [tool.ruff]
