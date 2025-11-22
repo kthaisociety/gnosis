@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 from itertools import count
 from concurrent import futures
@@ -7,6 +8,10 @@ import grpc
 import modal
 
 CURRENT_DIR = os.path.dirname(__file__)
+GRPC_DIR = os.path.join(CURRENT_DIR, "gRPC")
+
+if GRPC_DIR not in sys.path:
+    sys.path.insert(0, GRPC_DIR)
 
 # Load env from nearest .env (assumes running from project root)
 try:
