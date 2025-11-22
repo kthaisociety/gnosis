@@ -3,13 +3,12 @@ import cv2
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from .standardize import standardize_image_size, preprocess_image
-from .rotate import deskew_small
+from services.preprocessing.standardize import standardize_image_size, preprocess_image
+from services.preprocessing.rotate import deskew_small
+from utils.logging import get_logger
+from utils.processbytes import decode_image_from_bytes, encode_png
 
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
@@ -21,6 +20,20 @@ def process_image(img: np.ndarray) -> np.ndarray:
     gray = cv2.cvtColor(processed, cv2.COLOR_BGR2GRAY)
     deskewed, _angle = deskew_small(gray)
     return deskewed
+
+
+def process_and_validate_image_bytes(image_bytes: bytes, filename: str = "") -> bytes:
+    """Process raw image bytes and return processed PNG bytes."""
+    try:
+        img = decode_image_from_bytes(image_bytes)
+        processed = process_image(img)
+        return encode_png(processed)
+    except ValueError as e:
+        logger.error(f"Failed to decode image {filename}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to process image {filename}: {e}")
+        raise RuntimeError(f"Image processing failed: {e}") from e
 
 
 """Batch/CLI entrypoint logic. Per-request processing lives in utils.processbytes."""
