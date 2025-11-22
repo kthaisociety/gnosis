@@ -12,25 +12,28 @@
 
 ## Architecture
 
-  - main.py - Entry point with inference() function
-  - vlm.py - Abstract base classes and data models
-  - vlm_transformer.py - Transformer-based VLM implementation
-  - prompts.py - Predefined prompts for graph extraction
+- `main.py`: Entry point with `infer()` function
+- `vlm/vlm.py`: Abstract base classes and data models
+- `vlm/transformer.py`: Transformer-based VLM implementation
+- `vlm/gemini.py`: Gemini API VLM implementation
+- `prompts/`: Predefined prompts for graph extraction
 
 ## Instructions
 
-### Get started
+### Get Started
 
-```bash
-from main import inference
+```python
+from infer.main import infer
+from infer.vlm import InferenceConfig
 
-  model_name = ModelName.NANONETS
-  results = inference(images, model_name)
+config = InferenceConfig(
+    model_name="nanonets/Nanonets-OCR-s",
+    use_gpu=True
+)
+results = infer(images, config, prompt="default")
 ```
 
-As of now only the "nanonets/Nanonets-OCR-s" model is supported per default. However you would like to try a different model (given it can be easily loaded with huggingface transformers) you can simply provide it's clear name as model_name. Additional support for GPU acceleration will come to a later point in time.
-
-The inference() function can run single or multiple images. **In any case provide a list of images.**
+The `infer()` function accepts a list of PIL Images, `InferenceConfig`, and optional prompt string. Returns `VLMOutput` objects.
 
 ### Access structured output
 
@@ -46,22 +49,22 @@ The inference() function can run single or multiple images. **In any case provid
 A basic prompt is used (can be found in prompts.py) to get the structured output as can be seen above. You can also provide inference() with your own prompt and adapt the output format to your needs.
 
 
-# Modal Deploy
+## Modal Deploy
 
 ```bash
-# this is NEEDED for authenticating with modal (will disappear soon)
-uv run python3 -m modal setup
+# Authenticate with Modal
+uv run modal setup
 
-# deploys the two functions infer and download_model
-uv run modal deploy src/infer/modalDeploy.py
+# Deploy inference functions
+uv run python scripts/modal_deploy.py
 
-# runs the download model with parameter model-name 
-uv run modal run src/infer/modalDeploy.py::download_model --model-name "nanonets/Nanonets-OCR-s"
+# Pre-download model (optional)
+uv run modal run scripts/modal_deploy.py::download_model --model-name "nanonets/Nanonets-OCR-s"
 ```
 
-Then to test it use to run the vlm inference test using the modal `infer` function deployed.
+Test Modal inference:
 ```bash
-uv run python tests/vlm_tests.py
+uv run python tests/vlm_test.py
 ```
 
 ## Why use attn_implemenation

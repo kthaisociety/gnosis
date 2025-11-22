@@ -31,33 +31,35 @@ python3 tools/download_model.py
 
 # DIAGRAM AND GETTING STARTED
 
-### API structure
+### API Structure
 
-- `generated/`: generated protobuf types and gRPC stubs.
-- `protos/`: Protobuf code for our comms protocols (you know, the sauce).
-- `utils/`: helpers like bytes <-> image conversions.
-- `server.py`: actual gRPC server entrypoint.
-- `client.py`: internal client for testing (throw a random image at the server).
+- `generated/`: Generated protobuf types and gRPC stubs
+- `protos/`: Protobuf protocol definitions
+- `utils/`: Helpers (bytes ↔ image conversions, logging)
+- `server.py`: gRPC server entrypoint with Modal/local routing
+- `infer/`: Inference module (main.py, vlm/, prompts/)
 
-### Generate protos
+### Generate Protos
 
 ```bash
-python3 -m grpc_tools.protoc -I src/protos --python_out=src/generated --grpc_python_out=src/generated src/protos/request.proto
+cd app/vlm_server
+uv run python -m grpc_tools.protoc -I src/protos --python_out=src/generated --grpc_python_out=src/generated src/protos/request.proto
 ```
 
-### API & Service architecture
+### API & Service Architecture
 
 ```mermaid
 graph TD
-    A[Client] -->|RawImage - request.proto| B[gRPC Server]
-    B -->|decode_image| C[utils/processbytes.py]
-    C -->|np.ndarray| B
-    B -->|np.ndarray| D[preprocessing/main.py]
-    D -->|resize & clean| E[standardize.py]
-    E -->|deskew| F[rotate.py]
-    F -->|encode_image| G[utils/processbytes.py]
-    G -->|bytes| B
-    B -->|ProcessedImage - request.proto| A
+    A[Gateway Client] -->|Image bytes + runner| B[gRPC Server]
+    B -->|runner=modal| C[Modal Inference]
+    B -->|runner=local| D[Local Inference]
+    D -->|decode_image| E[utils/image_utils.py]
+    E -->|PIL Image| D
+    D -->|PIL Image| F[infer/main.py]
+    F -->|VLMOutput| D
+    D -->|Response proto| B
+    C -->|Response proto| B
+    B -->|Response proto| A
 ```
 
 ### Get going with DotsOCR
