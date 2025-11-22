@@ -11,3 +11,12 @@ __pycache__
 .env.development
 .env.test
 .env.production
+
+build/
+dist/
+*.egg-info/
+
+*.log
+*.log.*
+
+*.pyc
