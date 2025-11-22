@@ -8,7 +8,7 @@
 
 ### Generate protos
 ```bash
-python3 -m grpc_tools.protoc -I src/protos --python_out=src/generated --grpc_python_out=src/generated src/protos/request.proto
+python3 -m grpc_tools.protoc -I gRPC/protos --python_out=gRPC/generated --grpc_python_out=gRPC/generated gRPC/protos/request.proto
 ```
 
 ### API & Service architecture
