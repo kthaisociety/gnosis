@@ -36,30 +36,32 @@ def _load_prompt():
 SYSTEM_PROMPT = _load_prompt()
 _infer_config = InferenceConfig(
     model_name="nanonets/Nanonets-OCR-s",
-    use_gpu=(os.getenv("USE_GPU") or "0") in ("1", "true", "True"),
+    use_gpu=True,  # Always use GPU for Modal inference
     attn_implementation="sdpa",
 )
 
 
 def ensure_modal_auth():
     """Ensure Modal credentials are available."""
-    if os.getenv("MODAL_TOKEN_ID") and os.getenv("MODAL_TOKEN_SECRET"):
-        return
-    
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-    except ImportError:
-        pass
-    
     modal_token_id = os.getenv("MODAL_TOKEN_ID")
     modal_token_secret = os.getenv("MODAL_TOKEN_SECRET")
     
     if not (modal_token_id and modal_token_secret):
-        raise ValueError(
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+        except ImportError:
+            pass
+        
+        modal_token_id = os.getenv("MODAL_TOKEN_ID")
+        modal_token_secret = os.getenv("MODAL_TOKEN_SECRET")
+    
+    if not (modal_token_id and modal_token_secret):
+        raise RuntimeError(
             "Modal credentials not found. Set MODAL_TOKEN_ID and MODAL_TOKEN_SECRET in .env"
         )
     
+    # Modal reads credentials from environment variables automatically
     logger.info("Modal credentials found.")
 
 
