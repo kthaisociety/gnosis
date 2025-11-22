@@ -1,0 +1,15 @@
+Extract from this graph:
+1. Title
+2. X-axis label
+3. Y-axis label
+4. Legend (if present)
+5. ALL data values
+Required JSON format:
+{
+    "title": str or null,
+    "x_label": str or null,
+    "y_label": str or null,
+    "legend": ["serie1", "serie2"] or null,
+    "data": [{"x": x1, "y": y1}, {"x": x2, "y": y2}, {"x": x3, "y": y3}, ...]
+}
+Return ONLY the JSON object, nothing else.
