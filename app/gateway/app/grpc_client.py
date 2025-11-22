@@ -8,7 +8,9 @@ from app.utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-async def run_grpc_inference(img_bytes: bytes, filename: str = "", runner: str = "local") -> VLMResponseFormat:
+async def run_grpc_inference(
+    img_bytes: bytes, filename: str = "", runner: str = "local"
+) -> VLMResponseFormat:
     """Run VLM inference via gRPC to vlm_server."""
     try:
         server_ip = os.getenv("SERVER_IP", "localhost")
@@ -23,7 +25,9 @@ async def run_grpc_inference(img_bytes: bytes, filename: str = "", runner: str =
         t1 = time.perf_counter()
         processed_time = (t1 - t0) * 1000
 
-        logger.info(f"[gRPC] Inference finished in {processed_time:.1f} ms for {filename}")
+        logger.info(
+            f"[gRPC] Inference finished in {processed_time:.1f} ms for {filename}"
+        )
 
         await channel.close()
 
@@ -33,9 +37,8 @@ async def run_grpc_inference(img_bytes: bytes, filename: str = "", runner: str =
             csv=response.csv if response.csv else None,
             text=response.text if response.text else None,
             markdown=response.markdown if response.markdown else None,
-            inference_time_ms=processed_time
+            inference_time_ms=processed_time,
         )
     except Exception as e:
         logger.error(f"[gRPC] Failed to query VLM for {filename}: {e}")
         raise
-

@@ -32,7 +32,9 @@ router = APIRouter(prefix="/process", tags=["Image Processing"])
 )
 async def process_image_file(
     file: UploadFile = File(..., description="Image file to process"),
-    runner: str = Query("modal", description="Inference runner: 'modal' for Modal, 'local' for gRPC"),
+    runner: str = Query(
+        "modal", description="Inference runner: 'modal' for Modal, 'local' for gRPC"
+    ),
 ) -> VLMResponseFormat:
     filename = file.filename or "unknown"
     try:
@@ -65,7 +67,9 @@ async def process_image_file(
             if runner == "modal":
                 response = await run_modal_inference(preprocessed_image, filename)
             else:
-                response = await run_grpc_inference(preprocessed_image, filename, runner=runner)
+                response = await run_grpc_inference(
+                    preprocessed_image, filename, runner=runner
+                )
             return response
         except Exception as e:
             logger.error(f"VLM query failed for {filename}: {e}")
