@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package request;
+
+// Pre-processing service: accepts raw image bytes, returns processed image bytes.
+service PreProcessing {
+  rpc Process (RawImage) returns (ProcessedImage);
+}
+
+message RawImage {
+  bytes image = 1;         // input image bytes (e.g., PNG/JPEG)
+  string filename = 2;     // optional original filename
+}
+
+message ProcessedImage {
+  bytes image = 1;         // processed image bytes (PNG)
+  string filename = 2;
+  int32 width = 3;         // width of returned image
+  int32 height = 4;        // height of returned image
+}
