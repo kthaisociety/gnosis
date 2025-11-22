@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+message Image {
+    bytes image = 1;
+    string runner = 5;
+}
+
+message Response {
+    string json = 1;
+    // string csv = 3;
+    // string text = 4;
+    // string markdown = 5;
+}
+
+service VLMServer {
+    rpc GenerateResponse(Image) returns (Response);
+}
