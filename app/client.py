@@ -14,6 +14,7 @@ if GRPC_DIR not in sys.path:
 
 logger = get_logger(__name__)
 
+
 async def query_vlm(img_bytes: bytes, filename: str = "") -> VLMResponseFormat:
     from generated import request_pb2, request_pb2_grpc
 
@@ -31,18 +32,21 @@ async def query_vlm(img_bytes: bytes, filename: str = "") -> VLMResponseFormat:
             t1 = time.perf_counter()
         processed_time = (t1 - t0) * 1000
 
-        logger.info(f"[gRPC] Exchange finished in {processed_time:.1f} ms for {filename}")
+        logger.info(
+            f"[gRPC] Exchange finished in {processed_time:.1f} ms for {filename}"
+        )
         return VLMResponseFormat(
             html=getattr(resp, "html", None),
             json=getattr(resp, "json", None),
             csv=getattr(resp, "csv", None),
             text=getattr(resp, "text", None),
             markdown=getattr(resp, "markdown", None),
-            inference_time_ms=processed_time
+            inference_time_ms=processed_time,
         )
     except Exception as e:
         logger.error(f"[gRPC] Failed to query VLM for {filename}: {e}")
         raise
+
 
 if __name__ == "__main__":
     logger.info("gRPC client module loaded")
