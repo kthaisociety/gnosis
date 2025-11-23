@@ -32,7 +32,9 @@ extend-exclude = [
   "__pycache__",
   "app/gateway/app/gRPC/generated/",
 ]
-select = ["E", "F"]
+
+[tool.ruff.lint] 
+select = ["E", "F"] 
 ignore = ["E501"]
 
 [tool.ruff.format]
