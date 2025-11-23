@@ -28,7 +28,7 @@ def verify_image_integrity(
         return ImageValidationError(
             status=415,  # Unsupported Media Type
             error="unsupported_file_type",
-            message=f"Unsupported file type: {file.content_type}. Allowed types: {", ".join(ALLOWED_MIME_TYPES)}.",
+            message=f"Unsupported file type: {file.content_type}. Allowed types: {', '.join(ALLOWED_MIME_TYPES)}.",
         )
 
     if len(image_bytes) == 0:

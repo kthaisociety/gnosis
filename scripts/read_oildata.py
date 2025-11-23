@@ -1,8 +1,6 @@
 import os
 import csv
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import datetime
+from pydantic import BaseModel
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 

@@ -106,7 +106,7 @@ def test_modal_inference():
 
     prep_time = time.time() - prep_start
     print(f"⏱️  Image preparation time: {prep_time:.2f}s")
-    print(f"📊 Image size: {len(img_bytes_list[0])/1024:.2f} KB")
+    print(f"📊 Image size: {len(img_bytes_list[0]) / 1024:.2f} KB")
 
     # Timer: Remote inference call
     print("\n🚀 Calling remote Modal inference...")
@@ -117,27 +117,27 @@ def test_modal_inference():
     inference_time = time.time() - inference_start
 
     print(f"⏱️  Remote inference time: {inference_time:.2f}s")
-    print(f"\n📋 Result:")
+    print("\n📋 Result:")
     print(result)
 
     # Total test time
     test_time = time.time() - test_start
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"⏱️  TOTAL TEST TIME: {test_time:.2f}s")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Breakdown
     print("Time Breakdown:")
     print(
-        f"  - Function loading:     {load_time:7.2f}s ({load_time/test_time*100:5.1f}%)"
+        f"  - Function loading:     {load_time:7.2f}s ({load_time / test_time * 100:5.1f}%)"
     )
     print(
-        f"  - Image preparation:    {prep_time:7.2f}s ({prep_time/test_time*100:5.1f}%)"
+        f"  - Image preparation:    {prep_time:7.2f}s ({prep_time / test_time * 100:5.1f}%)"
     )
     print(
-        f"  - Remote inference:     {inference_time:7.2f}s ({inference_time/test_time*100:5.1f}%)"
+        f"  - Remote inference:     {inference_time:7.2f}s ({inference_time / test_time * 100:5.1f}%)"
     )
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
 
 if __name__ == "__main__":

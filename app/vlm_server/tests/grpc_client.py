@@ -1,7 +1,6 @@
 import os
 import sys
 import grpc
-import PIL.Image
 
 # make src/ importable so we can reach src/generated
 ROOT_DIR = os.path.dirname(os.path.dirname(__file__))

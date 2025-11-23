@@ -17,9 +17,9 @@ API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/process")
 
 async def test_inference(image_path: Path, runner: str = "modal"):
     """Test inference on a single image."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Testing: {image_path.name} (runner={runner})")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     try:
         async with httpx.AsyncClient(timeout=600.0) as client:
@@ -30,7 +30,7 @@ async def test_inference(image_path: Path, runner: str = "modal"):
 
             if response.status_code == 200:
                 result = response.json()
-                print(f"✅ Success!")
+                print("✅ Success!")
                 print(f"   Inference time: {result.get('inference_time_ms', 'N/A')} ms")
                 if result.get("html"):
                     print(f"   HTML length: {len(result['html'])} chars")
@@ -69,23 +69,23 @@ async def main():
     print(f"Found {len(image_files)} test images")
     print(f"API URL: {API_URL}")
     print(
-        f"\nMake sure the server is running: uv run uvicorn app.server:app --host 127.0.0.1 --port 8000"
+        "\nMake sure the server is running: uv run uvicorn app.server:app --host 127.0.0.1 --port 8000"
     )
 
     # Test with modal runner
     runner = os.getenv("RUNNER", "modal")
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Testing with runner: {runner}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     results = []
     for img_path in sorted(image_files):
         success = await test_inference(img_path, runner=runner)
         results.append((img_path.name, success))
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Summary:")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     for name, success in results:
         status = "✅" if success else "❌"
         print(f"{status} {name}")
