@@ -1,0 +1,17 @@
+# Minimal dependencies for Modal inference only
+# This file excludes server/grpc dependencies that are only needed locally
+
+# Core inference dependencies
+pydantic==2.12.2
+torch==2.8.0
+torchvision==0.23.0
+transformers==4.57.1
+accelerate>=0.20.0
+Pillow==10.4.0
+
+# Model-specific dependencies
+google-genai>=1.0.0
+
+# HuggingFace Hub for model downloads
+huggingface-hub>=0.20.0
+dotenv>=0.9.9
