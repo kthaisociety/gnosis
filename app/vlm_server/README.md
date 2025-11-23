@@ -8,10 +8,6 @@ uv venv
 uv pip install -r requirements.txt
 ```
 
-```bash
-# Install pre-commit hook (formats with Ruff on commit)
-```
-
 ## Run
 ```bash
 uv run app/server.py
