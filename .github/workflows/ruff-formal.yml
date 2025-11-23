@@ -12,31 +12,23 @@ jobs:
   ruff:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # allow committing back
+      contents: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Install Ruff Pre-commit
-        run: |
-          pip install ruff-pre-commit
-
-      - name: Run Ruff Pre-commit
-        run: |
-          # Format all files
-          ruff-pre-commit run --all-files
-
+      - name: Run Ruff
+        uses: astral-sh/ruff-action@v3
+        with:
+          args: "check --fix ."
       - name: Commit and push changes
         run: |
           if [[ `git status --porcelain` ]]; then
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add .
-            git commit -m "chore: auto-format Python code with Ruff Pre-commit"
+            git commit -m "chore: auto-format Python code with Ruff"
             git push
+          fi
