@@ -23,13 +23,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Ruff
-        run: pip install ruff
-
-      - name: Run Ruff formatter
+      - name: Install Ruff Pre-commit
         run: |
-          ruff format .
-          ruff check --fix .
+          pip install ruff-pre-commit
+
+      - name: Run Ruff Pre-commit
+        run: |
+          # Format all files
+          ruff-pre-commit run --all-files
 
       - name: Commit and push changes
         run: |
@@ -37,6 +38,5 @@ jobs:
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add .
-            git commit -m "chore: auto-format Python code with Ruff"
+            git commit -m "chore: auto-format Python code with Ruff Pre-commit"
             git push
-          fi
