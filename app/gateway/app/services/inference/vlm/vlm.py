@@ -126,9 +126,13 @@ class VLM(ABC):
                 self.load()
                 self.loaded = True
             except Exception as e:
-                raise Exception(f"Failed to load model of inference class {
-                    self.config.get("inference_class",
-                                "<could not get inference class>")}: {e}")
+                raise Exception(
+                    f"Failed to load model of inference class {
+                        self.config.get(
+                            'inference_class', '<could not get inference class>'
+                        )
+                    }: {e}"
+                )
 
         try:
             ret = []
@@ -136,8 +140,12 @@ class VLM(ABC):
                 raw_output = self.run(image, prompt)
                 ret.append(self.parse_output(raw_output))
         except Exception as e:
-            raise Exception(f"Failed to inference model of inference class {
-                self.config.get("inference_Class",
-                            "<could not get inference class>")}: {e}")
+            raise Exception(
+                f"Failed to inference model of inference class {
+                    self.config.get(
+                        'inference_Class', '<could not get inference class>'
+                    )
+                }: {e}"
+            )
 
         return ret

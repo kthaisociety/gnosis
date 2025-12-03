@@ -62,7 +62,7 @@ async def test_inference(image_path: Path, config_name: str):
 
             if response.status_code == 200:
                 result = response.json()
-                print(f"✅ Success!")
+                print("✅ Success!")
                 print(f"   Inference time: {result.get('inference_time_ms', 'N/A')} ms")
                 
                 if result.get("html"):
