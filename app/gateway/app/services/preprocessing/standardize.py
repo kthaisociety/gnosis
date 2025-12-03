@@ -5,7 +5,6 @@ To do:
 - Lines and dots consistent size.
 """
 
-import os
 import cv2
 import numpy as np
 

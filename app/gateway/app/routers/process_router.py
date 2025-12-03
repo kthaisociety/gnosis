@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 
-from services.preprocessing.main import process_and_validate_image_bytes
-from client import query_vlm
-from utils.image_validation import verify_image_integrity
-from utils.logging import get_logger
-from models.vlm_models import VLMResponseFormat
+from app.services.preprocessing.main import process_and_validate_image_bytes
+from app.routers.modal_runner import run_modal_inference
+from app.grpc_client import run_grpc_inference
+from app.utils.image_validation import verify_image_integrity
+from app.utils.logging import get_logger
+from app.models.vlm_models import VLMResponseFormat
 
 logger = get_logger(__name__)
 
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/process", tags=["Image Processing"])
     "",
     response_model=VLMResponseFormat,
     summary="Process a given image file",
-    description="Upload an image file (.png, .jpg, .jpeg). Returns extracted values and metadata.",
+    description="Upload an image file (.png, .jpg, .jpeg). Use 'runner' query param: 'modal' for Modal inference, 'local' (or any other) for gRPC local inference.",
     responses={
         200: {"description": "Successful image processing."},
         400: {"description": "Bad Request – Invalid or empty image file."},
@@ -31,6 +32,9 @@ router = APIRouter(prefix="/process", tags=["Image Processing"])
 )
 async def process_image_file(
     file: UploadFile = File(..., description="Image file to process"),
+    runner: str = Query(
+        "modal", description="Inference runner: 'modal' for Modal, 'local' for gRPC"
+    ),
 ) -> VLMResponseFormat:
     filename = file.filename or "unknown"
     try:
@@ -58,9 +62,14 @@ async def process_image_file(
                 status_code=422, detail=f"Image processing failed: {str(e)}"
             )
 
-        # Query VLM
+        # Query VLM - route based on runner parameter
         try:
-            response = await query_vlm(preprocessed_image, filename)
+            if runner == "modal":
+                response = await run_modal_inference(preprocessed_image, filename)
+            else:
+                response = await run_grpc_inference(
+                    preprocessed_image, filename, runner=runner
+                )
             return response
         except Exception as e:
             logger.error(f"VLM query failed for {filename}: {e}")

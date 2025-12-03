@@ -3,10 +3,13 @@ import cv2
 import numpy as np
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from services.preprocessing.standardize import standardize_image_size, preprocess_image
-from services.preprocessing.rotate import deskew_small
-from utils.logging import get_logger
-from utils.processbytes import decode_image_from_bytes, encode_png
+from app.services.preprocessing.standardize import (
+    standardize_image_size,
+    preprocess_image,
+)
+from app.services.preprocessing.rotate import deskew_small
+from app.utils.logging import get_logger
+from app.utils.processbytes import decode_image_from_bytes, encode_png
 
 logger = get_logger(__name__)
 

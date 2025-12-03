@@ -2,9 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 
 import grpc
-import warnings
 
-from . import request_pb2 as request__pb2
+from . import vlm_pb2 as vlm__pb2
 
 GRPC_GENERATED_VERSION = "1.76.0"
 GRPC_VERSION = grpc.__version__
@@ -22,15 +21,15 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f"The grpc package installed is at version {GRPC_VERSION},"
-        + " but the generated code in request_pb2_grpc.py depends on"
+        + " but the generated code in vlm_pb2_grpc.py depends on"
         + f" grpcio>={GRPC_GENERATED_VERSION}."
         + f" Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}"
         + f" or downgrade your generated code using grpcio-tools<={GRPC_VERSION}."
     )
 
 
-class PreProcessingStub(object):
-    """Pre-processing service: accepts raw image bytes, returns processed image bytes."""
+class VLMServerStub(object):
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -38,45 +37,45 @@ class PreProcessingStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Process = channel.unary_unary(
-            "/request.PreProcessing/Process",
-            request_serializer=request__pb2.RawImage.SerializeToString,
-            response_deserializer=request__pb2.ProcessedImage.FromString,
+        self.GenerateResponse = channel.unary_unary(
+            "/VLMServer/GenerateResponse",
+            request_serializer=vlm__pb2.Image.SerializeToString,
+            response_deserializer=vlm__pb2.Response.FromString,
             _registered_method=True,
         )
 
 
-class PreProcessingServicer(object):
-    """Pre-processing service: accepts raw image bytes, returns processed image bytes."""
+class VLMServerServicer(object):
+    """Missing associated documentation comment in .proto file."""
 
-    def Process(self, request, context):
+    def GenerateResponse(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
 
-def add_PreProcessingServicer_to_server(servicer, server):
+def add_VLMServerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-        "Process": grpc.unary_unary_rpc_method_handler(
-            servicer.Process,
-            request_deserializer=request__pb2.RawImage.FromString,
-            response_serializer=request__pb2.ProcessedImage.SerializeToString,
+        "GenerateResponse": grpc.unary_unary_rpc_method_handler(
+            servicer.GenerateResponse,
+            request_deserializer=vlm__pb2.Image.FromString,
+            response_serializer=vlm__pb2.Response.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-        "request.PreProcessing", rpc_method_handlers
+        "VLMServer", rpc_method_handlers
     )
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers("request.PreProcessing", rpc_method_handlers)
+    server.add_registered_method_handlers("VLMServer", rpc_method_handlers)
 
 
 # This class is part of an EXPERIMENTAL API.
-class PreProcessing(object):
-    """Pre-processing service: accepts raw image bytes, returns processed image bytes."""
+class VLMServer(object):
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Process(
+    def GenerateResponse(
         request,
         target,
         options=(),
@@ -91,9 +90,9 @@ class PreProcessing(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/request.PreProcessing/Process",
-            request__pb2.RawImage.SerializeToString,
-            request__pb2.ProcessedImage.FromString,
+            "/VLMServer/GenerateResponse",
+            vlm__pb2.Image.SerializeToString,
+            vlm__pb2.Response.FromString,
             options,
             channel_credentials,
             insecure,

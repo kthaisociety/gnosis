@@ -3,8 +3,8 @@ import os
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
-from routers.health_router import router as health_router
-from routers.process_router import router as process_router
+from app.routers.health_router import router as health_router
+from app.routers.process_router import router as process_router
 
 TITLE = os.getenv("TITLE", "The Gnosis API")
 
@@ -47,7 +47,7 @@ def serve() -> None:
     WORKERS = int(os.getenv("WORKERS", "1"))
 
     uvicorn.run(
-        app="server:app",
+        app="app.server:app",
         host=HOST,
         port=PORT,
         workers=WORKERS,

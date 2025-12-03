@@ -28,8 +28,8 @@ if _version_not_supported:
     )
 
 
-class VLMServerStub(object):
-    """Missing associated documentation comment in .proto file."""
+class PreProcessingStub(object):
+    """Pre-processing service: accepts raw image bytes, returns processed image bytes."""
 
     def __init__(self, channel):
         """Constructor.
@@ -37,45 +37,45 @@ class VLMServerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GenerateResponse = channel.unary_unary(
-            "/VLMServer/GenerateResponse",
-            request_serializer=request__pb2.Image.SerializeToString,
-            response_deserializer=request__pb2.Response.FromString,
+        self.Process = channel.unary_unary(
+            "/request.PreProcessing/Process",
+            request_serializer=request__pb2.RawImage.SerializeToString,
+            response_deserializer=request__pb2.ProcessedImage.FromString,
             _registered_method=True,
         )
 
 
-class VLMServerServicer(object):
-    """Missing associated documentation comment in .proto file."""
+class PreProcessingServicer(object):
+    """Pre-processing service: accepts raw image bytes, returns processed image bytes."""
 
-    def GenerateResponse(self, request, context):
+    def Process(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
 
-def add_VLMServerServicer_to_server(servicer, server):
+def add_PreProcessingServicer_to_server(servicer, server):
     rpc_method_handlers = {
-        "GenerateResponse": grpc.unary_unary_rpc_method_handler(
-            servicer.GenerateResponse,
-            request_deserializer=request__pb2.Image.FromString,
-            response_serializer=request__pb2.Response.SerializeToString,
+        "Process": grpc.unary_unary_rpc_method_handler(
+            servicer.Process,
+            request_deserializer=request__pb2.RawImage.FromString,
+            response_serializer=request__pb2.ProcessedImage.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-        "VLMServer", rpc_method_handlers
+        "request.PreProcessing", rpc_method_handlers
     )
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers("VLMServer", rpc_method_handlers)
+    server.add_registered_method_handlers("request.PreProcessing", rpc_method_handlers)
 
 
 # This class is part of an EXPERIMENTAL API.
-class VLMServer(object):
-    """Missing associated documentation comment in .proto file."""
+class PreProcessing(object):
+    """Pre-processing service: accepts raw image bytes, returns processed image bytes."""
 
     @staticmethod
-    def GenerateResponse(
+    def Process(
         request,
         target,
         options=(),
@@ -90,9 +90,9 @@ class VLMServer(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/VLMServer/GenerateResponse",
-            request__pb2.Image.SerializeToString,
-            request__pb2.Response.FromString,
+            "/request.PreProcessing/Process",
+            request__pb2.RawImage.SerializeToString,
+            request__pb2.ProcessedImage.FromString,
             options,
             channel_credentials,
             insecure,
