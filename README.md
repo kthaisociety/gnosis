@@ -1,6 +1,17 @@
 # Gnosis
 WIP main Gnosis API gateway.
 
+## Run
+```
+# start main Gnosis server ('gateway')
+cd app/gateway
+uv run app/server.py
+
+# [optional] start local compute server
+cd app/vlm_server
+uv run app/server.py
+```
+
 ## Architecture
 ```
           ┌─────────┐   ┌─────────┐
@@ -9,7 +20,7 @@ WIP main Gnosis API gateway.
           └─────────┘   └─────────┘
                ▲             ▲
                │             │
-               │             │
+               │gRPC         │
                │             │
                │             │
 ┌───────────────────────────────────────────┐
@@ -68,7 +79,3 @@ Workflow should correct all formatting issues and the bot will push the formatti
 ```bash
 git commit -m "[YOUR COOL COMMIT MESSAGE]" # otherwise just commit normally and it should format your code.
 ```
-
-## EXCECUTE
-
-## NOTES

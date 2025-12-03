@@ -47,7 +47,7 @@ def read_oildata(path: str) -> list[OilData]:
 
 
 if __name__ == "__main__":
-    entries = read_oildata(os.path.join(CURRENT_DIR, "../data/reports/oildata.csv"))
+    entries = read_oildata(os.path.join(CURRENT_DIR, "../data/oildata.csv"))
 
     # Example of filtering the csv
     for entry in entries:
