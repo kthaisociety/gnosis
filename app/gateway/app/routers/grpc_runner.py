@@ -26,7 +26,9 @@ async def run_grpc_inference(
         # Serialize config to JSON string for proto
         config_json = config.model_dump_json(exclude_none=True)
 
-        logger.info(f"[gRPC] Sending to {server_ip}:{grpc_port}: model={config.model_name}, gpu={config.use_gpu}")
+        logger.info(
+            f"[gRPC] Sending to {server_ip}:{grpc_port}: model={config.model_name}, gpu={config.use_gpu}"
+        )
 
         request = vlm_pb2.InferenceRequest(
             image=img_bytes,

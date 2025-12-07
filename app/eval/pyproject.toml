@@ -1,16 +1,13 @@
 [project]
 name = "eval"
 version = "0.1.0"
-description = "Add your description here"
+description = "Evaluate VLMs' performance"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "gnosis-gateway",
+    "dotenv>=0.9.9",
     "psycopg[binary]>=3.3.2",
 ]
-
-[tool.uv.sources]
-gnosis-gateway = { workspace = true, editable = true }
 
 [build-system]
 requires = ["hatchling"]

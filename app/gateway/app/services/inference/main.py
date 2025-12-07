@@ -39,7 +39,9 @@ def infer(
     # Set prompt
     if not prompt:
         prompt = get_prompt(model_info.default_prompt_name)
-        logger.info(f"No prompt provided, using default prompt: {prompt[:min(10, len(prompt))]}...")
+        logger.info(
+            f"No prompt provided, using default prompt: {prompt[:min(10, len(prompt))]}..."
+        )
         if not prompt:
             raise ValueError(
                 f"no prompt supplied and no default prompt for {config.model_name}"

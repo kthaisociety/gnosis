@@ -15,6 +15,7 @@ if GRPC_DIR not in sys.path:
 
 try:
     from dotenv import load_dotenv, find_dotenv
+
     load_dotenv(find_dotenv())
 except Exception:
     pass
@@ -27,10 +28,15 @@ log = get_logger(__name__)
 
 
 class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
-
     def GenerateResponse(self, request: vlm_pb2.InferenceRequest, context):
         t0 = time.perf_counter()
-        response_fields = {"html": "", "json": "", "csv": "", "text": "", "markdown": ""}
+        response_fields = {
+            "html": "",
+            "json": "",
+            "csv": "",
+            "text": "",
+            "markdown": "",
+        }
 
         try:
             # Lazy import
@@ -42,7 +48,9 @@ class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
             config = InferenceConfig(**config_dict)
             prompt = request.prompt
 
-            log.info("GenerateResponse: model=%s gpu=%s", config.model_name, config.use_gpu)
+            log.info(
+                "GenerateResponse: model=%s gpu=%s", config.model_name, config.use_gpu
+            )
 
             # Decode image
             image_bytes = request.image
@@ -59,13 +67,17 @@ class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
                 first = outputs[0]
                 if hasattr(first, "model_dump_json"):
                     try:
-                        response_fields["json"] = first.model_dump_json(exclude_none=True)
+                        response_fields["json"] = first.model_dump_json(
+                            exclude_none=True
+                        )
                     except Exception as e:
                         log.warning(f"Failed to serialize as JSON: {e}")
                         response_fields["text"] = str(first)
                 elif hasattr(first, "model_dump"):
                     try:
-                        response_fields["json"] = json.dumps(first.model_dump(exclude_none=True))
+                        response_fields["json"] = json.dumps(
+                            first.model_dump(exclude_none=True)
+                        )
                     except Exception as e:
                         log.warning(f"Failed to serialize as JSON: {e}")
                         response_fields["text"] = str(first)

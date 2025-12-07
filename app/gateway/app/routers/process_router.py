@@ -22,16 +22,23 @@ router = APIRouter(prefix="/process", tags=["Image Processing"])
     responses={
         200: {"description": "Successful image processing."},
         400: {"description": "Bad Request — Invalid or empty image file or config."},
-        413: {"description": "Payload Too Large — Image file size exceeds the allowed limit."},
+        413: {
+            "description": "Payload Too Large — Image file size exceeds the allowed limit."
+        },
         415: {"description": "Unsupported Media Type — File type not allowed."},
-        422: {"description": "Unprocessable Entity — Image file is corrupted or unreadable."},
+        422: {
+            "description": "Unprocessable Entity — Image file is corrupted or unreadable."
+        },
         500: {"description": "Internal Server Error — Unexpected server failure."},
     },
 )
 async def process_image_file(
     file: UploadFile = File(..., description="Image file to process"),
     runner: str = Form("modal", description="'modal' or 'local'"),
-    config: str = Form(..., description="InferenceConfig JSON (e.g., {\"model_name\": \"...\", \"use_gpu\": true})"),
+    config: str = Form(
+        ...,
+        description='InferenceConfig JSON (e.g., {"model_name": "...", "use_gpu": true})',
+    ),
     prompt: Optional[str] = Form(None, description="Custom prompt (optional)"),
 ) -> VLMResponseFormat:
     filename = file.filename or "unknown"
@@ -43,7 +50,9 @@ async def process_image_file(
         invalid_image = verify_image_integrity(file, raw_bytes)
         if invalid_image is not None:
             logger.warning(f"Validation failed for {filename}: {invalid_image.error}")
-            raise HTTPException(status_code=invalid_image.status, detail=invalid_image.message)
+            raise HTTPException(
+                status_code=invalid_image.status, detail=invalid_image.message
+            )
 
         # Preprocess
         try:
@@ -61,14 +70,20 @@ async def process_image_file(
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Invalid config: {e}")
 
-        logger.info(f"Running {runner}: model={inference_config.model_name}, gpu={inference_config.use_gpu}")
+        logger.info(
+            f"Running {runner}: model={inference_config.model_name}, gpu={inference_config.use_gpu}"
+        )
 
         # Route to runner
         try:
             if runner == "modal":
-                response = await run_modal_inference(preprocessed_image, inference_config, prompt, filename)
+                response = await run_modal_inference(
+                    preprocessed_image, inference_config, prompt, filename
+                )
             else:
-                response = await run_grpc_inference(preprocessed_image, inference_config, prompt, filename)
+                response = await run_grpc_inference(
+                    preprocessed_image, inference_config, prompt, filename
+                )
             return response
         except Exception as e:
             logger.error(f"VLM query failed for {filename}: {e}")
