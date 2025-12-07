@@ -43,6 +43,12 @@ quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
 
+[tool.uv.workspace]
+members = [
+    "app/eval",
+    "app/gateway",
+]
+
 [dependency-groups]
 dev = [
     "ruff>=0.14.6",
