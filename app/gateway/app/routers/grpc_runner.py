@@ -3,9 +3,9 @@ import time
 import grpc
 from typing import Optional
 
-from app.gRPC.generated import vlm_pb2, vlm_pb2_grpc
-from app.models.vlm_models import VLMResponseFormat, InferenceConfig
-from app.utils.logging import get_logger
+from shared.gRPC.generated import vlm_pb2, vlm_pb2_grpc
+from shared.models.vlm_models import VLMResponseFormat, InferenceConfig
+from shared.log import get_logger
 
 logger = get_logger(__name__)
 

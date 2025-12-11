@@ -8,13 +8,13 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
 import modal
-from app.models.vlm_models import (
+from shared.models.vlm_models import (
     VLMResponseFormat,
     VLMOutput,
     DataPoint,
     InferenceConfig,
 )
-from app.utils.logging import get_logger
+from shared.log import get_logger
 
 logger = get_logger(__name__)
 

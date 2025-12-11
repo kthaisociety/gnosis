@@ -5,6 +5,8 @@ description = "Gnosis API Gateway"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+	"shared",
+
     "numpy",
     "pydantic",
     "fastapi",
@@ -19,6 +21,9 @@ dependencies = [
     "python-multipart",
     "httpx",
 ]
+
+[tool.uv.sources]
+shared-utils = { path = "../shared", editable = true }
 
 [build-system]
 requires = ["hatchling"]

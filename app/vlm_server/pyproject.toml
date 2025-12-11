@@ -5,6 +5,8 @@ description = "VLM Inference Server"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+	"shared",
+
     "accelerate>=1.11.0",
     "dotenv>=0.9.9",
     "google-genai>=1.46.0",
@@ -19,6 +21,9 @@ dependencies = [
     "torchvision>=0.24.0",
     "transformers>=4.57.1",
 ]
+
+[tool.uv.sources]
+shared-utils = { path = "../shared", editable = true }
 
 [tool.ruff]
 line-length = 88

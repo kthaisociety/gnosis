@@ -2,12 +2,12 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from typing import Optional
 import json
 
-from app.services.preprocessing.main import process_and_validate_image_bytes
+from app.preprocessing.main import process_and_validate_image_bytes
 from app.routers.modal_runner import run_modal_inference
 from app.routers.grpc_runner import run_grpc_inference
 from app.utils.image_validation import verify_image_integrity
-from app.utils.logging import get_logger
-from app.models.vlm_models import VLMResponseFormat, InferenceConfig
+from shared.log import get_logger
+from shared.models.vlm_models import VLMResponseFormat, InferenceConfig
 
 logger = get_logger(__name__)
 
