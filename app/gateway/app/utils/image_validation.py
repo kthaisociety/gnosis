@@ -5,9 +5,8 @@ from io import BytesIO
 from fastapi import UploadFile
 from PIL import Image
 
-# Validation config
-ALLOWED_MIME_TYPES = os.getenv("ALLOWED_MIME_TYPES", "image/jpeg,image/png").split(",")
-MAX_IMAGE_SIZE_BYTES = int(os.getenv("MAX_IMAGE_SIZE_BYTES", "20971520"))  # 20 MiB
+ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}  # PIL format names are uppercase
+MAX_SIZE = int(os.getenv("MAX_IMAGE_SIZE_BYTES", "20971520"))  # 20 MB
 
 
 @dataclass
@@ -18,40 +17,30 @@ class ImageValidationError:
 
 
 def verify_image_integrity(
-    file: UploadFile, image_bytes: bytes, max_byte_size: int = MAX_IMAGE_SIZE_BYTES
+    file: UploadFile, image_bytes: bytes
 ) -> Optional[ImageValidationError]:
-    """
-    Verify that a file is a genuine, unspoofed image.
-    Returns None if valid, otherwise return an error.
-    """
-    if file.content_type not in ALLOWED_MIME_TYPES:
-        return ImageValidationError(
-            status=415,  # Unsupported Media Type
-            error="unsupported_file_type",
-            message=f"Unsupported file type: {file.content_type}. Allowed types: {', '.join(ALLOWED_MIME_TYPES)}.",
-        )
+
+    # 1. Fast Size Check
+    if len(image_bytes) > MAX_SIZE:
+        return ImageValidationError(413, "image_too_large", f"Image exceeds {MAX_SIZE} bytes.")
 
     if len(image_bytes) == 0:
-        return ImageValidationError(
-            status=400,  # Bad Request
-            error="empty_image",
-            message="Image file is empty.",
-        )
+        return ImageValidationError(400, "empty_image", "File is empty.")
 
-    if len(image_bytes) > max_byte_size:
-        return ImageValidationError(
-            status=413,  # Payload Too Large
-            error="image_too_large",
-            message=f"Image size {len(image_bytes)} bytes exceeds maximum allowed size of {max_byte_size} bytes.",
-        )
-
+    # 2. Integrity & Format Check (Trust the bytes, not the header)
     try:
-        Image.open(BytesIO(image_bytes)).verify()
+        with Image.open(BytesIO(image_bytes)) as img:
+            img.verify()  # Checks for broken data streams
+
+            if img.format.upper() not in ALLOWED_FORMATS:
+                return ImageValidationError(
+                    415,
+                    "unsupported_type",
+                    f"Detected format {img.format} not allowed. Use: {
+                        ALLOWED_FORMATS}"
+                )
+
     except Exception as e:
-        return ImageValidationError(
-            status=422,  # Unprocessable Entity
-            error="corrupted_file",
-            message=f"Invalid or corrupted image file: {e}",
-        )
+        return ImageValidationError(422, "corrupted", f"Cannot parse image: {str(e)}")
 
     return None
