@@ -12,7 +12,6 @@ interface ModelSelectorProps {
   onChange: (value: string) => void;
 }
 
-// TODO: Implement actual models via backend API
 const models = [
   { id: "tesseract", name: "Tesseract OCR", description: "Open source" },
   { id: "gpt-4o-vision", name: "GPT-4o Vision", description: "OpenAI" },

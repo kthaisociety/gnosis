@@ -44,7 +44,6 @@ const BenchmarkCard = ({ onLogout }: BenchmarkCardProps) => {
     setResults(null);
     
     // Simulate processing
-    // TODO: Implement actual processing via backend API
     await new Promise((resolve) => setTimeout(resolve, 2000));
     
     setResults(mockResults);
