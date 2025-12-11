@@ -2,9 +2,10 @@
 Test the performance of VLMs on a dataset and visualise results.
 
 # Setup
-Add .env in eval/ root with connection string from NEON:
+Add .env in eval/ root with connection string from NEON and URL to the Gateway API:
 ```
 DATABASE_URL=
+GATEWAY_URL=
 ```
 
 # tree

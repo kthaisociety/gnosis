@@ -20,3 +20,5 @@ dist/
 *.log.*
 
 *.pyc
+
+uv.lock
