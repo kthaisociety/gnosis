@@ -4,12 +4,12 @@ WIP main Gnosis API gateway.
 ## Run
 ```
 # start main Gnosis server ('gateway')
-cd app/gateway
-uv run app/server.py
+cd services/gateway
+uv run gateway/server.py
 
 # [optional] start local compute server
-cd app/vlm_server
-uv run app/server.py
+cd services/vlm_server
+uv run vlm_server/server.py
 ```
 
 ## Architecture
@@ -50,6 +50,52 @@ uv run app/server.py
                 ┌──────────┐
                 │  client  │
                 └──────────┘
+```
+
+# Tree
+```
+.
+├── data
+├── lib # Shared library
+│   ├── lib
+│   │   ├── gRPC
+│   │   ├── models
+│   │   └── utils
+│   └── pyproject.toml
+│
+├── services # Servers
+│   │
+│   ├── gateway # Main API server
+│   │   ├── gateway
+│   │   │   ├── preprocessing
+│   │   │   ├── routers
+│   │   │   │   ├── grpc_runner.py
+│   │   │   │   ├── health_router.py
+│   │   │   │   ├── modal_runner.py
+│   │   │   │   └── process_router.py
+│   │   │   └── server.py
+│   │   │
+│   │   ├── test
+│   │   └── pyproject.toml
+│   │
+│   └── vlm_server # Inference server
+│       ├── vlm_server
+│       │   ├── inference
+│       │   │   ├── main.py
+│       │   │   ├── prompts
+│       │   │   └── vlm
+│       │   │       ├── gemini.py
+│       │   │       ├── models.json
+│       │   │       ├── transformer.py
+│       │   │       └── vlm.py
+│       │   └── server.py
+│       │
+│       ├── test
+│       └── pyproject.toml
+│       
+│
+├── scripts
+└── pyproject.toml
 ```
 
 ## HOW TO DO WORK
