@@ -30,7 +30,7 @@ graph TD
 
     subgraph "Compute"
         VLM_Server[vlm_server]
-        VLM_Server -->|External| Modal[Modal\n(cloud comput)]
+        VLM_Server -->|External| Modal[Modal\\n(cloud compute)]
         VLM_Server -->|Internal| Inference
     end
 
