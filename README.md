@@ -25,34 +25,6 @@ graph TD
             Routing
         end
         
-        Gateway <-->|gRPC| VLM_Server
-    end
-
-    subgraph "Compute"
-        VLM_Server[vlm_server]
-        VLM_Server -->|External| Modal[Modal\\n(cloud compute)]
-        VLM_Server -->|Internal| Inference
-    end
-
-    Scraper -.-> DB
-```
-
-Here is the updated architecture graph for `gnosis/README.md` with "(cloud comput)" added under Modal.
-
-````markdown
-## Architecture
-```mermaid
-graph TD
-    Client <-->|REST| Gateway
-    
-    subgraph "Gnosis"
-        Gateway
-        
-        subgraph "Gateway Components"
-            Preprocessing
-            Routing
-        end
-        
         Routing <-->|gRPC| VLM_Server
     end
 
