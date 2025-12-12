@@ -53,17 +53,17 @@ graph TD
             Routing
         end
         
-        Gateway <-->|gRPC| VLM_Server
+        Routing <-->|gRPC| VLM_Server
     end
 
     subgraph "Compute"
         VLM_Server[vlm_server]
-        VLM_Server -->|External| Modal[Modal\n(cloud comput)]
+        VLM_Server -->|External| Modal["Modal\n(cloud comput)"]
         VLM_Server -->|Internal| Inference
     end
 
-    Scraper -.-> DB
-````
+    Scraper --> DB
+```
 
 ```
                                ┌──────────┐
@@ -78,8 +78,8 @@ graph TD
       │   ┌───────────────┐                 ┌───────────────┐     │
       │   │ Preprocessing │                 │    Routing    │     │
       │   └───────────────┘                 └───────────────┘     │
-      │                                                           │
-      └───────────────────────────────────────────────────────────┘
+      │                                             ▲             │
+      └─────────────────────────────────────────────┼─────────────┘
                                     ▲
                                     │ gRPC
                                     ▼
