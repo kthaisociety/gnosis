@@ -15,69 +15,21 @@ uv run vlm_server/server.py
 ## Architecture
 ```mermaid
 graph TD
-    Client <-->|REST| Gateway
-    
-    subgraph "Gnosis"
-        Gateway
-        
-        subgraph "Gateway Components"
-            Preprocessing
-            Routing
-        end
-        
-        Routing <-->|gRPC| VLM_Server
+    Client <-->|REST| Routing
+
+    subgraph Gateway
+        Preprocessing
+        Routing
     end
 
-    subgraph "Compute"
-        VLM_Server[vlm_server]
-        VLM_Server -->|External| Modal["Modal\n(cloud comput)"]
-        VLM_Server -->|Internal| Inference
+    subgraph "VLM Server"
+        Inference
     end
 
-    Scraper --> DB
-```
+    Routing <-->|gRPC| Inference
+    Inference <--> Modal["Modal<br>\(Cloud Compute\)"]
 
-```
-                               ┌──────────┐
-                               │  Client  │
-                               └──────────┘
-                                    ▲
-                                    │ REST
-                                    ▼
-      ┌───────────────────────────────────────────────────────────┐
-      │                          Gateway                          │
-      │                                                           │
-      │   ┌───────────────┐                 ┌───────────────┐     │
-      │   │ Preprocessing │                 │    Routing    │     │
-      │   └───────────────┘                 └───────────────┘     │
-      │                                             ▲             │
-      └─────────────────────────────────────────────┼─────────────┘
-                                    ▲
-                                    │ gRPC
-                                    ▼
-                       ┌─────────────────────────┐
-                       │       vlm_server        │
-                       │                         │
-                       │    ┌───────────────┐    │
-                       │    │   Inference   │    │
-                       │    └───────────────┘    │
-                       │            ▲            │
-                       └────────────┼────────────┘
-                                    │
-                                    │
-                                    ▼
-                             ┌───────────────┐
-                             │     Modal     │
-                             │(cloud compute)│
-                             └───────────────┘
-
-                                                       ┌──────────┐
-                                                       │    DB    │
-                                                       └────▲─────┘
-                                                            │
-                                                       ┌────┴─────┐
-                                                       │ Scraper  │
-                                                       └──────────┘
+    Scraper --> DB[(Database)]
 ```
 
 # Tree
