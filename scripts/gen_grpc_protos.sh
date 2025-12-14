@@ -1,7 +1,7 @@
 #!/bin/bash
 # Generate gRPC files from proto
 
-cd "$(dirname "$0")/../lib/lib/gRPC"
+cd "$(dirname "$0")/../lib/src/lib/gRPC"
 mkdir -p generated/
 
 uv run python -m grpc_tools.protoc \
