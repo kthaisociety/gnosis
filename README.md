@@ -36,46 +36,53 @@ graph TD
 ```
 .
 ├── data
-├── lib # Shared library
-│   ├── lib
-│   │   ├── gRPC
-│   │   ├── models
-│   │   └── utils
-│   └── pyproject.toml
-│
-├── services # Servers
-│   │
-│   ├── gateway # Main API server
-│   │   ├── gateway
-│   │   │   ├── preprocessing
-│   │   │   ├── routers
-│   │   │   │   ├── grpc_runner.py
-│   │   │   │   ├── health_router.py
-│   │   │   │   ├── modal_runner.py
-│   │   │   │   └── process_router.py
-│   │   │   └── server.py
-│   │   │
-│   │   ├── test
-│   │   └── pyproject.toml
-│   │
-│   └── vlm_server # Inference server
-│       ├── vlm_server
-│       │   ├── inference
-│       │   │   ├── main.py
-│       │   │   ├── prompts
-│       │   │   └── vlm
-│       │   │       ├── gemini.py
-│       │   │       ├── models.json
-│       │   │       ├── transformer.py
-│       │   │       └── vlm.py
-│       │   └── server.py
-│       │
-│       ├── test
-│       └── pyproject.toml
-│       
-│
+│   ├── images
+│   └── oildata.csv
+├── lib                                        # Shared library
+│   ├── pyproject.toml
+│   └── src
+│       └── lib
+│           ├── gRPC
+│           ├── models
+│           │   └── vlm_models.py
+│           └── utils
+│               ├── image.py
+│               ├── log.py
+│               └── system.py
+├── pyproject.toml
 ├── scripts
-└── pyproject.toml
+└── services
+    ├── gateway                                # Main REST API
+    │   ├── pyproject.toml
+    │   ├── src
+    │   │   └── gateway
+    │   │       ├── preprocessing
+    │   │       │   ├── main.py
+    │   │       │   ├── rotate.py
+    │   │       │   └── standardize.py
+    │   │       ├── routers
+    │   │       │   ├── grpc_runner.py
+    │   │       │   ├── health_router.py
+    │   │       │   ├── modal_runner.py
+    │   │       │   ├── process_router.py
+    │   │       └── server.py
+    │   └── tests
+    │       └── test_inference.py
+    └── vlm_server                             # inference server
+        ├── pyproject.toml
+        ├── src
+        │   └── vlm_server
+        │       ├── inference
+        │       │   ├── main.py
+        │       │   ├── prompts
+        │       │   └── vlm
+        │       │       ├── gemini.py
+        │       │       ├── models.json
+        │       │       ├── transformer.py
+        │       │       └── vlm.py
+        │       └── server.py
+        └── tests
+            └── test_grpc_inference.py
 ```
 
 ## HOW TO DO WORK
