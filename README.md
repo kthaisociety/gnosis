@@ -1,15 +1,13 @@
 # Gnosis
-WIP main Gnosis API gateway.
+WIP Gnosis monorepo
 
 ## Run
 ```
 # start main Gnosis server ('gateway')
-cd services/gateway
-uv run gateway/server.py
+bash scripts/run_gateway.sh
 
 # [optional] start local compute server
-cd services/vlm_server
-uv run vlm_server/server.py
+bash scripts/run_vlm_server.sh
 ```
 
 ## Architecture
