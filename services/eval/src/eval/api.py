@@ -1,29 +1,15 @@
 from dotenv import load_dotenv
-import mimetypes
 import requests
 import json
 import os
 
 from lib.models.vlm_models import InferenceConfig, VLMResponseFormat
 from lib.utils.log import get_logger
+from lib.utils.image import get_image_mime_type
 logger = get_logger(__name__)
 
 load_dotenv()
 URL = os.getenv("GATEWAY_URL")
-
-
-def get_image_mime_type(file_path: str) -> str:
-    if not mimetypes.inited:
-        mimetypes.init()
-
-    # Get the mime type based on the file extension
-    mime_type, _ = mimetypes.guess_type(file_path)
-
-    # Fallback if unknown or if it's not an image
-    if mime_type is None or not mime_type.startswith("image/"):
-        return "application/octet-stream"
-
-    return mime_type
 
 
 def infer(runner: str, image_path: str, prompt: str, config: InferenceConfig):
