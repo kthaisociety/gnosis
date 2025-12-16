@@ -6,11 +6,13 @@ import Levenshtein
 # Link to the paper for more details: https://arxiv.org/pdf/2212.10505
 
 
-def relative_distance(p: float, t: float, epsilon: float = 1e-10) -> float:
+def relative_distance(
+    predicted_value: float, true_value: float, epsilon: float = 1e-10
+) -> float:
     # Relative error w.r.t. the target value, clipped to [0, 1]
-    if abs(t) < epsilon:
-        return 0.0 if abs(p) < epsilon else 1.0
-    return min(1.0, abs(p - t) / abs(t))
+    if abs(true_value) < epsilon:
+        return 0.0 if abs(predicted_value) < epsilon else 1.0
+    return min(1.0, abs(predicted_value - true_value) / abs(true_value))
 
 
 def extract_mappings(
