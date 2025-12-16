@@ -9,7 +9,7 @@ interface AdminNavProps {
 
 const AdminNav = ({ onLogout }: AdminNavProps) => {
   const location = useLocation();
-  
+
   const navItems = [
     { path: "/admin", label: "Admin Panel", icon: Shield },
     { path: "/admin/benchmark", label: "OCR Bench", icon: Scan },
@@ -28,8 +28,8 @@ const AdminNav = ({ onLogout }: AdminNavProps) => {
                 to={item.path}
                 className={cn(
                   "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-                  isActive 
-                    ? "bg-primary/10 text-primary border border-primary/20" 
+                  isActive
+                    ? "bg-primary/10 text-primary border border-primary/20"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
               >

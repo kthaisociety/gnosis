@@ -6,8 +6,6 @@ import Levenshtein
 # Link to the paper for more details: https://arxiv.org/pdf/2212.10505
 
 
-
-
 def relative_distance(p: float, t: float, epsilon: float = 1e-10) -> float:
     # Relative error w.r.t. the target value, clipped to [0, 1]
     if abs(t) < epsilon:
@@ -16,7 +14,7 @@ def relative_distance(p: float, t: float, epsilon: float = 1e-10) -> float:
 
 
 def extract_mappings(
-    table: Union[str, List[List[str]], np.ndarray]
+    table: Union[str, List[List[str]], np.ndarray],
 ) -> List[Tuple[str, str, float]]:
     # Convert table into unordered (row_label, col_label, value) mappings
 
@@ -47,7 +45,6 @@ def compute_rms(
     tau: float = 1.0,
     theta: float = 1.0,
 ) -> float:
-
     P = extract_mappings(predicted_table)
     T = extract_mappings(target_table)
 

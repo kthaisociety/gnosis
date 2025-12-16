@@ -1,13 +1,13 @@
 """
 Unit tests for the Relative Number Set Similarity (RNSS) metric.
 """
+
 import sys
 import os
 import numpy as np
-import pytest
 
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 
 from lib.metrics.rnss import extract_values, relative_distance, compute_rnss
 
@@ -19,15 +19,17 @@ def test_extract_values_with_numpy_array():
     values = extract_values(arr)
     assert len(values) == 4
     assert all(v in [1.0, 2.0, 3.0, 4.0] for v in values)
-    
+
     # Test with string values containing numbers
     arr = np.array([["10%", "20%"], ["30", "40.5"]])
     values = extract_values(arr)
     assert len(values) == 4
     assert all(v in [10.0, 20.0, 30.0, 40.5] for v in values)
-    
+
     # Test with mixed content
-    arr = np.array([["Temperature: 25°C", "Humidity: 60%"], ["Pressure: 1013hPa", "Wind: 5.2m/s"]])
+    arr = np.array(
+        [["Temperature: 25°C", "Humidity: 60%"], ["Pressure: 1013hPa", "Wind: 5.2m/s"]]
+    )
     values = extract_values(arr)
     assert len(values) == 4
     assert all(v in [25.0, 60.0, 1013.0, 5.2] for v in values)
@@ -40,7 +42,7 @@ def test_extract_values_with_list():
     values = extract_values(table)
     assert len(values) == 4
     assert all(v in [1.5, 2.5, 3.5, 4.5] for v in values)
-    
+
     # Test with mixed types
     table = [[1, "2.0"], ["3", 4.5]]
     values = extract_values(table)
@@ -53,12 +55,12 @@ def test_extract_values_edge_cases():
     # Empty table
     values = extract_values([])
     assert len(values) == 0
-    
+
     # Table with no numeric values
     table = [["hello", "world"], ["no", "numbers"]]
     values = extract_values(table)
     assert len(values) == 0
-    
+
     # Table with negative numbers
     table = [["-5", "-10.5"], ["-100%", "-0.1"]]
     values = extract_values(table)
@@ -70,19 +72,19 @@ def test_relative_distance():
     """Test the relative distance function."""
     # Test with identical values
     assert relative_distance(5.0, 5.0) == 0.0
-    
+
     # Test with different values
     assert relative_distance(10.0, 5.0) == 1.0  # (10-5)/5 = 1.0
     assert relative_distance(5.0, 10.0) == 0.5  # (10-5)/10 = 0.5
-    
+
     # Test with zero target
     assert relative_distance(0.0, 0.0) == 0.0
     assert relative_distance(5.0, 0.0) == 1.0
     assert relative_distance(0.0, 5.0) == 1.0
-    
+
     # Test with very small target (epsilon case)
     assert relative_distance(1e-11, 1e-10) == 0.0  # Should be treated as zero
-    
+
     # Test with negative values
     assert relative_distance(-5.0, -10.0) == 0.5  # |-5 - (-10)| / |-10| = 5/10 = 0.5
     assert relative_distance(-10.0, -5.0) == 1.0  # |-10 - (-5)| / |-5| = 5/5 = 1.0
@@ -95,7 +97,7 @@ def test_compute_rnss_perfect_match():
     target = [["1.0", "2.0"], ["3.0", "4.0"]]
     rnss = compute_rnss(pred, target)
     assert rnss == 1.0
-    
+
     # Same values, different order
     pred = [["4.0", "3.0"], ["2.0", "1.0"]]
     target = [["1.0", "2.0"], ["3.0", "4.0"]]
@@ -129,7 +131,7 @@ def test_compute_rnss_different_sizes():
     rnss = compute_rnss(pred, target)
     # Should account for unmatched elements
     assert 0.0 < rnss < 1.0
-    
+
     # Target has more values
     pred = [["1.0", "2.0"]]
     target = [["1.0", "2.0"], ["3.0", "4.0"], ["5.0", "6.0"]]
@@ -142,14 +144,14 @@ def test_compute_rnss_edge_cases():
     # Empty tables
     rnss = compute_rnss([], [])
     assert rnss == 1.0
-    
+
     # One empty table
     rnss = compute_rnss([], [["1.0", "2.0"]])
     assert rnss == 0.0
-    
+
     rnss = compute_rnss([["1.0", "2.0"]], [])
     assert rnss == 0.0
-    
+
     # Tables with no numeric values
     pred = [["hello", "world"], ["no", "numbers"]]
     target = [["foo", "bar"], ["baz", "qux"]]
@@ -163,7 +165,7 @@ def test_compute_rnss_with_numpy_arrays():
     target = np.array([[1.0, 2.0], [3.0, 4.0]])
     rnss = compute_rnss(pred, target)
     assert rnss == 1.0
-    
+
     pred = np.array([[1.0, 2.0], [3.0, 5.0]])
     target = np.array([[1.0, 2.0], [3.0, 4.0]])
     rnss = compute_rnss(pred, target)
@@ -177,7 +179,7 @@ def test_compute_rnss_with_mixed_formats():
     target = np.array([[1.0, 2.0], [3.0, 4.0]])
     rnss = compute_rnss(pred, target)
     assert rnss == 1.0
-    
+
     # Numpy pred, list target
     pred = np.array([[1.0, 2.0], [3.0, 4.0]])
     target = [["1.0", "2.0"], ["3.0", "4.0"]]
@@ -191,7 +193,7 @@ def test_compute_rnss_with_percentages():
     target = [["50%", "75%"], ["100%", "25%"]]
     rnss = compute_rnss(pred, target)
     assert rnss == 1.0
-    
+
     # Different percentage values
     pred = [["50%", "75%"], ["100%", "25%"]]
     target = [["50%", "75%"], ["100%", "30%"]]
@@ -205,7 +207,7 @@ def test_compute_rnss_with_negative_numbers():
     target = [["-1.0", "-2.0"], ["-3.0", "-4.0"]]
     rnss = compute_rnss(pred, target)
     assert rnss == 1.0
-    
+
     # Different negative values
     pred = [["-1.0", "-2.0"], ["-3.0", "-5.0"]]
     target = [["-1.0", "-2.0"], ["-3.0", "-4.0"]]
@@ -217,23 +219,23 @@ def test_compute_rnss_with_complex_strings():
     """Test RNSS with complex strings containing numbers."""
     pred = [
         ["Temperature: 25.5°C", "Humidity: 60%"],
-        ["Pressure: 1013.25hPa", "Wind: 5.2m/s"]
+        ["Pressure: 1013.25hPa", "Wind: 5.2m/s"],
     ]
     target = [
         ["Temperature: 25.5°C", "Humidity: 60%"],
-        ["Pressure: 1013.25hPa", "Wind: 5.2m/s"]
+        ["Pressure: 1013.25hPa", "Wind: 5.2m/s"],
     ]
     rnss = compute_rnss(pred, target)
     assert rnss == 1.0
-    
+
     # Slightly different values
     pred = [
         ["Temperature: 25.5°C", "Humidity: 60%"],
-        ["Pressure: 1013.25hPa", "Wind: 5.2m/s"]
+        ["Pressure: 1013.25hPa", "Wind: 5.2m/s"],
     ]
     target = [
         ["Temperature: 25.5°C", "Humidity: 65%"],
-        ["Pressure: 1013.25hPa", "Wind: 5.2m/s"]
+        ["Pressure: 1013.25hPa", "Wind: 5.2m/s"],
     ]
     rnss = compute_rnss(pred, target)
     assert 0.0 < rnss < 1.0
@@ -245,14 +247,19 @@ def test_compute_rnss_result_range():
         ([["1.0", "2.0"]], [["1.0", "2.0"]]),  # Perfect match
         ([["1.0", "2.0"]], [["3.0", "4.0"]]),  # No match
         ([["1.0"]], [["1.0", "2.0"]]),  # Different sizes
-        ([["100%", "200%"], ["300%", "400%"]], [["1%", "2%"], ["3%", "4%"]]),  # Large differences
+        (
+            [["100%", "200%"], ["300%", "400%"]],
+            [["1%", "2%"], ["3%", "4%"]],
+        ),  # Large differences
         ([["0.0", "0.0"]], [["0.0", "0.0"]]),  # All zeros
         ([["-1.0", "1.0"]], [["-1.0", "1.0"]]),  # Mixed signs
     ]
-    
+
     for pred, target in test_cases:
         rnss = compute_rnss(pred, target)
-        assert 0.0 <= rnss <= 1.0, f"RNSS out of range for pred={pred}, target={target}: {rnss}"
+        assert (
+            0.0 <= rnss <= 1.0
+        ), f"RNSS out of range for pred={pred}, target={target}: {rnss}"
 
 
 def test_compute_rnss_asymmetric_property():
@@ -284,11 +291,11 @@ def test_compute_rnss_with_single_values():
     # Single matching value
     rnss = compute_rnss([["5.0"]], [["5.0"]])
     assert rnss == 1.0
-    
+
     # Single non-matching value
     rnss = compute_rnss([["5.0"]], [["10.0"]])
     assert 0.0 < rnss < 1.0
-    
+
     # Single value vs empty
     rnss = compute_rnss([["5.0"]], [])
     assert rnss == 0.0

@@ -39,6 +39,7 @@ def ensure_modal_auth():
     if not (modal_token_id and modal_token_secret):
         try:
             from dotenv import load_dotenv
+
             load_dotenv()
         except ImportError:
             pass
@@ -91,14 +92,16 @@ async def run_modal_inference(
             elif hasattr(first, "model_dump"):
                 json_str = json.dumps(first.model_dump(exclude_none=True))
             else:
-                return VLMResponseFormat(text=str(first), inference_time_ms=processed_time)
+                return VLMResponseFormat(
+                    text=str(first), inference_time_ms=processed_time
+                )
         elif isinstance(result, dict):
             json_str = json.dumps(result)
         elif isinstance(result, str):
             try:
                 json.loads(result)
                 json_str = result
-            except:
+            except Exception:
                 return VLMResponseFormat(text=result, inference_time_ms=processed_time)
         else:
             return VLMResponseFormat(text=str(result), inference_time_ms=processed_time)

@@ -7,5 +7,3 @@ requires-python = ">=3.13"
 
 [tool.uv.workspace]
 members = ["lib", "services/*"]
-
-

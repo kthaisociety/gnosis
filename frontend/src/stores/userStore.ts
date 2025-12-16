@@ -40,16 +40,16 @@ let inviteLinks: InviteLink[] = [
 
 export const userStore = {
   getUsers: (): MockUser[] => [...mockUsers],
-  
-  getUserById: (id: string): MockUser | undefined => 
+
+  getUserById: (id: string): MockUser | undefined =>
     mockUsers.find(u => u.id === id),
-  
+
   getUserByEmail: (email: string): MockUser | undefined =>
     mockUsers.find(u => u.email === email),
-  
+
   getUserByInviteToken: (token: string): MockUser | undefined =>
     mockUsers.find(u => u.inviteToken === token),
-  
+
   addUser: (user: Omit<MockUser, "id" | "createdAt">): MockUser => {
     const newUser: MockUser = {
       ...user,
@@ -59,20 +59,20 @@ export const userStore = {
     mockUsers = [...mockUsers, newUser];
     return newUser;
   },
-  
+
   updateUser: (id: string, updates: Partial<MockUser>): MockUser | undefined => {
     const index = mockUsers.findIndex(u => u.id === id);
     if (index === -1) return undefined;
     mockUsers[index] = { ...mockUsers[index], ...updates };
     return mockUsers[index];
   },
-  
+
   deleteUser: (id: string): boolean => {
     const initialLength = mockUsers.length;
     mockUsers = mockUsers.filter(u => u.id !== id);
     return mockUsers.length < initialLength;
   },
-  
+
   createInvite: (email: string): InviteLink => {
     const token = `invite-${crypto.randomUUID().slice(0, 8)}`;
     const invite: InviteLink = {
@@ -82,7 +82,7 @@ export const userStore = {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     };
     inviteLinks = [...inviteLinks, invite];
-    
+
     // Create pending user
     userStore.addUser({
       email,
@@ -91,24 +91,24 @@ export const userStore = {
       status: "pending",
       inviteToken: token,
     });
-    
+
     return invite;
   },
-  
+
   getInviteByToken: (token: string): InviteLink | undefined =>
     inviteLinks.find(i => i.token === token),
-  
+
   activateUser: (token: string, name: string): MockUser | undefined => {
     const user = mockUsers.find(u => u.inviteToken === token);
     if (!user) return undefined;
-    
+
     user.status = "active";
     user.name = name;
     delete user.inviteToken;
-    
+
     // Remove used invite
     inviteLinks = inviteLinks.filter(i => i.token !== token);
-    
+
     return user;
   },
 };

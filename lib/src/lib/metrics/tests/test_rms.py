@@ -1,10 +1,10 @@
 import numpy as np
 import sys
 import os
-import pytest
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
-from lib.metrics.rms import compute_rms,extract_mappings
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+
+from lib.metrics.rms import compute_rms, extract_mappings
 
 
 def test_identical_tables():
@@ -116,11 +116,13 @@ def test_one_empty_table():
 
 
 def test_numpy_input():
-    pred = np.array([
-        ["Year", "Sales"],
-        ["2020", "100"],
-        ["2021", "120"],
-    ])
+    pred = np.array(
+        [
+            ["Year", "Sales"],
+            ["2020", "100"],
+            ["2021", "120"],
+        ]
+    )
 
     target = [
         ["Year", "Sales"],
@@ -130,7 +132,6 @@ def test_numpy_input():
 
     score = compute_rms(pred, target)
     assert score == 1.0
-from lib.metrics.rms import extract_mappings
 
 
 def test_extract_mappings_basic():

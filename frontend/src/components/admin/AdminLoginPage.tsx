@@ -20,10 +20,10 @@ const AdminLoginPage = ({ onLogin }: AdminLoginPageProps) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    
+
     // Simulate admin login check (mock validation)
     await new Promise((resolve) => setTimeout(resolve, 800));
-    
+
     // Mock admin credentials check
     if (email === "admin@ocrbench.com" && password === "admin123") {
       setIsLoading(false);
@@ -60,7 +60,7 @@ const AdminLoginPage = ({ onLogin }: AdminLoginPageProps) => {
                 {error}
               </div>
             )}
-            
+
             <div className="space-y-2">
               <label className="text-sm text-muted-foreground">Admin Email</label>
               <Input
