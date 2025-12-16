@@ -59,20 +59,17 @@ export const userStore = {
     mockUsers = [...mockUsers, newUser];
     return newUser;
   },
-
   updateUser: (id: string, updates: Partial<MockUser>): MockUser | undefined => {
     const index = mockUsers.findIndex(u => u.id === id);
     if (index === -1) return undefined;
     mockUsers[index] = { ...mockUsers[index], ...updates };
     return mockUsers[index];
   },
-
   deleteUser: (id: string): boolean => {
     const initialLength = mockUsers.length;
     mockUsers = mockUsers.filter(u => u.id !== id);
     return mockUsers.length < initialLength;
   },
-
   createInvite: (email: string): InviteLink => {
     const token = `invite-${crypto.randomUUID().slice(0, 8)}`;
     const invite: InviteLink = {
@@ -82,7 +79,6 @@ export const userStore = {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     };
     inviteLinks = [...inviteLinks, invite];
-
     // Create pending user
     userStore.addUser({
       email,

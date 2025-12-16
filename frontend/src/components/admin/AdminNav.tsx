@@ -9,7 +9,6 @@ interface AdminNavProps {
 
 const AdminNav = ({ onLogout }: AdminNavProps) => {
   const location = useLocation();
-
   const navItems = [
     { path: "/admin", label: "Admin Panel", icon: Shield },
     { path: "/admin/benchmark", label: "OCR Bench", icon: Scan },

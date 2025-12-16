@@ -68,7 +68,6 @@ const UserManagement = () => {
 
   const confirmDeleteUser = () => {
     if (!userToDelete) return;
-
     userStore.deleteUser(userToDelete.id);
     refreshUsers();
     toast.success("User removed", {
@@ -199,7 +198,6 @@ const UserManagement = () => {
 
             <div className="flex items-center gap-3">
               {getStatusBadge(user.status)}
-
               {user.status === "pending" && user.inviteToken && (
                 <Button
                   variant="ghost"
