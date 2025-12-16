@@ -48,6 +48,10 @@ graph TD
 │           │   ├── operations                 # CRUD files for models
 │           │   └── client.py
 │           ├── gRPC
+│           ├── metrics
+│                ├──rms.py
+│                ├──rnss.py
+│                └──tests
 │           ├── models
 │           │   └── vlm_models.py
 │           └── utils
