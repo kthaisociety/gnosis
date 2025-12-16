@@ -29,6 +29,7 @@ def extract_values(table: Union[str, List[List[str]], np.ndarray]) -> List[float
                         except ValueError:
                             continue
                             
+                        
     elif isinstance(table, list):
        
         for row in table:
@@ -67,9 +68,9 @@ def relative_distance(p: float, t: float) -> float:
 
     epsilon:float = 1e-10
 
-    if abs(t) < epsilon:
+    if abs(t) <= epsilon:
      
-        if abs(p) < epsilon:
+        if abs(p) <= epsilon:
             return 0.0  
         else:
             return 1.0 
