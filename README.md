@@ -1,7 +1,9 @@
 # Gnosis
+
 WIP Gnosis monorepo
 
 ## Run
+
 ```
 # start main Gnosis server ('gateway')
 bash scripts/run_gateway.sh
@@ -11,6 +13,7 @@ bash scripts/run_vlm_server.sh
 ```
 
 ## Architecture
+
 ```mermaid
 graph TD
     Client <-->|REST| Routing
@@ -31,6 +34,7 @@ graph TD
 ```
 
 # Tree
+
 ```
 .
 ├── data
@@ -40,6 +44,9 @@ graph TD
 │   ├── pyproject.toml
 │   └── src
 │       └── lib
+|           ├── db
+│           │   ├── operations                 # CRUD files for models
+│           │   └── client.py
 │           ├── gRPC
 │           ├── models
 │           │   └── vlm_models.py
@@ -86,8 +93,9 @@ graph TD
 ## HOW TO DO WORK
 
 ## ENVIRONMENT
-- Make sure to have uv on your machine. 
-- I will change to use python 3.14 but for now just 3.13. Why? Because cooler and **threading is cool**. If you have a problem with this *please forward complaints to HR.*
+
+- Make sure to have uv on your machine.
+- I will change to use python 3.14 but for now just 3.13. Why? Because cooler and **threading is cool**. If you have a problem with this _please forward complaints to HR._
 
 ```bash
 # Use uv or else...
@@ -101,6 +109,7 @@ pre-commit install
 ```
 
 ## Commits and formatting
+
 ```bash
 pre-commit run --all-files # in case you forgot to do this before
 ```
