@@ -6,7 +6,7 @@ import os
 import numpy as np
 import pytest
 
-# Add the lib directory to Python path
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from lib.metrics.rnss import extract_values, relative_distance, compute_rnss
@@ -292,7 +292,3 @@ def test_compute_rnss_with_single_values():
     # Single value vs empty
     rnss = compute_rnss([["5.0"]], [])
     assert rnss == 0.0
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

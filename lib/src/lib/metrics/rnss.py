@@ -4,6 +4,8 @@ from scipy.optimize import linear_sum_assignment
 from typing import Union, List, Any
 
 
+# Link to the paper for more details: https://arxiv.org/pdf/2212.10505
+
 
 #TODO double check which format we will use for table input in the end
 def extract_values(table: Union[str, List[List[str]], np.ndarray]) -> List[float]:
