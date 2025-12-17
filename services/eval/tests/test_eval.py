@@ -18,7 +18,6 @@ res = eval(
     ),
     dataset_name="example",
     local_dataset=True,
-    prompt="Extract all data from this image",
 )
 
 
