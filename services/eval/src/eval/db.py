@@ -1,5 +1,7 @@
 from psycopg.sql import Identifier, SQL
+from psycopg.rows import dict_row
 from dotenv import load_dotenv
+from typing import List
 
 from lib.utils.log import get_logger
 from lib.db import get_db_pool
@@ -24,6 +26,16 @@ def create_dataset(dataset_name: str):
     with pool.connection() as conn:
         with conn.cursor() as cur:
             cur.execute(sql)
+
+
+def get_dataset_items(dataset_name: str) -> List[EvalDatasetItem]:
+    pool = get_db_pool()
+    sql = SQL("SELECT * FROM datasets.{}").format(Identifier(dataset_name))
+    with pool.connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+            cur.execute(sql)
+            rows = cur.fetchall()
+            return [EvalDatasetItem(**row) for row in rows]
 
 
 def upsert_dataset(dataset_name: str, model: EvalDatasetItem):

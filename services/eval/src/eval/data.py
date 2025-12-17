@@ -2,6 +2,7 @@ import csv
 import os
 
 from .models import EvalDataset, EvalDatasetItem
+from .db import get_dataset_items
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_DIR = os.path.join(BASE_DIR, "datasets")
@@ -18,7 +19,8 @@ def get_dataset(name: str, local: bool = True) -> EvalDataset:
         raise ValueError(f"Cannot find dataset named {name}.")
 
     else:
-        raise ValueError("Cannot get cloud dataset. Unsupported.")
+        items = get_dataset_items(name)
+        return EvalDataset(name=name, items=items)
 
 
 def csv_to_dataset(path: str) -> EvalDataset:

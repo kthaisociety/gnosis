@@ -1,8 +1,9 @@
 import os
 
 from lib.db import close_db_pool, create_schema, drop_schema
-from eval.db import create_dataset, drop_dataset, upsert_dataset
+from eval.db import create_dataset, get_dataset_items, drop_dataset, upsert_dataset
 from eval.models import EvalDataset, EvalDatasetItem
+from eval.data import get_dataset
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 IMAGES_DIR = os.path.join(BASE_DIR, "images")
@@ -25,6 +26,13 @@ try:
     create_schema("datasets")
     create_dataset("test")
     upsert_dataset("test", item)
+
+    dataset_items = get_dataset_items("test")
+    print(dataset_items)
+
+    dataset = get_dataset("test", local=False)
+    print(dataset.model_dump())
+
     drop_dataset("test")
     drop_schema("datasets")
 finally:
