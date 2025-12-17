@@ -8,6 +8,8 @@ class EvalOutput(BaseModel):
 
 class EvalDatasetItem(BaseModel):
     image_path: str
+    image_type: str
+    expected: str
 
 
 class EvalDataset(BaseModel):
