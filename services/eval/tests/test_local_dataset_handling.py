@@ -1,6 +1,7 @@
 import os
 
-from eval.data import dataset_to_csv, get_dataset
+from eval.data import get_dataset
+from eval.data.local import dataset_to_csv
 from eval.models import EvalDataset, EvalDatasetItem
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +24,6 @@ print(dataset.model_dump_json(indent=4))
 dataset_to_csv(dataset)
 
 
-# Try to retrive the example dataset
+# Try to retrieve the example dataset
 res = get_dataset(name, local=True)
 print(res.model_dump_json(indent=4))

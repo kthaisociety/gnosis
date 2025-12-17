@@ -5,7 +5,7 @@ from typing import List
 
 from lib.utils.log import get_logger
 from lib.db import get_db_pool
-from .models import EvalDatasetItem
+from eval.models import EvalDatasetItem
 
 load_dotenv()
 logger = get_logger(__name__)

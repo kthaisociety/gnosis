@@ -8,7 +8,7 @@ def eval(
     runner: str,
     config: InferenceConfig,
     dataset_name: str,
-    local_dataset: bool = True,
+    local_dataset: bool,
     prompt: str = None,
 ) -> EvalOutput:
     dataset = get_dataset(dataset_name, local=local_dataset)

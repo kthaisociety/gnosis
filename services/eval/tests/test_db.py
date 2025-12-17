@@ -1,7 +1,7 @@
 import os
 
 from lib.db import close_db_pool, create_schema, drop_schema
-from eval.db import create_dataset, get_dataset_items, drop_dataset, upsert_dataset
+from eval.data.db import create_dataset, get_dataset_items, drop_dataset, upsert_dataset
 from eval.models import EvalDataset, EvalDatasetItem
 from eval.data import get_dataset
 
