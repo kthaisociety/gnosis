@@ -51,3 +51,7 @@ frontend/*.local
 *.njsproj
 *.sln
 *.sw?
+
+
+# Eval
+services/eval/src/eval/data/datasets
