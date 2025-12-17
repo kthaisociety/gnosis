@@ -1,3 +1,7 @@
+#
+# Requires GEMINI_API_KEY in eval/.env
+#
+
 from dotenv import load_dotenv
 import os
 
