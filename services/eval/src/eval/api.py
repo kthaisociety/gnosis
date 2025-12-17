@@ -18,9 +18,9 @@ def infer(
     image_path: str,
     prompt: str,
     config: InferenceConfig,
-    local_imgs: bool = True,
+    local_dataset: bool = True,
 ):
-    if not local_imgs:
+    if not local_dataset:
         raise ValueError("Inference with non-local images is unsupported.")
 
     try:

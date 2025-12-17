@@ -30,3 +30,7 @@ class VLMGemini(VLM):
         )
 
         return response.text
+
+    @classmethod
+    def download(cls, model_name) -> None:
+        return

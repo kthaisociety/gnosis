@@ -1,37 +1,24 @@
 import csv
 import os
 
-from .eval_models import EvalDataset, EvalDatasetItem  # TODO: Move to lib/ ?
+from .models import EvalDataset, EvalDatasetItem
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_DIR = os.path.join(BASE_DIR, "datasets")
+os.makedirs(DATASET_DIR, exist_ok=True)
 
 
-def get_dataset(name: str = None, path: str = None, local: bool = True) -> EvalDataset:
-    if local and not path:
-        raise ValueError("Cannot get local dataset without path")
-    if not local and not name:
-        raise ValueError("Cannot get cloud dataset without name")
-
+def get_dataset(name: str, local: bool = True) -> EvalDataset:
     if local:
-        dataset_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "datasets")
-        dataset_paths = os.listdir(dataset_dir)
-        for path in dataset_paths:
-            if name == path:
-                return csv_to_dataset(path)
+        for filename in os.listdir(DATASET_DIR):
+            found_name = os.path.splitext(filename)[0]
+            if name == found_name:
+                full_path = os.path.join(DATASET_DIR, filename)
+                return csv_to_dataset(full_path)
+        raise ValueError(f"Cannot find dataset named {name}.")
 
     else:
         raise ValueError("Cannot get cloud dataset. Unsupported.")
-
-
-def dataset_to_csv(dataset: EvalDataset, dir: str):
-    path = os.path.join(dir, f"{dataset.name}.csv")
-    fields = ["image_path, image_type, expected"]
-    try:
-        with open(path, "w", newline="") as f:
-            writer = csv.DictWriter(f, fields=fields)
-            writer.writeheader()
-            for item in dataset.items:
-                writer.writerow(item.model_dump())
-    except Exception as e:
-        raise ValueError(f"Failed to write dataset to csv at {path}: {e}")
 
 
 def csv_to_dataset(path: str) -> EvalDataset:
@@ -45,3 +32,17 @@ def csv_to_dataset(path: str) -> EvalDataset:
         return EvalDataset(name=name, items=items)
     except Exception as e:
         raise ValueError(f"Failed to read dataset from csv at {path}: {e}")
+
+
+def dataset_to_csv(dataset: EvalDataset):
+    path = os.path.join(DATASET_DIR, f"{dataset.name}.csv")
+    fields = ["image_path", "image_type", "expected"]
+
+    try:
+        with open(path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fields)
+            writer.writeheader()
+            for item in dataset.items:
+                writer.writerow(item.model_dump())
+    except Exception as e:
+        raise ValueError(f"Failed to write dataset to csv at {path}: {e}")
