@@ -1,27 +1,12 @@
 [project]
-name = "gnosis-template"
+name = "gnosis"
 version = "0.1.0"
-description = ""
+description = "VLM evaluation platform"
 readme = "README.md"
 requires-python = ">=3.13"
-
-[tool.ruff]
-line-length = 88
-target-version = "py313"
-extend-exclude = [
-  "data",
-  "build/",
-  "dist/",
-  ".venv/",
-  "__pycache__",
+dependencies = [
+    "pre-commit>=4.5.0",
 ]
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "lf"
-
-[tool.ruff.lint]
-# which rule sets to enable; you can start simple
-select = ["E", "F"]  # errors (E) + pyflakes (F)
-ignore = []           # none to ignore initially
+[tool.uv.workspace]
+members = ["lib", "services/*"]

@@ -1,5 +1,6 @@
 .venv
 __pycache__
+__pycache__/*
 .DS_Store
 .pytest_cache
 .vscode
@@ -11,3 +12,42 @@ __pycache__
 .env.development
 .env.test
 .env.production
+
+build/
+dist/
+*.egg-info/
+
+*.log
+*.log.*
+
+*.pyc
+
+uv.lock
+
+
+## Frontend
+
+# Logs
+frontend/logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+frontend/*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
