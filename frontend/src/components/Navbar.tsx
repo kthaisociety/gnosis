@@ -2,17 +2,19 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Scan, Shield, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAdmin } from "@/hooks/useAdmin";
 
-interface AdminNavProps {
+interface NavbarProps {
   onLogout: () => void;
 }
 
-const AdminNav = ({ onLogout }: AdminNavProps) => {
+const Navbar = ({ onLogout }: NavbarProps) => {
   const location = useLocation();
+  const { isAdmin } = useAdmin();
   
   const navItems = [
-    { path: "/admin", label: "Admin Panel", icon: Shield },
-    { path: "/admin/benchmark", label: "OCR Bench", icon: Scan },
+    ...(isAdmin ? [{ path: "/admin", label: "Admin Panel", icon: Shield }] : []),
+    { path: "/", label: "OCR Bench", icon: Scan },
   ];
 
   return (
@@ -21,7 +23,11 @@ const AdminNav = ({ onLogout }: AdminNavProps) => {
         <nav className="flex items-center gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            // Check if active: exact match for root, or starts with for sub-paths (except root)
+            const isActive = item.path === "/" 
+              ? location.pathname === "/"
+              : location.pathname.startsWith(item.path);
+
             return (
               <Link
                 key={item.path}
@@ -48,4 +54,4 @@ const AdminNav = ({ onLogout }: AdminNavProps) => {
   );
 };
 
-export default AdminNav;
+export default Navbar;

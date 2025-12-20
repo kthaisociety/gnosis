@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Play, Loader2, LogOut, Scan } from "lucide-react";
+import { Play, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Navbar from "@/components/Navbar";
 import FileUploadZone from "./FileUploadZone";
 import ModelSelector from "./ModelSelector";
 import ResultsPanel from "./ResultsPanel";
@@ -57,21 +58,7 @@ const BenchmarkCard = ({ onLogout }: BenchmarkCardProps) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-primary/10 border border-primary/20">
-              <Scan className="w-4 h-4 text-primary" />
-            </div>
-            <span className="font-semibold text-sm">OCR Bench</span>
-          </div>
-          <Button variant="ghost" size="sm" onClick={onLogout}>
-            <LogOut className="w-4 h-4" />
-            Sign out
-          </Button>
-        </div>
-      </header>
+      <Navbar onLogout={onLogout} />
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-4">
