@@ -37,7 +37,7 @@ class ModelInfo(BaseModel):
 
 class InferenceConfig(BaseModel):
     model_name: str
-    output_schema_name: str  # structured output
+    output_schema_name: Optional[str] = None  # structured output
 
     # Common parameters
     use_gpu: Optional[bool] = None

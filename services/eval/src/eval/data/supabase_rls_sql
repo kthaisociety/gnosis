@@ -19,3 +19,10 @@ CREATE POLICY "Allow public deletes"
 ON storage.objects FOR DELETE
 TO public
 USING (bucket_id = 'dataset-images');
+
+-- Allow upserts
+CREATE POLICY "Allow public updates"
+ON storage.objects FOR UPDATE
+TO public
+USING (bucket_id = 'dataset-images')
+WITH CHECK (bucket_id = 'dataset-images');

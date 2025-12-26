@@ -1,4 +1,4 @@
-from .data import get_dataset
+from .data import get_dataset, verify_dataset
 from eval.data.db import (
     create_dataset,
     get_dataset_items,
@@ -12,6 +12,7 @@ from eval.data.db import (
 
 __all__ = [
     "get_dataset",
+    "verify_dataset",
     "create_dataset",
     "get_dataset_items",
     "drop_dataset",

@@ -31,7 +31,10 @@ class VLM(ABC):
         return ret
 
     @classmethod
-    def get_output_schema(cls, name: str):
+    def get_output_schema(cls, name: str | None):
+        if not name:
+            raise ValueError("No output schema name supplied")
+
         from lib.models import VLMTableOutput
         if name == "VLMTableOutput":
             return VLMTableOutput
