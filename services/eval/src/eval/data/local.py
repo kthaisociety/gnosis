@@ -24,7 +24,7 @@ def csv_to_dataset(path: str) -> EvalDataset:
 
 def dataset_to_csv(dataset: EvalDataset):
     path = os.path.join(DATASET_DIR, f"{dataset.name}.csv")
-    fields = ["image_path", "eval_type", "expected"]
+    fields = ["image_path", "output_schema_name", "expected"]
 
     try:
         with open(path, "w", newline="") as f:

@@ -1,16 +1,18 @@
 from pydantic import BaseModel
-from typing import List, Literal
+from typing import List
 
 
 class EvalOutput(BaseModel):
-    eval_type: Literal["table", "generic"]
+    model_name: str
+    dataset_name: str
+    output_schema_name: str
     avg_rnss: float
     avg_rms: float
 
 
 class EvalDatasetItem(BaseModel):
     image_path: str
-    eval_type: Literal["table", "generic"] # becomes very annoying if put into a separate BaseModel
+    output_schema_name: str
     expected: str
 
 

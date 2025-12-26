@@ -21,17 +21,18 @@ def eval(
         vlm_output = infer(
             runner, item.image_path, prompt, config, local_dataset=local_dataset
         )
-        if vlm_output:
-            print(vlm_output.model_dump_json(indent=4))
-        else:
-            print("infer returned none")
 
-        rms += compute_rms(vlm_output)
-        rnss += compute_rnss(vlm_output)
+        # rms += compute_rms(vlm_output)
+        # rnss += compute_rnss(vlm_output)
 
-        #
-        # TODO: measure accuracy of 'out' using different benchmarks here
-        #
+    n_items = len(dataset.items)
+    avg_rnss = rnss / n_items
+    avg_rms = rms / n_items
 
-    out = EvalOutput()
-    return out
+    return EvalOutput(
+        model_name=config.model_name,
+        dataset_name=dataset_name,
+        output_schema_name=config.output_schema_name,
+        avg_rnss=avg_rnss,
+        avg_rms=avg_rms,
+    )

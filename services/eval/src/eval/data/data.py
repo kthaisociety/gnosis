@@ -21,4 +21,3 @@ def get_dataset(name: str, local: bool) -> EvalDataset:
     else:
         items = get_dataset_items(name)
         return EvalDataset(name=name, items=items)
-

@@ -20,10 +20,17 @@ def infer(
     config: InferenceConfig,
     local_dataset: bool,
 ):
-    if not local_dataset:
-        raise ValueError("Inference with non-local images is unsupported.")
-
     try:
+        # Get image content from path (local path or url)
+        image_content = None
+        if local_dataset:
+            with open(image_path, "rb") as f:
+                image_content = f.read()
+        else:
+            image_res = requests.get(image_path)
+            image_res.raise_for_status()
+            image_content = image_res.content
+
         with open(image_path, "rb") as f:
             res = requests.post(
                 f"{URL}/process",
@@ -35,7 +42,7 @@ def infer(
                 files={
                     "file": (
                         os.path.basename(image_path),
-                        f,
+                        image_content,
                         get_image_mime_type(image_path),
                     )
                 },
@@ -47,7 +54,8 @@ def infer(
 
     except requests.exceptions.HTTPError as e:
         if e.response is not None:
-            logger.error(f"HTTP Error {e.response.status_code}: {e.response.text}")
+            logger.error(f"HTTP Error {e.response.status_code}: {
+                         e.response.text}")
         else:
             logger.error(f"HTTP Error: {e}")
         return None

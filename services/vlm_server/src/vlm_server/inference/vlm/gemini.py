@@ -18,7 +18,7 @@ class VLMGemini(VLM):
         output_schema = self.config.get("output_schema", None)
 
         if not output_schema:
-            return ValueError("No output schema found for inference!")
+            raise ValueError("No output schema found for inference!")
 
         response = self.client.models.generate_content(
             model=self.model,
