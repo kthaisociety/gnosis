@@ -53,8 +53,8 @@ try:
     dataset = get_dataset("test", local=False)
     print(dataset.model_dump())
 
-    drop_dataset("test")
-    drop_schema("datasets")
+    #drop_dataset("test")
+    #drop_schema("datasets")
 
     # Test eval output
     create_eval_table()
@@ -63,6 +63,6 @@ try:
     eval_items = get_eval_items()
     print(eval_items)
 
-    drop_eval_table()
+    #drop_eval_table()
 finally:
     close_db_pool()

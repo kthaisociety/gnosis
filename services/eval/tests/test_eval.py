@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 
 from eval.eval import eval
+from eval.data.db import upsert_eval_table
 from lib.models.vlm_models import InferenceConfig
 
 load_dotenv()
@@ -21,9 +22,11 @@ res = eval(
         api_key=GEMINI_API_KEY,
         output_schema_name="VLMTableOutput"
     ),
-    dataset_name="example",
-    local_dataset=True,
+    dataset_name="test",
+    local_dataset=False,
 )
+
+upsert_eval_table(res)
 
 
 if res:

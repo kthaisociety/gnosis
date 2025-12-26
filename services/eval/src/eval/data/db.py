@@ -6,6 +6,7 @@ from typing import List
 from lib.utils.log import get_logger
 from lib.db import get_db_pool, drop_table
 from eval.models import EvalDatasetItem, EvalOutput
+from .bucket import is_local_image, upload_dataset_image, delete_dataset_images
 
 load_dotenv()
 logger = get_logger(__name__)
@@ -42,6 +43,10 @@ def upsert_dataset(dataset_name: str, model: EvalDatasetItem):
     pool = get_db_pool()
     data = model.model_dump()
 
+    image_path = data["image_path"]
+    if is_local_image(image_path):
+        data["image_path"] = upload_dataset_image(dataset_name, image_path)
+
     sql = SQL(
         """INSERT INTO datasets.{} (image_path, output_schema_name, expected)
         VALUES (%(image_path)s, %(output_schema_name)s, %(expected)s)
@@ -64,6 +69,7 @@ def drop_dataset(dataset_name: str):
     with pool.connection() as conn:
         with conn.cursor() as cur:
             try:
+                delete_dataset_images(dataset_name)
                 cur.execute(sql)
                 return True
             except Exception as e:
