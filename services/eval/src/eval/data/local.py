@@ -1,7 +1,9 @@
 import csv
 import os
 
-from eval.models import EvalDataset, EvalDatasetItem
+from eval.models import EvalDataset
+from .utils import parse_eval_dataset_row 
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_DIR = os.path.join(BASE_DIR, "datasets")
@@ -15,7 +17,7 @@ def csv_to_dataset(path: str) -> EvalDataset:
         with open(path, 'r', newline='') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                items.append(EvalDatasetItem(**row))
+                items.append(parse_eval_dataset_row(row))
         return EvalDataset(name=name, items=items)
     except Exception as e:
         raise ValueError(f"Failed to read dataset from csv at {path}: {e}")
@@ -23,7 +25,7 @@ def csv_to_dataset(path: str) -> EvalDataset:
 
 def dataset_to_csv(dataset: EvalDataset):
     path = os.path.join(DATASET_DIR, f"{dataset.name}.csv")
-    fields = ["image_path", "image_type", "expected"]
+    fields = ["image_path", "eval_type", "expected"]
 
     try:
         with open(path, "w", newline="") as f:

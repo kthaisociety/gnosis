@@ -6,6 +6,7 @@ from typing import List
 from lib.utils.log import get_logger
 from lib.db import get_db_pool
 from eval.models import EvalDatasetItem
+from .utils import parse_eval_dataset_row
 
 load_dotenv()
 logger = get_logger(__name__)
@@ -17,7 +18,7 @@ def create_dataset(dataset_name: str):
         """CREATE TABLE IF NOT EXISTS datasets.{} (
             id SERIAL PRIMARY KEY,
             image_path TEXT UNIQUE NOT NULL,
-            image_type VARCHAR(50) NOT NULL,
+            eval_type VARCHAR(50) NOT NULL,
             expected TEXT NOT NULL
         )
         """
@@ -35,7 +36,7 @@ def get_dataset_items(dataset_name: str) -> List[EvalDatasetItem]:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute(sql)
             rows = cur.fetchall()
-            return [EvalDatasetItem(**row) for row in rows]
+            return [parse_eval_dataset_row(row) for row in rows]
 
 
 def upsert_dataset(dataset_name: str, model: EvalDatasetItem):
@@ -43,10 +44,10 @@ def upsert_dataset(dataset_name: str, model: EvalDatasetItem):
     data = model.model_dump()
 
     sql = SQL(
-        """INSERT INTO datasets.{} (image_path, image_type, expected)
-        VALUES (%(image_path)s, %(image_type)s, %(expected)s)
+        """INSERT INTO datasets.{} (image_path, eval_type, expected)
+        VALUES (%(image_path)s, %(eval_type)s, %(expected)s)
         ON CONFLICT (image_path) DO UPDATE SET
-            image_type = EXCLUDED.image_type,
+            eval_type = EXCLUDED.eval_type,
             expected = EXCLUDED.expected
         """
     ).format(Identifier(dataset_name))
