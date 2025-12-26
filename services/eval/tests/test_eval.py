@@ -18,7 +18,8 @@ res = eval(
     runner="local",
     config=InferenceConfig(
         model_name="gemini-2.5-flash",
-        api_key=GEMINI_API_KEY
+        api_key=GEMINI_API_KEY,
+        output_schema_name="VLMTableOutput"
     ),
     dataset_name="example",
     local_dataset=True,

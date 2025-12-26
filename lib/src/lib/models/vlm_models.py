@@ -1,4 +1,4 @@
-from typing import Any, List, Type, Dict, Optional
+from typing import Any, List, Dict, Optional
 from pydantic import BaseModel
 
 
@@ -60,10 +60,3 @@ class InferenceConfig(BaseModel):
     padding: Optional[str] = None
     attn_implementation: Optional[str] = None
     # "eager", "sdpa", "flash_attention_2"
-
-
-def get_schema(name: str) -> Type[BaseModel]:
-    if name == "VLMTableOutput":
-        return VLMTableOutput
-    else:
-        raise ValueError(f"Unknown schema: {name}")

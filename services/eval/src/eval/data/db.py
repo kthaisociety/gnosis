@@ -6,7 +6,6 @@ from typing import List
 from lib.utils.log import get_logger
 from lib.db import get_db_pool
 from eval.models import EvalDatasetItem
-from .utils import parse_eval_dataset_row
 
 load_dotenv()
 logger = get_logger(__name__)
@@ -36,7 +35,7 @@ def get_dataset_items(dataset_name: str) -> List[EvalDatasetItem]:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute(sql)
             rows = cur.fetchall()
-            return [parse_eval_dataset_row(row) for row in rows]
+            return [EvalDatasetItem(**row) for row in rows]
 
 
 def upsert_dataset(dataset_name: str, model: EvalDatasetItem):

@@ -2,7 +2,7 @@ import os
 
 from eval.data import get_dataset
 from eval.data.local import dataset_to_csv
-from eval.models import EvalDataset, EvalDatasetItem, EvalType
+from eval.models import EvalDataset, EvalDatasetItem
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 IMAGES_DIR = os.path.join(BASE_DIR, "images")
@@ -15,7 +15,8 @@ items = []
 for filename in os.listdir(IMAGES_DIR):
     full_path = os.path.join(IMAGES_DIR, filename)
     items.append(
-        EvalDatasetItem(image_path=full_path, eval_type=EvalType(type="generic"), expected="hihihaha")
+        EvalDatasetItem(image_path=full_path,
+                        eval_type="generic", expected="hihihaha")
     )
 
 # Save the dataset as csv

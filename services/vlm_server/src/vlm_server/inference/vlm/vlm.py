@@ -6,8 +6,7 @@ import os
 
 from lib.models import (
     ModelInfo,
-    InferenceConfig,
-    get_schema,
+    InferenceConfig
 )
 
 
@@ -28,8 +27,16 @@ class VLM(ABC):
     def get_config(self, config: InferenceConfig):
         ret = VLM.model_info[config.model_name].default_config.copy()
         ret.update(config.model_dump(exclude_none=True))
-        ret["output_schema"] = get_schema(config.output_schema_name)
+        ret["output_schema"] = VLM.get_output_schema(config.output_schema_name)
         return ret
+
+    @classmethod
+    def get_output_schema(cls, name: str):
+        from lib.models import VLMTableOutput
+        if name == "VLMTableOutput":
+            return VLMTableOutput
+        else:
+            raise ValueError(f"Unknown schema: {name}")
 
     @classmethod
     def load_model_info(cls, path: str = None):

@@ -1,8 +1,7 @@
 import csv
 import os
 
-from eval.models import EvalDataset
-from .utils import parse_eval_dataset_row 
+from eval.models import EvalDataset, EvalDatasetItem
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -17,7 +16,7 @@ def csv_to_dataset(path: str) -> EvalDataset:
         with open(path, 'r', newline='') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                items.append(parse_eval_dataset_row(row))
+                items.append(EvalDatasetItem(**row))
         return EvalDataset(name=name, items=items)
     except Exception as e:
         raise ValueError(f"Failed to read dataset from csv at {path}: {e}")
