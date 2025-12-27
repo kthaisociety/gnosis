@@ -1,4 +1,6 @@
+from datetime import datetime
 from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
 
 
@@ -44,7 +46,7 @@ class InferenceConfig(BaseModel):
     max_tokens: Optional[int] = None
     temperature: Optional[float] = None
     top_p: Optional[float] = None
-    top_k: Optional[float] = None
+    top_k: Optional[int] = None
 
     # API models
     api_key: Optional[str] = None
@@ -58,3 +60,13 @@ class InferenceConfig(BaseModel):
     return_tensors: Optional[str] = None
     padding: Optional[str] = None
     attn_implementation: Optional[str] = None  # "eager", "sdpa", "flash_attention_2"
+
+
+class Infer(ModelInfo):
+    version: int
+    multimodal: bool
+    max_len_tokens: int
+    avg_latency: float
+    top_percentile_accuracy: bool
+    latest_eval_accuracy: bool
+    latest_eval_datetime: datetime
