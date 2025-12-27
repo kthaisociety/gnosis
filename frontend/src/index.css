@@ -99,19 +99,19 @@
   .glass-card {
     @apply bg-card/80 backdrop-blur-xl border border-border/50;
   }
-  
+
   .glow-primary {
     box-shadow: 0 0 40px -8px hsl(var(--primary) / 0.3);
   }
-  
+
   .animate-fade-in {
     animation: fade-in 0.4s ease-out forwards;
   }
-  
+
   .animate-scale-in {
     animation: scale-in 0.3s ease-out forwards;
   }
-  
+
   .animate-slide-up {
     animation: slide-up 0.4s ease-out forwards;
   }

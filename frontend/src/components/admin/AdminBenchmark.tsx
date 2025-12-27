@@ -35,13 +35,13 @@ const AdminBenchmark = () => {
 
   const handleProcess = async () => {
     if (!file) return;
-    
+
     setIsProcessing(true);
     setResults(null);
-    
+
     // Simulate processing
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    
+
     setResults(mockResults);
     setIsProcessing(false);
   };

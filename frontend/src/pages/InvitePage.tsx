@@ -9,7 +9,6 @@ import { toast } from "sonner";
 const InvitePage = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -37,7 +36,6 @@ const InvitePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -54,7 +52,6 @@ const InvitePage = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const user = userStore.activateUser(token!, name);
-    
     if (user) {
       setIsComplete(true);
       toast.success("Account activated successfully!");

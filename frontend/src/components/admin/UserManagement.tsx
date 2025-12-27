@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  UserPlus, 
-  Trash2, 
-  Copy, 
-  Check, 
+import {
+  UserPlus,
+  Trash2,
+  Copy,
+  Check,
   Mail,
   Clock,
   UserCheck,
@@ -56,11 +56,11 @@ const UserManagement = () => {
 
     const invite = userStore.createInvite(inviteEmail);
     refreshUsers();
-    
+
     toast.success("Invite created successfully", {
       description: `Invite link generated for ${inviteEmail}`,
     });
-    
+
     setInviteEmail("");
     setShowInviteForm(false);
     setIsInviting(false);
@@ -68,7 +68,6 @@ const UserManagement = () => {
 
   const confirmDeleteUser = () => {
     if (!userToDelete) return;
-    
     userStore.deleteUser(userToDelete.id);
     refreshUsers();
     toast.success("User removed", {
@@ -199,7 +198,6 @@ const UserManagement = () => {
 
             <div className="flex items-center gap-3">
               {getStatusBadge(user.status)}
-              
               {user.status === "pending" && user.inviteToken && (
                 <Button
                   variant="ghost"
@@ -248,13 +246,13 @@ const UserManagement = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete User</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete <span className="font-medium text-foreground">{userToDelete?.email}</span>? 
+              Are you sure you want to delete <span className="font-medium text-foreground">{userToDelete?.email}</span>?
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDeleteUser}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
