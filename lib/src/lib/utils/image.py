@@ -11,7 +11,10 @@ ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 
 def validate_image_bytes(data: bytes) -> None:
-    """Validates image size, integrity, and format. Raises ValueError on failure."""
+    """
+    Validates image size, integrity, and format. 
+    Raises ValueError on failure.
+    """
     # 1. Size Check
     if len(data) > MAX_SIZE:
         raise ValueError(f"Image too large ({len(data)} > {MAX_SIZE} bytes)")
@@ -22,6 +25,8 @@ def validate_image_bytes(data: bytes) -> None:
     try:
         with Image.open(io.BytesIO(data)) as img:
             img.verify()  # Check for broken streams
+            if not img.format:
+                raise ValueError("Unable to determine image format")
             if img.format.upper() not in ALLOWED_FORMATS:
                 raise ValueError(
                     f"Format {img.format} not allowed. Use: {ALLOWED_FORMATS}"
