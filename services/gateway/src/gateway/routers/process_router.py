@@ -7,7 +7,7 @@ import time
 import uuid
 from typing import Optional, Literal
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request
 from redis import Redis
 
 from gateway.preprocessing.main import process_and_validate_image_bytes
@@ -29,6 +29,7 @@ RESULT_TTL_SECONDS = int(os.getenv("RESULT_TTL_SECONDS", "120"))
 RATE_LIMIT_PER_IP_PER_MIN = int(os.getenv("RATE_LIMIT_PER_IP_PER_MIN", "10"))
 RATE_LIMIT_GLOBAL_PER_MIN = int(os.getenv("RATE_LIMIT_GLOBAL_PER_MIN", "60"))
 RATE_LIMIT_ENABLED = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
+RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
 
 logger = get_logger(__name__)
 
@@ -41,7 +42,71 @@ redis_connection = Redis.from_url(
 _worker_started = False
 _worker_lock = threading.Lock()
 
-def process_image(raw_bytes, filename, runner, inference_config, prompt) -> VLMResponseFormat:
+
+def _get_client_ip(request: Request) -> str:
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        return xff.split(",")[0].strip()
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def _rate_limit_or_429(request: Request) -> None:
+    """
+    Fixed-window rate limiter stored in Redis.
+    Uses INCR + EXPIRE for a counter key per window.
+    """
+    if not RATE_LIMIT_ENABLED:
+        return
+
+    now = int(time.time())
+    window_id = now // RATE_LIMIT_WINDOW_SECONDS
+
+    ip = _get_client_ip(request)
+
+    ip_key = f"rl:process:ip:{ip}:{window_id}"
+    global_key = f"rl:process:global:{window_id}"
+
+    pipe = redis_connection.pipeline()
+    pipe.incr(ip_key)
+    pipe.incr(global_key)
+    pipe.ttl(ip_key)
+    pipe.ttl(global_key)
+
+    ip_count, global_count, ip_ttl, global_ttl = pipe.execute()
+
+    if ip_ttl == -1:
+        redis_connection.expire(ip_key, RATE_LIMIT_WINDOW_SECONDS * 2)
+    if global_ttl == -1:
+        redis_connection.expire(global_key, RATE_LIMIT_WINDOW_SECONDS * 2)
+
+    if ip_count > RATE_LIMIT_PER_IP_PER_MIN:
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error": "rate_limited",
+                "scope": "ip",
+                "message": "Too many requests from this client.",
+                "limit": RATE_LIMIT_PER_IP_PER_MIN,
+                "window_seconds": RATE_LIMIT_WINDOW_SECONDS,
+            },
+        )
+
+    if global_count > RATE_LIMIT_GLOBAL_PER_MIN:
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error": "rate_limited",
+                "scope": "global",
+                "message": "Too many requests overall. Try again later.",
+                "limit": RATE_LIMIT_GLOBAL_PER_MIN,
+                "window_seconds": RATE_LIMIT_WINDOW_SECONDS,
+            },
+        )
+
+
+def _process_image(raw_bytes, filename, runner, inference_config, prompt) -> VLMResponseFormat:
     try:
         processed_img = process_and_validate_image_bytes(raw_bytes, filename)
     except Exception as e:
@@ -59,7 +124,7 @@ def process_image(raw_bytes, filename, runner, inference_config, prompt) -> VLMR
     ))
 
 
-def worker_loop():
+def _worker_loop():
     logger.info("Worker loop started. Waiting for jobs on Redis list '%s'...", QUEUE_KEY)
 
     while True:
@@ -77,7 +142,7 @@ def worker_loop():
         inference_config = InferenceConfig(**config_dict)
         
         try:
-            result_obj = process_image(
+            result_obj = _process_image(
                 raw_bytes=raw_bytes,
                 filename=filename,
                 runner=runner,
@@ -97,19 +162,18 @@ def worker_loop():
                 json.dumps({"ok": False, "error": str(e)}),
             )
 
-# FastAPI Router
-router = APIRouter(prefix="/process", tags=["Image Processing"])
 
 def start_worker():
     global _worker_started
     with _worker_lock:
         if _worker_started:
             return
-        t = threading.Thread(target=worker_loop, daemon=True)
+        t = threading.Thread(target=_worker_loop, daemon=True)
         t.start()
         _worker_started = True
 
-# API endpoint: enqueue + wait
+
+router = APIRouter(prefix="/process", tags=["Image Processing"])
 @router.post(
     "",
     response_model=VLMResponseFormat,
@@ -123,6 +187,7 @@ def start_worker():
     },
 )
 def process_image_file(
+    request: Request,
     file: UploadFile = File(...),
     runner: Literal["modal", "local"] = Form("modal"),
     config: str = Form(
@@ -131,6 +196,8 @@ def process_image_file(
     ),
     prompt: Optional[str] = Form(None, description="Custom prompt (optional)"),
 ) -> VLMResponseFormat:
+    _rate_limit_or_429(request)
+
     filename = file.filename or "unnamed file"
 
     raw_bytes = file.file.read()
