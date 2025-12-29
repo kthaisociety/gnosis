@@ -1,4 +1,7 @@
-from lib.models.vlm_models import InferenceConfig
+import json
+from typing import List, Union
+
+from lib.models.vlm_models import InferenceConfig, VLMTableOutput
 from lib.utils.log import get_logger
 from .metrics import compute_rms, compute_rnss
 from .models import EvalOutput
@@ -24,7 +27,14 @@ def eval(
     if not config.output_schema_name:
         config.output_schema_name = dataset.items[0].output_schema_name
     else:
-        logger.warn("output_schema_name forcefully set instead of relying on dataset's schema. Will produce unwanted results if schemas are not equal.")
+        logger.warn(
+            "output_schema_name forcefully set instead of relying on dataset's schema. Will produce unwanted results if schemas are not equal."
+        )
+
+    if config.output_schema_name != dataset.items[0].output_schema_name:
+        raise ValueError(
+            "Schema configuration of inference config does not match dataset's schema!"
+        )
 
     rnss = 0.0
     rms = 0.0
@@ -35,9 +45,19 @@ def eval(
                 runner, item.image_path, prompt, config, local_dataset=local_dataset
             )
 
-            # TODO
-            # rms += compute_rms(vlm_output)
-            # rnss += compute_rnss(vlm_output)
+            if vlm_output is None or vlm_output.json_data is None:
+                logger.warning(f"No output for {item.image_path}, skipping")
+                continue
+
+            predicted_table = parse_json_to_table(
+                vlm_output.json_data, config.output_schema_name
+            )
+
+            target_table = parse_json_to_table(item.expected, config.output_schema_name)
+
+            rms += compute_rms(predicted_table, target_table)
+            rnss += compute_rnss(predicted_table, target_table)
+
     except Exception as e:
         raise ValueError(f"Failed to inference model on dataset: {e}")
 
@@ -52,3 +72,29 @@ def eval(
         avg_rnss=avg_rnss,
         avg_rms=avg_rms,
     )
+
+
+def vlm_table_output_to_table(output: VLMTableOutput) -> List[List[Union[str, float]]]:
+    """
+    helper function for parse_json_to_table
+    """
+    y_label = output.y_label or "y"
+    table = [["", y_label]]
+    for point in output.data:
+        table.append([str(point.x), point.y])
+
+        return table
+
+
+def parse_json_to_table(
+    json_str: str, schema_name: str
+) -> List[List[Union[str, float]]]:
+    """
+    Convert expected output schema (depending on dataset) to a 2D table format for RMS/RNSS metrics.
+    """
+    if schema_name == "VLMTableOutput":
+        data = json.loads(json_str)
+        output = VLMTableOutput(**data)
+        return vlm_table_output_to_table(output)
+    else:
+        raise ValueError(f"Unknown schema: {schema_name}")

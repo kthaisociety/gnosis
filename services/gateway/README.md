@@ -19,7 +19,7 @@ REST API gateway for VLM inference with routing to Modal or local gRPC server.
 
 ```bash
 # gateway environment
-cd app/gateway
+cd services/gateway
 uv venv
 uv sync
 
@@ -39,8 +39,15 @@ USE_GPU=false        # For inference config
 
 ## Run Server
 
+You can run the server directly using uvicorn:
 ```bash
-uv run uvicorn app.server:app --host 127.0.0.1 --port 8000
+uv run uvicorn gateway.server:app --host 127.0.0.1 --port 8000
+```
+
+Alternatively, you can use the helper script from the project root:
+```bash
+# From the project root
+bash scripts/run_gateway.sh
 ```
 
 ## API Usage
@@ -78,9 +85,8 @@ uv run tests/test_inference.py
 
 ## API Structure
 
-- `app/routers/`: FastAPI routers (process, health)
-- `app/services/inference/`: VLM inference code
-- `app/services/preprocessing/`: Image preprocessing
-- `app/gRPC/`: gRPC protocol definitions and generated stubs
-- `app/models/`: Pydantic models (VLMResponseFormat, InferenceConfig, etc.)
-- `app/utils/`: Helpers (logging, image validation, etc.)
+- `src/gateway/routers/`: FastAPI routers (process, health)
+- `src/gateway/preprocessing/`: Image preprocessing
+- `lib/src/lib/gRPC/`: gRPC protocol definitions and generated stubs
+- `lib/src/lib/models/`: Pydantic models (VLMResponseFormat, InferenceConfig, etc.)
+- `lib/src/lib/utils/`: Helpers (logging, image validation, etc.)
