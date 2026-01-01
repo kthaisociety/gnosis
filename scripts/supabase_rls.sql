@@ -1,5 +1,6 @@
 --
--- Create bucket named 'dataset-images' before execution
+-- Creates RLS policies for the 'dataset-images' bucket
+-- Ensure bucket named 'dataset-images' exists before execution
 --
 
 -- Allow uploads
