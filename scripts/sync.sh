@@ -1,4 +1,5 @@
 #!/bin/bash
+# Sync all uv packages in all "sub-projects"
 CURRENT_DIR=$(pwd)
 echo $(pwd)
 
