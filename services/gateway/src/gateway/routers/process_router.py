@@ -35,7 +35,7 @@ async def process_image_file(
     runner: str = Form("modal", pattern="^(modal|local)$"),
     config: str = Form(
         ...,
-        description='InferenceConfig JSON (e.g., {"model_name": "...", "use_gpu": true})',
+        description='InferenceConfig JSON (e.g., {"model_name": "gemini-2.5-flash", "output_schema_name": "VLMTableOutput"})',
     ),
     prompt: Optional[str] = Form(None, description="Custom prompt (optional)"),
 ):
@@ -57,14 +57,17 @@ async def process_image_file(
             # Pydantic validates the dictionary structure immediately
             inference_config = InferenceConfig(**json.loads(config))
         except (json.JSONDecodeError, TypeError, ValueError) as e:
-            raise HTTPException(status_code=400, detail=f"Invalid config JSON: {e}")
+            raise HTTPException(
+                status_code=400, detail=f"Invalid config JSON: {e}")
 
         # 3. Preprocess (Cleaning, Deskewing)
         try:
-            processed_img = process_and_validate_image_bytes(raw_bytes, filename)
+            processed_img = process_and_validate_image_bytes(
+                raw_bytes, filename)
         except Exception as e:
             logger.error(f"Preprocessing failed for {filename}: {e}")
-            raise HTTPException(status_code=422, detail="Image preprocessing failed")
+            raise HTTPException(
+                status_code=422, detail="Image preprocessing failed")
 
         # 4. Execution
         logger.info(f"Running {runner}: model={inference_config.model_name}")
