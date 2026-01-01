@@ -41,6 +41,43 @@ After running the setup script, you can run each service directly using `uv run`
   uv run vlm-server
   ```
 
+## Deployment with Docker
+
+For production environments, each service can be containerized using Docker. Below is an example `Dockerfile` for the `gateway` service. Similar Dockerfiles can be created for other services.
+
+**Example: `Dockerfile.gateway`**
+
+```dockerfile
+# Use a Python base image
+FROM python:3.13-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy the service's pyproject.toml and related files
+COPY services/gateway/pyproject.toml services/gateway/pyproject.toml
+COPY services/gateway/src/ services/gateway/src/
+COPY lib/pyproject.toml lib/pyproject.toml
+COPY lib/src/ lib/src/
+
+# Install dependencies for the gateway service and the shared library
+RUN pip install --no-cache-dir hatchling uv
+RUN uv pip install -e lib -e services/gateway
+
+# Expose the port the Gateway service runs on
+EXPOSE 8000
+
+# Command to run the Gateway service
+CMD ["uvicorn", "services.gateway.src.gateway.server:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+**How to build and run the Docker image (for Gateway):**
+
+```bash
+docker build -t gnosis-gateway -f Dockerfile.gateway .
+docker run -p 8000:8000 gnosis-gateway
+```
+
 ## Architecture
 
 ```mermaid
