@@ -19,7 +19,8 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 def _ensure_bucket_exists():
     try:
         supabase.storage.get_bucket(BUCKET_NAME)
-    except:
+    except Exception as e:
+        logger.info(f"Could not fetch supabase bucket ({e}). Creating bucket...")
         supabase.storage.create_bucket(BUCKET_NAME, options={"public": True})
 
 

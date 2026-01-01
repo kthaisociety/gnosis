@@ -1,15 +1,13 @@
 import os
 
-from lib.db import close_db_pool, create_schema, drop_schema
+from lib.db import close_db_pool, create_schema
 from eval.data.db import (
     create_dataset,
     get_dataset_items,
-    drop_dataset,
     upsert_dataset,
     create_eval_table,
     get_eval_items,
     upsert_eval_table,
-    drop_eval_table,
 )
 from eval.models import EvalDataset, EvalDatasetItem, EvalOutput
 from eval.data import get_dataset
