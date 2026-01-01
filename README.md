@@ -2,15 +2,44 @@
 
 WIP Gnosis monorepo
 
-## Run
+## Onboarding and Running the Project
 
-```
-# start main Gnosis server ('gateway')
-bash scripts/run_gateway.sh
+This project uses `uv` for dependency management and virtual environments within a monorepo workspace.
 
-# [optional] start local compute server
-bash scripts/run_vlm_server.sh
-```
+### Setup
+
+1.  **Run Setup Script**:
+    Navigate to the project root and run the setup script. This will create a virtual environment, install all project dependencies, and install the workspace packages in editable mode.
+
+    ```bash
+    uv run scripts/setup.sh
+    ```
+
+2.  **Configure Environment Variables**:
+    Copy the example environment file and fill in your specific configurations (e.g., API keys, database connection URL).
+
+    ```bash
+    cp .env.example .env
+    # Open .env in your editor and fill out the necessary values
+    ```
+
+### Running Services
+
+After running the setup script, you can run each service directly using `uv run` and the script name:
+
+- **Start the Gateway Server**:
+  The main REST API service.
+
+  ```bash
+  uv run gateway-server
+  ```
+
+- **Start the VLM Server (Optional)**:
+  The inference service.
+
+  ```bash
+  uv run vlm-server
+  ```
 
 ## Architecture
 
@@ -98,17 +127,11 @@ graph TD
 
 ## ENVIRONMENT
 
-- Make sure to have uv on your machine.
-- I will change to use python 3.14 but for now just 3.13. Why? Because cooler and **threading is cool**. If you have a problem with this _please forward complaints to HR._
+- Make sure to have `uv` on your machine.
+- This project targets Python 3.13.
 
 ```bash
-# Use uv or else...
-uv venv
-uv pip install -r requirements.txt
-```
-
-```bash
-# Install pre-commit hook (formats with Ruff on commit) - ruff is cool because Rust omg rust moment hype
+# Install pre-commit hook (formats with Ruff on commit)
 pre-commit install
 ```
 
@@ -123,3 +146,4 @@ Workflow should correct all formatting issues and the bot will push the formatti
 ```bash
 git commit -m "[YOUR COOL COMMIT MESSAGE]" # otherwise just commit normally and it should format your code.
 ```
+
