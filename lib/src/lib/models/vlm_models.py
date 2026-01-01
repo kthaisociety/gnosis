@@ -67,6 +67,6 @@ class Infer(ModelInfo):
     multimodal: bool
     max_len_tokens: int
     avg_latency: float
-    top_percentile_accuracy: bool
-    latest_eval_accuracy: bool
+    top_percentile_accuracy: float
+    latest_eval_accuracy: float
     latest_eval_datetime: datetime
