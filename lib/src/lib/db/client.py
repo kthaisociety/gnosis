@@ -11,7 +11,7 @@ def get_db_pool():
     """Singleton pattern to ensure we only create one pool."""
     global _pool
     if _pool is None:
-        conn_string = os.getenv("DATABASE_URL_DEV")
+        conn_string = os.getenv("DATABASE_URL")
         # Create SINGLE pool for multiple concurrent connections
         _pool = ConnectionPool(conn_string, min_size=1, max_size=10)
     return _pool
