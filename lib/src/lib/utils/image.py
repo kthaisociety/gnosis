@@ -1,9 +1,10 @@
-import base64
-import io
 from typing import Union
-import cv2
-import numpy as np
 from PIL import Image
+import numpy as np
+import mimetypes
+import base64
+import cv2
+import io
 import os
 
 MAX_SIZE = int(os.getenv("MAX_IMAGE_SIZE_BYTES", "20971520"))  # 20MB
@@ -71,3 +72,17 @@ def ensure_pil(data: Union[bytes, Image.Image]) -> Image.Image:
     if isinstance(data, bytes):
         return bytes_to_pil(data)
     return data
+
+
+def get_image_mime_type(file_path: str) -> str:
+    if not mimetypes.inited:
+        mimetypes.init()
+
+    # Get the mime type based on the file extension
+    mime_type, _ = mimetypes.guess_type(file_path)
+
+    # Fallback if unknown or if it's not an image
+    if mime_type is None or not mime_type.startswith("image/"):
+        return "application/octet-stream"
+
+    return mime_type

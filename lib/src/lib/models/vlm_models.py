@@ -20,7 +20,7 @@ class DataPoint(BaseModel):
     y: float
 
 
-class VLMOutput(BaseModel):
+class VLMTableOutput(BaseModel):
     title: Optional[str] = None
     x_label: Optional[str] = None
     y_label: Optional[str] = None
@@ -39,9 +39,10 @@ class ModelInfo(BaseModel):
 
 class InferenceConfig(BaseModel):
     model_name: str
-    use_gpu: Optional[bool] = None
+    output_schema_name: Optional[str] = None  # structured output
 
     # Common parameters
+    use_gpu: Optional[bool] = None
     dtype: Optional[str] = None
     max_tokens: Optional[int] = None
     temperature: Optional[float] = None

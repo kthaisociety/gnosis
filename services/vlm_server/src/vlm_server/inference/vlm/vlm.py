@@ -1,14 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Type, TypeVar
 import json
 import re
 import os
 
-from lib.models.vlm_models import (
-    VLMOutput,
+from lib.models import (
     ModelInfo,
-    InferenceConfig,
+    InferenceConfig
 )
+
+
+# For generic structured output schemas
+T = TypeVar("T")
 
 
 # Main VLM Abstract class
@@ -22,10 +25,21 @@ class VLM(ABC):
         self.loaded = False
 
     def get_config(self, config: InferenceConfig):
-        default_config = VLM.model_info[config.model_name].default_config.copy()
-        config_dict = config.model_dump(exclude_none=True)
-        default_config.update(config_dict)
-        return default_config
+        ret = VLM.model_info[config.model_name].default_config.copy()
+        ret.update(config.model_dump(exclude_none=True))
+        ret["output_schema"] = VLM.get_output_schema(config.output_schema_name)
+        return ret
+
+    @classmethod
+    def get_output_schema(cls, name: str | None):
+        if not name:
+            raise ValueError("No output schema name supplied")
+
+        from lib.models import VLMTableOutput
+        if name == "VLMTableOutput":
+            return VLMTableOutput
+        else:
+            raise ValueError(f"Unknown schema: {name}")
 
     @classmethod
     def load_model_info(cls, path: str = None):
@@ -53,7 +67,8 @@ class VLM(ABC):
             cls.load_model_info()
 
         if model_name not in cls.model_info:
-            print(f"model '{model_name}' not found in models.json (unsupported)")
+            print(
+                f"model '{model_name}' not found in models.json (unsupported)")
             return None
 
         return cls.model_info[model_name]
@@ -65,7 +80,8 @@ class VLM(ABC):
 
         supported_inference_classes = []
         for key in cls.model_info:
-            supported_inference_classes.append(cls.model_info[key].inference_class)
+            supported_inference_classes.append(
+                cls.model_info[key].inference_class)
         return supported_inference_classes
 
     @classmethod
@@ -106,21 +122,22 @@ class VLM(ABC):
     def run(self, image: Any, prompt: str) -> str:
         pass
 
-    def parse_output(self, text: str) -> Optional[VLMOutput]:
+    def parse_output(self, text: str, schema: Type[T]) -> Optional[T]:
         try:
             # Strip markdown code blocks (```json ... ``` or ``` ... ```)
-            text = re.sub(r"^```(?:json)?\s*", "", text.strip(), flags=re.MULTILINE)
+            text = re.sub(r"^```(?:json)?\s*", "",
+                          text.strip(), flags=re.MULTILINE)
             text = re.sub(r"\s*```$", "", text.strip(), flags=re.MULTILINE)
 
             json_match = re.search(r"\{.*\}", text, re.DOTALL)
             json_str = json_match.group() if json_match else text
             parsed_json = json.loads(json_str)
-            return VLMOutput(**parsed_json)
+            return schema(**parsed_json)
         except (json.JSONDecodeError, Exception) as e:
-            print(f"parse error to VLMOutput: {e} ({text})")
+            print(f"parse error to {schema.__name__}: {e} ({text})")
             return None
 
-    def test(self, images: List[Any], prompt: str) -> Optional[VLMOutput]:
+    def test(self, images: List[Any], prompt: str) -> Optional[List[T]]:
         if not self.loaded:
             try:
                 self.load()
@@ -138,7 +155,8 @@ class VLM(ABC):
             ret = []
             for image in images:
                 raw_output = self.run(image, prompt)
-                ret.append(self.parse_output(raw_output))
+                ret.append(self.parse_output(
+                    raw_output, self.config.get("output_schema")))
         except Exception as e:
             raise Exception(
                 f"Failed to inference model of inference class {

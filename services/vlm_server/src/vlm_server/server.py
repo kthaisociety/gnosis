@@ -11,7 +11,7 @@ from lib.gRPC.generated import vlm_pb2, vlm_pb2_grpc
 
 from vlm_server.inference.main import infer
 
-log = get_logger(__name__)
+logger = get_logger(__name__)
 
 
 class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
@@ -24,7 +24,7 @@ class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
             # Handle bytes or memoryview automatically
             image = bytes_to_pil(bytes(request.image))
 
-            log.info(f"Infer: model={config.model_name} gpu={config.use_gpu}")
+            logger.info(f"Infer: model={config.model_name} gpu={config.use_gpu}")
 
             # 2. Run Inference
             output = infer([image], config, request.prompt)
@@ -32,11 +32,11 @@ class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
             # 3. Format & Return
             response_data = self._normalize_output(output)
 
-            log.info(f"Done: {(time.perf_counter() - t0) * 1000:.1f} ms")
+            logger.info(f"Done: {(time.perf_counter() - t0) * 1000:.1f} ms")
             return vlm_pb2.Response(**response_data)
 
         except Exception as e:
-            log.exception("RPC Failed")
+            logger.exception("RPC Failed")
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(str(e))
             return vlm_pb2.Response()
@@ -77,7 +77,7 @@ def serve():
     vlm_pb2_grpc.add_VLMServerServicer_to_server(VLMServerServicer(), server)
     server.add_insecure_port(f"{bind}:{port}")
 
-    log.info(f"VLM gRPC Server listening on {bind}:{port}")
+    logger.info(f"VLM gRPC Server listening on {bind}:{port}")
     server.start()
     server.wait_for_termination()
 

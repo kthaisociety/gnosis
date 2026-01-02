@@ -19,4 +19,4 @@ from . import vlm_pb2
 from . import vlm_pb2_grpc
 EOF
 
-echo "Done"
+echo "Done (generated protos)"
