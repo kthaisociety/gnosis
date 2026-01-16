@@ -29,6 +29,7 @@ TITLE = os.getenv("TITLE", "The Gnosis API")
 HOST = os.getenv("GATEWAY_HOST", "127.0.0.1")
 PORT = int(os.getenv("GATEWAY_PORT", "8000"))
 WORKERS = int(os.getenv("WORKERS", "1"))
+PROD = os.getenv("PROD", "false").lower() == "true"
 
 # --- Logging Setup ---
 logging.basicConfig(
@@ -37,7 +38,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger("gateway")
 
-app = FastAPI(title=TITLE)
+app = FastAPI(
+    title=TITLE,
+    docs_url=None if PROD else "/docs",
+    redoc_url=None if PROD else "/redoc",
+    openapi_url=None if PROD else "/openapi.json",
+)
 app.include_router(health_router)
 app.include_router(process_router)
 
@@ -53,7 +59,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 @app.get("/", include_in_schema=False)
 async def root():
-    """Redirect root to API documentation."""
+    """Redirect root to API documentation or return API info."""
+    if PROD:
+        return {"message": "Gnosis API", "status": "running"}
     return RedirectResponse(url="/docs")
 
 
