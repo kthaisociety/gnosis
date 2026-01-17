@@ -7,6 +7,7 @@ import time
 import uuid
 from typing import Optional
 
+import grpc
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request
 from redis import Redis
 
@@ -122,6 +123,13 @@ def _rate_limit_or_429(request: Request) -> None:
         )
 
 
+def _error_detail(exc: Exception) -> str:
+    if isinstance(exc, grpc.aio.AioRpcError):
+        detail = exc.details()
+        return detail or str(exc)
+    return str(exc)
+
+
 def _process_image(
     raw_bytes: bytes,
     filename: str,
@@ -189,7 +197,7 @@ def _worker_loop() -> None:
             redis_connection.setex(
                 RESULT_PREFIX + job_id,
                 RESULT_TTL_SECONDS,
-                json.dumps({"ok": False, "error": str(e)}),
+                json.dumps({"ok": False, "error": _error_detail(e)}),
             )
 
 
@@ -317,4 +325,8 @@ async def process_image_file(
         raise
     except Exception as e:
         logger.exception(f"System error processing {filename}: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        detail = _error_detail(e)
+        status_code = 502 if isinstance(e, grpc.aio.AioRpcError) else 500
+        if not detail:
+            detail = "Internal server error"
+        raise HTTPException(status_code=status_code, detail=detail)

@@ -41,9 +41,10 @@ app.include_router(process_router)
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    detail = str(exc) or "Internal Server Error. Please check logs."
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal Server Error. Please check logs."},
+        content={"detail": detail},
     )
 
 
