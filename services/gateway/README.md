@@ -4,16 +4,16 @@ REST API gateway for VLM inference with routing to Modal or local gRPC server.
 
 ## Architecture
 
-**Routing**: Routes inference requests via `runner` query param:
-- `modal` → Modal inference (serverless)
-- `local` → gRPC to `vlm_server`
+**Routing**: Routes inference requests via the `runner` form field:
+- `modal` - Modal inference (serverless)
+- `local` - gRPC to `vlm_server`
 
 **Components**:
-- `routers/process_router.py`: Main routing logic
-- `routers/modal_runner.py`: Modal inference runner
-- `routers/grpc_runner.py`: gRPC inference runner
-- `gRPC/protos/vlm.proto`: gRPC protocol definition
-- `services/inference/`: Shared inference code (used by both Modal and local)
+- `src/gateway/routers/process_router.py`: Request validation, queueing, and routing
+- `src/gateway/routers/modal_runner.py`: Modal inference runner
+- `src/gateway/routers/grpc_runner.py`: gRPC inference runner
+- `lib/src/lib/gRPC/protos/vlm.proto`: gRPC protocol definition
+- `services/vlm_server/src/vlm_server/inference/`: Model inference
 
 ## Setup
 
@@ -30,11 +30,43 @@ bash scripts/gen_grpc_protos.sh
 
 Create `.env` file:
 ```bash
-MODAL_TOKEN_ID=your_token_id
-MODAL_TOKEN_SECRET=your_token_secret
-SERVER_IP=localhost  # For gRPC
-GRPC_PORT=50051      # For gRPC
-USE_GPU=false        # For inference config
+MODAL_TOKEN_ID=
+MODAL_TOKEN_SECRET=
+SERVER_IP=localhost  # For gRPC client
+GRPC_PORT=50051      # For gRPC client/server
+
+# Optional gateway settings
+TITLE="The Gnosis API"
+HOST=127.0.0.1
+PORT=8000
+WORKERS=1
+```
+
+## Redis queue (optional)
+
+The gateway can use Redis for request queueing and rate limiting. If disabled,
+requests run inline without Redis.
+
+Start Redis (Docker):
+```bash
+docker run --rm -p 6379:6379 redis:7
+```
+
+Enable in `.env`:
+```bash
+QUEUE_ENABLED=true
+REDIS_URL=redis://localhost:6379
+RATE_LIMIT_ENABLED=true
+
+# Optional tuning
+QUEUE_KEY=jobs
+MAX_QUEUE_SIZE=100
+JOB_TIMEOUT_S=480
+RESULT_TTL_SECONDS=120
+RESULT_POLL_INTERVAL_S=0.02
+RATE_LIMIT_PER_IP_PER_MIN=10
+RATE_LIMIT_GLOBAL_PER_MIN=60
+RATE_LIMIT_WINDOW_SECONDS=60
 ```
 
 ## Run Server
@@ -54,28 +86,51 @@ bash scripts/run_gateway.sh
 
 ### Process Image
 
-```bash
-# Modal inference (default)
-curl -X POST "http://127.0.0.1:8000/process?runner=modal" \
-  -F "file=@image.png"
+`POST /process` (multipart/form-data)
 
-# gRPC local inference
-curl -X POST "http://127.0.0.1:8000/process?runner=local" \
-  -F "file=@image.png"
+Fields:
+- `file` (required): Image file upload
+- `runner` (optional): `modal` or `local` (default `modal`)
+- `config` (required): JSON string matching `InferenceConfig`
+- `prompt` (optional): Custom prompt
+
+`InferenceConfig` (JSON)
+
+Required:
+- `model_name`
+- `output_schema_name` for Gemini models (supported: `VLMTableOutput`)
+
+Optional:
+- `use_gpu`, `dtype`, `max_tokens`, `temperature`, `top_p`, `top_k`
+- `api_key` (for API models like Gemini)
+- `max_model_len`, `model_class`, `device_map`, `return_tensors`, `padding`, `attn_implementation`
+
+Example (Modal):
+```bash
+curl -X POST "http://127.0.0.1:8000/process"   -F "file=@image.png"   -F "runner=modal"   -F 'config={"model_name":"gemini-2.5-flash","output_schema_name":"VLMTableOutput"}'
+```
+
+Example (local gRPC):
+```bash
+curl -X POST "http://127.0.0.1:8000/process"   -F "file=@image.png"   -F "runner=local"   -F 'config={"model_name":"gemini-2.5-flash","output_schema_name":"VLMTableOutput"}'
 ```
 
 ### Response Format
 
 ```json
 {
-  "html": "...",
-  "json_data": "{...}",
-  "csv": "...",
-  "text": "...",
-  "markdown": "...",
-  "inference_time_ms": 1234.5
+  "html": null,
+  "json_data": "{"title":"...","data":[{"x":1.0,"y":2.0}]}",
+  "csv": null,
+  "text": null,
+  "markdown": null,
+  "model_name": null,
+  "inference_time_ms": 1234.5,
+  "tokens_used": null
 }
 ```
+
+Note: `json_data` is a JSON-encoded string. Parse it on the client if present.
 
 ## Testing
 
