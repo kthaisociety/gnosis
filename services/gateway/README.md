@@ -84,7 +84,19 @@ bash scripts/run_gateway.sh
 
 ## API Usage
 
-### Process Image
+Base URL: `http://127.0.0.1:8000` (override with `HOST` and `PORT` env vars)
+
+### OpenAPI
+
+- Swagger UI: `GET /docs`
+- OpenAPI JSON: `GET /openapi.json`
+
+### Health
+
+- HTML dashboard: `GET /health/`
+- JSON status: `GET /health/json`
+
+### Inference
 
 `POST /process` (multipart/form-data)
 
