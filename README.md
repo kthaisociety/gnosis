@@ -14,13 +14,17 @@ bash scripts/run_vlm_server.sh
 
 ## API
 
-Base URL (default): `http://127.0.0.1:8000`
+Base URL: `http://127.0.0.1:8000` (override with `HOST` and `PORT` env vars)
 
-### Docs
+### OpenAPI
 
 - Swagger UI: `GET /docs`
-- Health dashboard: `GET /health/`
-- Health JSON: `GET /health/json`
+- OpenAPI JSON: `GET /openapi.json`
+
+### Health
+
+- HTML dashboard: `GET /health/`
+- JSON status: `GET /health/json`
 
 ### Inference
 
@@ -33,25 +37,26 @@ Fields:
 - `prompt` (optional): custom prompt
 
 `InferenceConfig` (JSON)
-- Required: `model_name`
-- Required for Gemini: `output_schema_name` (currently only `"VLMTableOutput"`)
-- Optional: `use_gpu`, `dtype`, `max_tokens`, `temperature`, `top_p`, `top_k`,
-  `api_key`, `max_model_len`, `model_class`, `device_map`, `return_tensors`,
-  `padding`, `attn_implementation`
+
+Required:
+- `model_name` (string)
+- `output_schema_name` (string) for Gemini models; supported: `VLMTableOutput`
+
+Optional:
+- `use_gpu`, `dtype`, `max_tokens`, `temperature`, `top_p`, `top_k`
+- `api_key` (for API models like Gemini)
+- `max_model_len`, `model_class`, `device_map`, `return_tensors`, `padding`, `attn_implementation`
 
 Example request:
 ```bash
-curl -X POST "http://127.0.0.1:8000/process" \
-  -F "file=@/path/to/image.png" \
-  -F 'config={"model_name":"gemini-2.5-flash","output_schema_name":"VLMTableOutput"}' \
-  -F "runner=modal"
+curl -X POST "http://127.0.0.1:8000/process"   -F "file=@/path/to/image.png"   -F 'config={"model_name":"gemini-2.5-flash","output_schema_name":"VLMTableOutput"}'   -F "runner=modal"
 ```
 
-Example response (VLMResponseFormat):
+Example response (`VLMResponseFormat`):
 ```json
 {
   "html": null,
-  "json_data": "{\"title\":\"...\",\"data\":[{\"x\":1.0,\"y\":2.0}]}",
+  "json_data": "{"title":"...","data":[{"x":1.0,"y":2.0}]}",
   "csv": null,
   "text": null,
   "markdown": null,
@@ -61,12 +66,17 @@ Example response (VLMResponseFormat):
 }
 ```
 
+Note: `json_data` is a JSON-encoded string. Parse it on the client if present.
+
 ### Optional queueing
 
 If you want Redis-backed queueing and rate limiting in the gateway:
-- `QUEUE_ENABLED=true`
-- `REDIS_URL=redis://localhost:6379`
-- Optional: `RATE_LIMIT_ENABLED=true`
+
+```bash
+QUEUE_ENABLED=true
+REDIS_URL=redis://localhost:6379
+RATE_LIMIT_ENABLED=true
+```
 
 ## Architecture
 
