@@ -1,8 +1,7 @@
-import json
 import time
-from typing import List, Union, Optional
+from typing import Optional
 
-from lib.models.vlm_models import InferenceConfig, VLMTableOutput
+from lib.models.vlm_models import InferenceConfig
 from lib.utils.log import get_logger
 from .metrics import compute_rms, compute_rnss
 from .models import (
@@ -21,22 +20,20 @@ from .data import (
     create_metric,
 )
 from .data.s3_bucket import get_s3_url
+from .data.utils import parse_vlm_output_to_table
 from .api import infer
 
 logger = get_logger(__name__)
 
 
-def eval_cloud(
-    runner: str,
+def eval(
+    runner: str, # 'modal' or 'local'
     config: InferenceConfig,
     dataset_name: str,
-    prompt: Optional[str] = None,
-    initiated_by: Optional[str] = None,
+    prompt: Optional[str] = None, # optional custom prompt
+    initiated_by: Optional[str] = None, # optional identifier for who started the eval
 ) -> EvalOutput:
     """
-    Evaluate VLM on a cloud-based benchmark dataset.
-
-    Workflow:
     1. Fetch dataset and images from Neon DB
     2. Create evaluation run to track progress
     3. For each image:
@@ -46,30 +43,18 @@ def eval_cloud(
        - Compute RMS and RNSS metrics
        - Store prediction and metrics in DB
     4. Aggregate metrics and return results
-
-    Args:
-        runner: Inference runner type ("grpc" or "modal")
-        config: VLM inference configuration
-        dataset_name: Name of the dataset to evaluate on
-        prompt: Optional custom prompt for inference
-        initiated_by: Optional identifier for who started this evaluation
-
-    Returns:
-        EvalOutput with aggregated metrics
     """
+
     dataset = get_dataset_by_name(dataset_name)
     if not dataset:
         raise ValueError(f"Dataset '{dataset_name}' not found in database")
-
     logger.info(f"Evaluating on dataset: {dataset.name} (version: {dataset.version})")
 
     images = list_images_by_dataset(dataset.dataset_id)
     if not images:
         raise ValueError(f"No images found for dataset '{dataset_name}'")
-
     logger.info(f"Found {len(images)} images in dataset")
 
-    # Eval run for database
     eval_run = EvaluationRunCreate(
         model_name=config.model_name,
         model_version=getattr(config, "model_version", None),
@@ -82,7 +67,6 @@ def eval_cloud(
     run_id = create_evaluation_run(eval_run)
     if not run_id:
         raise RuntimeError("Failed to create evaluation run")
-
     logger.info(f"Created evaluation run: {run_id}")
 
     update_run_status(
@@ -103,11 +87,8 @@ def eval_cloud(
             logger.info(f"[{idx}/{len(images)}] Processing image: {image.file_path}")
 
             try:
-                # Check if image has ground truth
                 if not image.ground_truth:
-                    logger.warning(
-                        f"Image {image.image_id} has no ground truth, skipping"
-                    )
+                    logger.warning(f"Image {image.image_id} has no ground truth")
                     failed_count += 1
                     continue
 
@@ -119,15 +100,12 @@ def eval_cloud(
                     image_path=s3_url,
                     prompt=prompt,
                     config=config,
-                    local_dataset=False,
                 )
 
                 latency_ms = int((time.time() - start_time) * 1000)
 
                 if vlm_output is None or vlm_output.json_data is None:
-                    logger.warning(f"No output for {image.file_path}, skipping")
-
-                    # Store failed prediction
+                    logger.warning(f"No output for {image.file_path}")
                     create_prediction(
                         PredictionCreate(
                             image_id=image.image_id,
@@ -146,7 +124,6 @@ def eval_cloud(
                 predicted_table = parse_vlm_output_to_table(
                     vlm_output.json_data, config.output_schema_name
                 )
-
                 target_table = image.ground_truth
 
                 image_rms = compute_rms(predicted_table, target_table)
@@ -168,7 +145,6 @@ def eval_cloud(
                 )
 
                 prediction_id = create_prediction(prediction)
-
                 if prediction_id:
                     create_metric(
                         MetricCreate(
@@ -262,127 +238,3 @@ def eval_cloud(
         )
         raise
 
-
-def parse_vlm_output_to_table(
-    json_str: str, schema_name: str
-) -> List[List[Union[str, float]]]:
-    """
-    Convert VLM output (JSON) to 2D table format for metrics.
-
-    Args:
-        json_str: JSON string from VLM output
-        schema_name: Output schema name
-
-    Returns:
-        2D table as List[List[str]]
-    """
-    if schema_name == "VLMTableOutput":
-        data = json.loads(json_str)
-        output = VLMTableOutput(**data)
-        return vlm_table_output_to_table(output)
-    else:
-        raise ValueError(f"Unknown schema: {schema_name}")
-
-
-def vlm_table_output_to_table(output: VLMTableOutput) -> List[List[Union[str, float]]]:
-    """
-    Convert VLMTableOutput to 2D table format.
-
-    Format:
-    [
-        ["", "y_label"],
-        ["x1", y1],
-        ["x2", y2],
-        ...
-    ]
-    """
-    y_label = output.y_label or "y"
-    table = [["", y_label]]
-
-    for point in output.data:
-        table.append([str(point.x), point.y])
-
-    return table
-
-
-# TODO: This implemenation is might  be deprecated for working wiht local dataset. Either remove or update.
-def eval(
-    runner: str,
-    config: InferenceConfig,
-    dataset_name: str,
-    local_dataset: bool,
-    prompt: str = None,
-) -> EvalOutput:
-    """
-    Legacy eval function for backward compatibility.
-
-    If local_dataset=False, delegates to eval_cloud().
-    If local_dataset=True, uses old local dataset logic.
-    """
-    if not local_dataset:
-        return eval_cloud(
-            runner=runner,
-            config=config,
-            dataset_name=dataset_name,
-            prompt=prompt,
-        )
-
-    from .data import get_dataset, verify_dataset
-
-    dataset = get_dataset(dataset_name, local=local_dataset)
-    try:
-        verify_dataset(dataset)
-    except Exception as e:
-        raise ValueError(f"Invalid dataset: {e}")
-
-    if not config.output_schema_name:
-        config.output_schema_name = dataset.items[0].output_schema_name
-    else:
-        logger.warn(
-            "output_schema_name forcefully set instead of relying on dataset's schema. "
-            "Will produce unwanted results if schemas are not equal."
-        )
-
-    if config.output_schema_name != dataset.items[0].output_schema_name:
-        raise ValueError(
-            "Schema configuration of inference config does not match dataset's schema!"
-        )
-
-    rnss = 0.0
-    rms = 0.0
-
-    try:
-        for item in dataset.items:
-            vlm_output = infer(
-                runner, item.image_path, prompt, config, local_dataset=local_dataset
-            )
-
-            if vlm_output is None or vlm_output.json_data is None:
-                logger.warning(f"No output for {item.image_path}, skipping")
-                continue
-
-            predicted_table = parse_vlm_output_to_table(
-                vlm_output.json_data, config.output_schema_name
-            )
-
-            target_table = parse_vlm_output_to_table(
-                item.expected, config.output_schema_name
-            )
-
-            rms += compute_rms(predicted_table, target_table)
-            rnss += compute_rnss(predicted_table, target_table)
-
-    except Exception as e:
-        raise ValueError(f"Failed to inference model on dataset: {e}")
-
-    n_items = len(dataset.items)
-    avg_rnss = rnss / n_items
-    avg_rms = rms / n_items
-
-    return EvalOutput(
-        model_name=config.model_name,
-        dataset_name=dataset_name,
-        output_schema_name=config.output_schema_name,
-        avg_rnss=avg_rnss,
-        avg_rms=avg_rms,
-    )

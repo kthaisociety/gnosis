@@ -213,16 +213,24 @@ def delete_dataset_images(dataset_name: str) -> bool:
         return False
 
 
-def get_s3_url(s3_key: str) -> str:
+def get_s3_url(s3_key: str, signed: bool = True, expiration: int = 3600) -> str:
     """
-    Generates a public URL for an S3 object.
+    Generates a URL for an S3 object.
 
     Args:
         s3_key: S3 key/path of the object
+        signed: If True, returns pre-signed URL (default). If False, returns public URL.
+        expiration: Expiration time in seconds for signed URLs (default 1 hour)
 
     Returns:
-        Public URL for the object
+        URL for the object
     """
+    if signed:
+        return s3_client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": S3_BUCKET_NAME, "Key": s3_key},
+            ExpiresIn=expiration,
+        )
     return f"{S3_ENDPOINT_URL}/{S3_BUCKET_NAME}/{s3_key}"
 
 

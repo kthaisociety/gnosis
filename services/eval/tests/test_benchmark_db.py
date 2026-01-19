@@ -357,10 +357,15 @@ class TestPredictionOperations:
 
     def test_get_predictions_by_run(self, test_setup):
         """Test retrieving all predictions for a run."""
-        # Create multiple predictions
+        # Create multiple predictions with different images (unique constraint on image_id, run_id)
         for i in range(3):
+            image = ImageCreate(
+                dataset_id=test_setup["dataset_id"],
+                file_path=f"test_pred_image_{i}.png"
+            )
+            image_id = create_image(image)
             prediction = PredictionCreate(
-                image_id=test_setup["image_id"],
+                image_id=image_id,
                 run_id=test_setup["run_id"],
                 output={"value": i},
                 success=True,

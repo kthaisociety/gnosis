@@ -18,20 +18,14 @@ def infer(
     image_path: str,
     prompt: str,
     config: InferenceConfig,
-    local_dataset: bool,
 ):
     try:
-        # Get image content from path (local path or url)
-        image_content = None
-        if local_dataset:
-            with open(image_path, "rb") as f:
-                image_content = f.read()
+        # Get image
+        image_res = requests.get(image_path)
+        image_res.raise_for_status()
+        image_content = image_res.content
 
-        else:
-            image_res = requests.get(image_path)
-            image_res.raise_for_status()
-            image_content = image_res.content
-
+        # API request to gateway
         res = requests.post(
             f"{URL}/process",
             data={
