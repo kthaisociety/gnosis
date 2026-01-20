@@ -25,10 +25,12 @@ from gateway.routers.process_router import router as process_router
 
 # ProcessResponseFormat(**result) to skip FastAPi JSON serialization, RUN TIME OPTIMIZATION ;)
 
-TITLE = os.getenv("TITLE", "The Gnosis API")
-HOST = os.getenv("HOST", "127.0.0.1")
-PORT = int(os.getenv("PORT", "8000"))
-WORKERS = int(os.getenv("WORKERS", "1"))
+from gateway.config import config
+
+TITLE = config.TITLE
+HOST = config.HOST
+PORT = config.PORT
+WORKERS = config.WORKERS
 
 # --- Logging Setup ---
 logging.basicConfig(
