@@ -10,6 +10,7 @@ from typing import Optional
 import modal
 from lib.models.vlm_models import (
     VLMResponseFormat,
+    VLMTableOutput,
     DataPoint,
     InferenceConfig,
 )
@@ -22,7 +23,9 @@ _infer_module = types.ModuleType("infer")
 _infer_module.vlm = types.ModuleType("infer.vlm")
 _infer_module.vlm.vlm = types.ModuleType("infer.vlm.vlm")
 _infer_module.vlm.DataPoint = DataPoint
+_infer_module.vlm.VLMTableOutput = VLMTableOutput
 _infer_module.vlm.vlm.DataPoint = DataPoint
+_infer_module.vlm.vlm.VLMTableOutput = VLMTableOutput
 sys.modules["infer"] = _infer_module
 sys.modules["infer.vlm"] = _infer_module.vlm
 sys.modules["infer.vlm.vlm"] = _infer_module.vlm.vlm
@@ -85,8 +88,13 @@ async def run_modal_inference(
         json_data: Optional[str] = None
         text_data: Optional[str] = None
 
+        if isinstance(result, list) and result:
+            result = result[0]
+
         if hasattr(result, "model_dump_json"):
             json_data = result.model_dump_json(exclude_none=True)
+        elif hasattr(result, "model_dump"):
+            json_data = json.dumps(result.model_dump(exclude_none=True))
         elif isinstance(result, dict):
             json_data = json.dumps(result)
         elif isinstance(result, str):
