@@ -1,5 +1,7 @@
 # Gnosis
 
+![Gnosis Logo](assets/gnosis_logo.jpg)
+
 Gnosis is a VLM (Vision Language Model) evaluation platform for extracting structured data from scanned oil & gas industry documents. It benchmarks multiple VLM backends against ground-truth datasets using custom scoring metrics. Built by [KTH AI Society](https://github.com/kthaisociety).
 
 ## Onboarding and Running the Project
