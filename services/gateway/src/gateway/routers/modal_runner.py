@@ -19,6 +19,7 @@ from lib.utils.log import get_logger
 logger = get_logger(__name__)
 
 # Create stub modules for Modal deserialization
+# This allows the gateway to deserialize VLMOutput objects from Modal
 _infer_module = types.ModuleType("infer")
 _infer_module.vlm = types.ModuleType("infer.vlm")
 _infer_module.vlm.vlm = types.ModuleType("infer.vlm.vlm")
@@ -29,6 +30,22 @@ _infer_module.vlm.vlm.DataPoint = DataPoint
 sys.modules["infer"] = _infer_module
 sys.modules["infer.vlm"] = _infer_module.vlm
 sys.modules["infer.vlm.vlm"] = _infer_module.vlm.vlm
+
+# Stub for modal_app module (where VLMOutput is defined in the Modal deployment)
+_modal_app_module = types.ModuleType("modal_app")
+_modal_app_module.VLMOutput = VLMOutput
+_modal_app_module.DataPoint = DataPoint
+_modal_app_module.InferenceConfig = InferenceConfig
+sys.modules["modal_app"] = _modal_app_module
+
+# Stub for models.vlm_models (mounted lib path in Modal container)
+_models_module = types.ModuleType("models")
+_models_vlm_models_module = types.ModuleType("models.vlm_models")
+_models_vlm_models_module.VLMOutput = VLMOutput
+_models_vlm_models_module.DataPoint = DataPoint
+_models_vlm_models_module.InferenceConfig = InferenceConfig
+sys.modules["models"] = _models_module
+sys.modules["models.vlm_models"] = _models_vlm_models_module
 
 
 def ensure_modal_auth():
