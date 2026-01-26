@@ -21,7 +21,7 @@ res = eval(
     config=InferenceConfig(
         model_name="gemini-2.5-flash",
         api_key=GEMINI_API_KEY,
-        #output_schema_name="VLMTableOutput",
+        # output_schema_name="VLMTableOutput",
         use_gpu=False,
     ),
     dataset_name="test",

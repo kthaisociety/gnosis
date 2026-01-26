@@ -13,7 +13,7 @@ def csv_to_dataset(path: str) -> EvalDataset:
     name = os.path.splitext(os.path.basename(path))[0]
     items = []
     try:
-        with open(path, 'r', newline='') as f:
+        with open(path, "r", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 items.append(EvalDatasetItem(**row))

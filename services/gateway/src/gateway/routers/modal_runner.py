@@ -30,6 +30,22 @@ sys.modules["infer"] = _infer_module
 sys.modules["infer.vlm"] = _infer_module.vlm
 sys.modules["infer.vlm.vlm"] = _infer_module.vlm.vlm
 
+# Stub for modal_app module (where VLMOutput is defined in the Modal deployment)
+_modal_app_module = types.ModuleType("modal_app")
+_modal_app_module.VLMOutput = VLMTableOutput
+_modal_app_module.DataPoint = DataPoint
+_modal_app_module.InferenceConfig = InferenceConfig
+sys.modules["modal_app"] = _modal_app_module
+
+# Stub for models.vlm_models (mounted lib path in Modal container)
+_models_module = types.ModuleType("models")
+_models_vlm_models_module = types.ModuleType("models.vlm_models")
+_models_vlm_models_module.VLMOutput = VLMTableOutput
+_models_vlm_models_module.DataPoint = DataPoint
+_models_vlm_models_module.InferenceConfig = InferenceConfig
+sys.modules["models"] = _models_module
+sys.modules["models.vlm_models"] = _models_vlm_models_module
+
 
 def ensure_modal_auth():
     """Ensure Modal credentials are available."""
@@ -107,7 +123,9 @@ async def run_modal_inference(
             text_data = str(result)
 
         if json_data:
-            return VLMResponseFormat(json_data=json_data, inference_time_ms=processed_time)
+            return VLMResponseFormat(
+                json_data=json_data, inference_time_ms=processed_time
+            )
         else:
             return VLMResponseFormat(text=text_data, inference_time_ms=processed_time)
 

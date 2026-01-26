@@ -63,8 +63,7 @@ def upsert_dataset(dataset_name: str, model: EvalDatasetItem):
 
 def drop_dataset(dataset_name: str):
     pool = get_db_pool()
-    sql = SQL("DROP TABLE IF EXISTS datasets.{}").format(
-        Identifier(dataset_name))
+    sql = SQL("DROP TABLE IF EXISTS datasets.{}").format(Identifier(dataset_name))
 
     with pool.connection() as conn:
         with conn.cursor() as cur:
@@ -73,8 +72,10 @@ def drop_dataset(dataset_name: str):
                 cur.execute(sql)
                 return True
             except Exception as e:
-                logger.error(f"Failed to drop dataset named {
-                             dataset_name}: {e}")
+                logger.error(
+                    f"Failed to drop dataset named {
+                             dataset_name}: {e}"
+                )
                 return False
 
 
