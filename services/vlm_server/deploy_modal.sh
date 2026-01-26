@@ -45,7 +45,7 @@ else
     echo ""
     echo "Deploying to Modal..."
     modal deploy modal_app.py
-    
+
     echo ""
     echo "=========================================="
     echo "✅ Deployment complete!"

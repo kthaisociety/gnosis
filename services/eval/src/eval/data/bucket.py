@@ -28,11 +28,11 @@ def upload_dataset_image(dataset_name: str, local_image_path: str) -> str:
     filename = Path(local_image_path).name
     remote_path = f"{dataset_name}/{filename}"
 
-    with open(local_image_path, 'rb') as f:
+    with open(local_image_path, "rb") as f:
         supabase.storage.from_(BUCKET_NAME).upload(
             path=remote_path,
             file=f,
-            file_options={"content-type": "image/jpeg", "upsert": "true"}
+            file_options={"content-type": "image/jpeg", "upsert": "true"},
         )
 
     return supabase.storage.from_(BUCKET_NAME).get_public_url(remote_path)

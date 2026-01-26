@@ -7,7 +7,6 @@ Pre-download model: modal run modal_app.py::download_model --model-name "nanonet
 """
 
 import os
-import sys
 from typing import List, Optional, Any, Dict
 from pathlib import Path
 from pydantic import BaseModel

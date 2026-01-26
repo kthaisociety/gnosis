@@ -22,8 +22,11 @@ items = []
 for filename in os.listdir(IMAGES_DIR):
     full_path = os.path.join(IMAGES_DIR, filename)
     items.append(
-        EvalDatasetItem(image_path=full_path,
-                        output_schema_name="VLMTableOutput", expected="hihihaha")
+        EvalDatasetItem(
+            image_path=full_path,
+            output_schema_name="VLMTableOutput",
+            expected="hihihaha",
+        )
     )
 dataset = EvalDataset(name=name, items=items)
 item = dataset.items[0]
@@ -51,8 +54,8 @@ try:
     dataset = get_dataset("test", local=False)
     print(dataset.model_dump())
 
-    #drop_dataset("test")
-    #drop_schema("datasets")
+    # drop_dataset("test")
+    # drop_schema("datasets")
 
     # Test eval output
     create_eval_table()
@@ -61,6 +64,6 @@ try:
     eval_items = get_eval_items()
     print(eval_items)
 
-    #drop_eval_table()
+    # drop_eval_table()
 finally:
     close_db_pool()

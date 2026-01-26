@@ -31,8 +31,7 @@ def verify_dataset(dataset: EvalDataset):
     for item in dataset.items:
         output_schema_names.add(item.output_schema_name)
     if len(output_schema_names) > 1:
-        raise ValueError(
-            "More than one output_schema_name contained by dataset items")
+        raise ValueError("More than one output_schema_name contained by dataset items")
 
     # TODO: add check that output_schema_name is valid too
     # currently VLM.get_model_info is local to vlm_server
