@@ -32,7 +32,7 @@ sys.modules["infer.vlm.vlm"] = _infer_module.vlm.vlm
 
 # Stub for modal_app module (where VLMOutput is defined in the Modal deployment)
 _modal_app_module = types.ModuleType("modal_app")
-_modal_app_module.VLMOutput = VLMOutput
+_modal_app_module.VLMOutput = VLMTableOutput
 _modal_app_module.DataPoint = DataPoint
 _modal_app_module.InferenceConfig = InferenceConfig
 sys.modules["modal_app"] = _modal_app_module
@@ -40,7 +40,7 @@ sys.modules["modal_app"] = _modal_app_module
 # Stub for models.vlm_models (mounted lib path in Modal container)
 _models_module = types.ModuleType("models")
 _models_vlm_models_module = types.ModuleType("models.vlm_models")
-_models_vlm_models_module.VLMOutput = VLMOutput
+_models_vlm_models_module.VLMOutput = VLMTableOutput
 _models_vlm_models_module.DataPoint = DataPoint
 _models_vlm_models_module.InferenceConfig = InferenceConfig
 sys.modules["models"] = _models_module

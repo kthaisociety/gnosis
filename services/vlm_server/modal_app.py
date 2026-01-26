@@ -41,6 +41,7 @@ class VLMOutput(BaseModel):
 
 class InferenceConfig(BaseModel):
     model_name: str
+    output_schema_name: Optional[str] = None
     use_gpu: Optional[bool] = None
     dtype: Optional[str] = None
     max_tokens: Optional[int] = None
@@ -138,6 +139,7 @@ else:
             {
                 "HF_HOME": MODEL_CACHE_DIR,
                 "PYTHONPATH": "/root/vlm_server:/root/lib",
+                "BUILD_VERSION": "2026-01-26-v3",  # Force full rebuild
             }
         )
         .pip_install(
@@ -245,7 +247,7 @@ class OCRInference:
             if raw is None:
                 results.append(VLMOutput(data=[]))
             elif hasattr(raw, "model_dump"):
-                # Convert pydantic model to our VLMOutput
+                # Already a pydantic model, convert to our VLMOutput
                 data = raw.model_dump()
                 results.append(VLMOutput(**data))
             else:
