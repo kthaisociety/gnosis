@@ -10,6 +10,7 @@ from typing import Optional
 import modal
 from lib.models.vlm_models import (
     VLMResponseFormat,
+    VLMTableOutput,
     DataPoint,
     VLMTableOutput,
     InferenceConfig,
@@ -23,19 +24,17 @@ logger = get_logger(__name__)
 _infer_module = types.ModuleType("infer")
 _infer_module.vlm = types.ModuleType("infer.vlm")
 _infer_module.vlm.vlm = types.ModuleType("infer.vlm.vlm")
-
-# Add models to both namespaces (some versions of the remote app might use different paths)
-for mod in [_infer_module.vlm, _infer_module.vlm.vlm]:
-    mod.DataPoint = DataPoint
-    mod.VLMTableOutput = VLMTableOutput
-    mod.VLMOutput = VLMTableOutput # Alias for older/other versions
-
+_infer_module.vlm.DataPoint = DataPoint
+_infer_module.vlm.VLMTableOutput = VLMTableOutput
+_infer_module.vlm.vlm.DataPoint = DataPoint
+_infer_module.vlm.vlm.VLMTableOutput = VLMTableOutput
 sys.modules["infer"] = _infer_module
 sys.modules["infer.vlm"] = _infer_module.vlm
 sys.modules["infer.vlm.vlm"] = _infer_module.vlm.vlm
 
 
 from gateway.config import config
+
 
 def ensure_modal_auth():
     """Ensure Modal credentials are available."""
@@ -79,8 +78,13 @@ async def run_modal_inference(
         json_data: Optional[str] = None
         text_data: Optional[str] = None
 
+        if isinstance(result, list) and result:
+            result = result[0]
+
         if hasattr(result, "model_dump_json"):
             json_data = result.model_dump_json(exclude_none=True)
+        elif hasattr(result, "model_dump"):
+            json_data = json.dumps(result.model_dump(exclude_none=True))
         elif isinstance(result, dict):
             json_data = json.dumps(result)
         elif isinstance(result, str):
@@ -93,7 +97,9 @@ async def run_modal_inference(
             text_data = str(result)
 
         if json_data:
-            return VLMResponseFormat(json_data=json_data, inference_time_ms=processed_time)
+            return VLMResponseFormat(
+                json_data=json_data, inference_time_ms=processed_time
+            )
         else:
             return VLMResponseFormat(text=text_data, inference_time_ms=processed_time)
 
