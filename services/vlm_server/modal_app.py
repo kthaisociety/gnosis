@@ -72,8 +72,8 @@ if not (os.getenv("MODAL_TOKEN_ID") and os.getenv("MODAL_TOKEN_SECRET")):
 app = modal.App("gnosis-infer-app")
 
 # GPU configuration via environment variables
-GPU_TYPE = os.getenv("GPU_TYPE", "A10G")
-GPU_COUNT = int(os.getenv("GPU_COUNT", "1"))
+GPU_TYPE = os.getenv("GPU_TYPE", "L4")
+GPU_COUNT = int(os.getenv("GPU_COUNT", "4"))
 
 # Resolve paths - now in vlm_server, paths are simpler
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -139,7 +139,7 @@ else:
             {
                 "HF_HOME": MODEL_CACHE_DIR,
                 "PYTHONPATH": "/root/vlm_server:/root/lib",
-                "BUILD_VERSION": "2026-01-26-v3",  # Force full rebuild
+                "BUILD_VERSION": "2026-01-26-v6",
             }
         )
         .pip_install(
