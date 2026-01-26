@@ -1,15 +1,8 @@
-import { useState } from "react";
-import LoginPage from "@/components/LoginPage";
 import BenchmarkCard from "@/components/BenchmarkCard";
+import { authClient } from "@/lib/auth";
 
 const Index = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  if (!isAuthenticated) {
-    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
-  }
-
-  return <BenchmarkCard onLogout={() => setIsAuthenticated(false)} />;
+  return <BenchmarkCard onLogout={() => authClient.signOut()} />;
 };
 
 export default Index;

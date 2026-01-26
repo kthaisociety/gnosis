@@ -10,7 +10,7 @@ from typing import Optional
 import modal
 from lib.models.vlm_models import (
     VLMResponseFormat,
-    VLMOutput,
+    VLMTableOutput,
     DataPoint,
     InferenceConfig,
 )
@@ -19,14 +19,13 @@ from lib.utils.log import get_logger
 logger = get_logger(__name__)
 
 # Create stub modules for Modal deserialization
-# This allows the gateway to deserialize VLMOutput objects from Modal
 _infer_module = types.ModuleType("infer")
 _infer_module.vlm = types.ModuleType("infer.vlm")
 _infer_module.vlm.vlm = types.ModuleType("infer.vlm.vlm")
-_infer_module.vlm.VLMOutput = VLMOutput
 _infer_module.vlm.DataPoint = DataPoint
-_infer_module.vlm.vlm.VLMOutput = VLMOutput
+_infer_module.vlm.VLMTableOutput = VLMTableOutput
 _infer_module.vlm.vlm.DataPoint = DataPoint
+_infer_module.vlm.vlm.VLMTableOutput = VLMTableOutput
 sys.modules["infer"] = _infer_module
 sys.modules["infer.vlm"] = _infer_module.vlm
 sys.modules["infer.vlm.vlm"] = _infer_module.vlm.vlm
@@ -102,28 +101,34 @@ async def run_modal_inference(
         logger.info(f"[Modal] Done in {processed_time:.1f} ms for {filename}")
 
         # Normalize result
+        json_data: Optional[str] = None
+        text_data: Optional[str] = None
+
         if isinstance(result, list) and result:
-            first = result[0]
-            if hasattr(first, "model_dump_json"):
-                json_str = first.model_dump_json(exclude_none=True)
-            elif hasattr(first, "model_dump"):
-                json_str = json.dumps(first.model_dump(exclude_none=True))
-            else:
-                return VLMResponseFormat(
-                    text=str(first), inference_time_ms=processed_time
-                )
+            result = result[0]
+
+        if hasattr(result, "model_dump_json"):
+            json_data = result.model_dump_json(exclude_none=True)
+        elif hasattr(result, "model_dump"):
+            json_data = json.dumps(result.model_dump(exclude_none=True))
         elif isinstance(result, dict):
-            json_str = json.dumps(result)
+            json_data = json.dumps(result)
         elif isinstance(result, str):
             try:
                 json.loads(result)
-                json_str = result
-            except Exception:
-                return VLMResponseFormat(text=result, inference_time_ms=processed_time)
+                json_data = result
+            except json.JSONDecodeError:
+                text_data = result
         else:
-            return VLMResponseFormat(text=str(result), inference_time_ms=processed_time)
+            text_data = str(result)
 
-        return VLMResponseFormat(json_data=json_str, inference_time_ms=processed_time)
+        if json_data:
+            return VLMResponseFormat(
+                json_data=json_data, inference_time_ms=processed_time
+            )
+        else:
+            return VLMResponseFormat(text=text_data, inference_time_ms=processed_time)
+
     except Exception as e:
         logger.error(f"[Modal] Failed for {filename}: {e}")
         raise

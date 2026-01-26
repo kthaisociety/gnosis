@@ -1,0 +1,29 @@
+--
+-- Creates RLS policies for the 'dataset-images' bucket
+-- Ensure bucket named 'dataset-images' exists before execution
+--
+
+-- Allow uploads
+CREATE POLICY "Allow public uploads"
+ON storage.objects FOR INSERT
+TO public
+WITH CHECK (bucket_id = 'dataset-images');
+
+-- Allow public access
+CREATE POLICY "Allow public access"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'dataset-images');
+
+-- Allow deletes
+CREATE POLICY "Allow public deletes"
+ON storage.objects FOR DELETE
+TO public
+USING (bucket_id = 'dataset-images');
+
+-- Allow upserts
+CREATE POLICY "Allow public updates"
+ON storage.objects FOR UPDATE
+TO public
+USING (bucket_id = 'dataset-images')
+WITH CHECK (bucket_id = 'dataset-images');
