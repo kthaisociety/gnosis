@@ -2,17 +2,15 @@ import { AuthView } from "@neondatabase/neon-js/auth/react/ui";
 import { useParams } from "react-router-dom";
 import { Eye, EyeOff, Scan, Shield } from "lucide-react";
 
-
 export function LoginPage() {
   const { view } = useParams();
 
   if (view === "sign-up") {
     return (
-      
       <div
         style={{
           display: "flex",
-          flexDirection: "column",    
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
@@ -45,11 +43,11 @@ export function LoginPage() {
         </div>
         <h1 className="text-xl font-semibold tracking-tight">OCR Bench</h1>
       </div>
-      <p className="text-sm text-muted-foreground mb-4">Hint: Use your kthais email to login</p>
+      <p className="text-sm text-muted-foreground mb-4">
+        Hint: Use your kthais email to login
+      </p>
       <div className="w-full max-w-sm">
-        <AuthView 
-          pathname={view === "sign-up" ? "sign-up" : "sign-in"} 
-        />
+        <AuthView pathname={view === "sign-up" ? "sign-up" : "sign-in"} />
       </div>
     </div>
   );

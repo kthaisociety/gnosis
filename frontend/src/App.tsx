@@ -18,7 +18,11 @@ const queryClient = new QueryClient();
 
 // Create a wrapper for Link to match NeonAuthUIProvider's expected props
 const CustomLink = ({ href, children, ...props }: any) => {
-  return <Link to={href} {...props}>{children}</Link>;
+  return (
+    <Link to={href} {...props}>
+      {children}
+    </Link>
+  );
 };
 
 const App = () => {
@@ -31,7 +35,7 @@ const App = () => {
         navigate={navigate}
         Link={CustomLink}
         credentials={{ forgotPassword: true }}
-        social={{ providers: ['google'] }}
+        social={{ providers: ["google"] }}
       >
         <TooltipProvider>
           <Toaster />
