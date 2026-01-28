@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+.pre-commit-config.yaml
+
+# Python
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Ruff
+.ruff_cache
+
+# Docker
+.dockerignore
+Dockerfile*
+
+# IDE
+.idea
+.vscode
+
+# Other
+.env
+.env.example
+data/
+docs/
+frontend/
+node_modules/
+bun.lockb
+*.log

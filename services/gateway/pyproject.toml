@@ -4,20 +4,22 @@ version = "0.1.0"
 description = "Gnosis main API"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.124.2",
-    "httpx>=0.28.1",
-    "lib",
-    "modal>=1.2.4",
+    "grpcio>=1.76.0",
     "numpy>=2.3.5",
     "opencv-python>=4.11.0.86",
+    "fastapi>=0.124.2",
     "python-multipart>=0.0.20",
     "redis>=5.0.0",
     "requests>=2.32.5",
     "uvicorn>=0.38.0",
+    "python-multipart>=0.0.20",
+    "httpx>=0.28.1",
+    "modal>=1.2.4",
+    "requests>=2.32.5",
 ]
 
-[tool.uv.sources]
-lib = { workspace = true }
+[project.scripts]
+gateway-server = "gateway.server:serve"
 
 [build-system]
 requires = ["hatchling"]

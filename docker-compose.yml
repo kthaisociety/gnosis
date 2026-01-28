@@ -1,0 +1,41 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - gnosis-net
+    depends_on:
+      - gateway
+
+  gateway:
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - GATEWAY_HOST=0.0.0.0
+      - SERVER_IP=vlm-server
+      - PROD=true
+    networks:
+      - gnosis-net
+    depends_on:
+      - vlm-server
+
+  vlm-server:
+    build:
+      context: .
+      dockerfile: services/vlm_server/Dockerfile
+    ports:
+      - "50051:50051"
+    environment:
+      - GRPC_BIND=0.0.0.0
+    networks:
+      - gnosis-net
+
+networks:
+  gnosis-net:
+    driver: bridge
