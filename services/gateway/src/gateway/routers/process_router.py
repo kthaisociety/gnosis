@@ -17,7 +17,7 @@ from gateway.routers.grpc_runner import run_grpc_inference
 
 from lib.utils.image import validate_image_bytes
 from lib.utils.log import get_logger
-from lib.models.vlm_models import VLMResponseFormat, InferenceConfig
+from lib.models.vlm import VLMResponseFormat, InferenceConfig
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/process", tags=["Image Processing"])

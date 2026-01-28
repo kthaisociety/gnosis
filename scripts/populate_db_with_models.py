@@ -21,7 +21,7 @@ setup_paths()
 try:
     from lib.db.client import get_db_pool
     from lib.db.operations.inference_models import create_inference_model
-    from lib.models.vlm_models import Infer
+    from lib.models.vlm import Infer
 except ImportError as e:
     print(
         "Error: Could not import required modules.",

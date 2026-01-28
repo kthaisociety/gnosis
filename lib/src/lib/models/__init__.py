@@ -1,4 +1,4 @@
-from .vlm_models import (
+from .vlm import (
     VLMResponseFormat,
     ModelInfo,
     InferenceConfig,

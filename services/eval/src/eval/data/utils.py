@@ -1,7 +1,7 @@
 import json
 from typing import List, Union
 
-from lib.models.vlm_models import VLMTableOutput
+from lib.models.vlm import VLMTableOutput
 
 
 # Convert VLM output (JSON) to 2D table format for metrics

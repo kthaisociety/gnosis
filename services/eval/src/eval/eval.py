@@ -1,7 +1,7 @@
 import time
 from typing import Optional
 
-from lib.models.vlm_models import InferenceConfig
+from lib.models.vlm import InferenceConfig
 from lib.utils.log import get_logger
 from .metrics import compute_rms, compute_rnss
 from .models import (

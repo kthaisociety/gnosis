@@ -1,5 +1,5 @@
 from eval.eval import eval
-from lib.models.vlm_models import InferenceConfig
+from lib.models.vlm import InferenceConfig
 
 prompt = """Extract frm this graph:
 1. Title

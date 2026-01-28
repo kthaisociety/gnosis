@@ -22,7 +22,7 @@ except ImportError:
 
 # =============================================================================
 # Shared Models - Define here for consistent serialization between Modal and gateway
-# These MUST match lib/src/lib/models/vlm_models.py exactly!
+# These MUST match lib/src/lib/models/vlm.py exactly!
 # =============================================================================
 
 

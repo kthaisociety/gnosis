@@ -3,7 +3,7 @@ import grpc
 from typing import Optional
 from gateway.config import config
 from lib.gRPC.generated import vlm_pb2, vlm_pb2_grpc
-from lib.models.vlm_models import VLMResponseFormat, InferenceConfig
+from lib.models.vlm import VLMResponseFormat, InferenceConfig
 from lib.utils.log import get_logger
 
 logger = get_logger(__name__)

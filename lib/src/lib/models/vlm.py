@@ -31,13 +31,13 @@ class ModelInfo(BaseModel):
     model_name: str
     inference_type: str
     inference_class: str
-    requires_gpu: Optional[bool] = False
+    requires_gpu: Optional[bool] = True
+    default_prompt_name: Optional[str] = None
     default_config: Optional[Dict[str, Any]] = {}
 
 
 class InferenceConfig(BaseModel):
     model_name: str
-    prompt: Optional[str] = None
     output_schema_name: Optional[str] = None  # structured output
 
     # Common parameters

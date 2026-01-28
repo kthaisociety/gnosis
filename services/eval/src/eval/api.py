@@ -3,7 +3,7 @@ import requests
 import json
 import os
 
-from lib.models.vlm_models import InferenceConfig, VLMResponseFormat
+from lib.models.vlm import InferenceConfig, VLMResponseFormat
 from lib.utils.log import get_logger
 from lib.utils.image import get_image_mime_type
 

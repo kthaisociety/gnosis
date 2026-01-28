@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
 import modal
-from lib.models.vlm_models import (
+from lib.models.vlm import (
     VLMResponseFormat,
     VLMTableOutput,
     DataPoint,

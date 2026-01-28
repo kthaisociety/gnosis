@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 
 from eval.api import infer
-from lib.models.vlm_models import InferenceConfig
+from lib.models.vlm import InferenceConfig
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")

@@ -3,7 +3,7 @@ import json
 from typing import List, Optional
 
 from lib.db.client import get_db_pool
-from lib.models.vlm_models import Infer
+from lib.models.vlm import Infer
 
 
 CRUD_COLUMNS = """
