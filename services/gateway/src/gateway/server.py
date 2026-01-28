@@ -6,13 +6,14 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
+from lib.utils.log import get_logger
+
 from gateway.routers.health_router import router as health_router
 from gateway.routers.process_router import (
     router as process_router,
     start_worker,
     QUEUE_ENABLED,
 )
-
 
 from gateway.config import config
 
@@ -21,12 +22,7 @@ HOST = config.HOST
 PORT = config.PORT
 WORKERS = config.WORKERS
 
-# --- Logging Setup ---
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger("gateway")
+logger = logging.get_logger(__name__)
 
 
 @asynccontextmanager

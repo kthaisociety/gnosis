@@ -1,2 +1,2 @@
 def normalize_output(raw) -> dict:
-    pass
+    return {"text": str(raw)}

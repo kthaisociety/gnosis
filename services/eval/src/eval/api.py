@@ -16,7 +16,6 @@ URL = os.getenv("GATEWAY_URL")
 def infer(
     runner: str,
     image_path: str,
-    prompt: str,
     config: InferenceConfig,
 ):
     try:
@@ -31,7 +30,6 @@ def infer(
             data={
                 "runner": runner,
                 "config": json.dumps(config.model_dump()),
-                "prompt": prompt,
             },
             files={
                 "file": (

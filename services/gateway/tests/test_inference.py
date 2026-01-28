@@ -67,18 +67,9 @@ async def test_inference(image_path: Path, config_name: str):
                 print("✅ Success!")
                 print(f"   Inference time: {result.get('inference_time_ms', 'N/A')} ms")
 
-                if result.get("html"):
-                    print(f"   HTML length: {len(result['html'])} chars")
-                if result.get("json_data"):
-                    print(f"   JSON length: {len(result['json_data'])} chars")
-                    print(f"   JSON preview: {result['json_data'][:200]}...")
                 if result.get("text"):
-                    text_preview = result["text"][:200].replace("\n", " ")
-                    print(f"   Text preview: {text_preview}...")
-                if result.get("markdown"):
-                    print(f"   Markdown length: {len(result['markdown'])} chars")
-                if result.get("csv"):
-                    print(f"   CSV length: {len(result['csv'])} chars")
+                    preview = result["text"][:200].replace("\n", " ")
+                    print(f"   Text: {preview}...")
                 return True
             else:
                 print(f"❌ Error {response.status_code}: {response.text}")

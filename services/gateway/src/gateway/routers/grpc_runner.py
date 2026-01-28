@@ -12,8 +12,6 @@ logger = get_logger(__name__)
 async def run_grpc_inference(
     img_bytes: bytes,
     vlm_config: InferenceConfig,
-    prompt: Optional[str],
-    filename: str = "",
 ) -> VLMResponseFormat:
     try:
         server_ip = config.SERVER_IP
@@ -26,31 +24,26 @@ async def run_grpc_inference(
         config_json = vlm_config.model_dump_json(exclude_none=True)
 
         logger.info(
-            f"[gRPC] Sending to {server_ip}:{grpc_port}: model={vlm_config.model_name}, gpu={vlm_config.use_gpu}"
+            f"[ gRPC ] Sending to {server_ip}:{grpc_port}: model={vlm_config.model_name}, gpu={vlm_config.use_gpu}"
         )
 
         request = vlm_pb2.InferenceRequest(
             image=img_bytes,
             config_json=config_json,
-            prompt=prompt or "",  # Empty string if None
         )
 
         t0 = time.perf_counter()
-        response = await stub.GenerateResponse(request)
+        response = await stub.Inference(request)
         processed_time = (time.perf_counter() - t0) * 1000
 
-        logger.info(f"[gRPC] Done in {processed_time:.1f} ms for {filename}")
+        logger.info(f"[ gRPC ] done in {processed_time:.1f} ms")
         await channel.close()
 
         return VLMResponseFormat(
-            html=response.html or None,
-            json_data=response.json or None,
-            csv=response.csv or None,
             text=response.text or None,
-            markdown=response.markdown or None,
             inference_time_ms=processed_time,
         )
 
     except Exception as e:
-        logger.error(f"[gRPC] Failed for {filename}: {e}")
+        logger.error(f"[ gRPC ] failed inference: {e}")
         raise

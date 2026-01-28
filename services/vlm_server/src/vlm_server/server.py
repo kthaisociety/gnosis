@@ -14,8 +14,8 @@ from lib.gRPC.generated import vlm_pb2, vlm_pb2_grpc
 from vlm_server.inference import inference
 
 load_dotenv()
-PORT = os.getenv("PORT")
-BIND = os.getenv("HOST")
+PORT = os.getenv("GRPC_PORT", "50051")
+BIND = os.getenv("GRPC_BIND", "0.0.0.0")
 
 logger = get_logger(__name__)
 
@@ -25,7 +25,7 @@ class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
         t0 = time.perf_counter()
 
         try:
-            config = InferenceConfig(**json.loads(request.config))
+            config = InferenceConfig(**json.loads(request.config_json))
             image = bytes_to_pil(bytes(request.image))
 
             logger.info(f"[ Inference ] model={config.model_name} gpu={config.use_gpu}")
@@ -33,7 +33,7 @@ class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
             out = inference(image, config)
             normalized = normalize_output(out)
 
-            logger.info(f"[ Inference ] done in {(time.perf_counter() - t0) * 1000:.f} ms")
+            logger.info(f"[ Inference ] done in {(time.perf_counter() - t0) * 1000:.1f} ms")
 
             return vlm_pb2.Response(**normalized)
 
@@ -49,9 +49,9 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=workers))
 
     vlm_pb2_grpc.add_VLMServerServicer_to_server(VLMServerServicer(), server)
-    server.add_insecure_port(f"{bind}:{port}")
+    server.add_insecure_port(f"{BIND}:{PORT}")
 
-    logger.info(f"VLM gRPC server listening on {bind}:{port}")
+    logger.info(f"VLM gRPC server listening on {BIND}:{PORT}")
     server.start()
     server.wait_for_termination()
 

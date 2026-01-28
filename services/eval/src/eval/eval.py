@@ -30,7 +30,6 @@ def eval(
     runner: str, # 'modal' or 'local'
     config: InferenceConfig,
     dataset_name: str,
-    prompt: Optional[str] = None, # optional custom prompt
     initiated_by: Optional[str] = None, # optional identifier for who started the eval
 ) -> EvalOutput:
     """
@@ -98,13 +97,12 @@ def eval(
                 vlm_output = infer(
                     runner=runner,
                     image_path=s3_url,
-                    prompt=prompt,
                     config=config,
                 )
 
                 latency_ms = int((time.time() - start_time) * 1000)
 
-                if vlm_output is None or vlm_output.json_data is None:
+                if vlm_output is None or vlm_output.text is None:
                     logger.warning(f"No output for {image.file_path}")
                     create_prediction(
                         PredictionCreate(
@@ -122,7 +120,7 @@ def eval(
                     continue
 
                 predicted_table = parse_vlm_output_to_table(
-                    vlm_output.json_data, config.output_schema_name
+                    vlm_output.text, config.output_schema_name
                 )
                 target_table = image.ground_truth
 
@@ -137,7 +135,7 @@ def eval(
                     image_id=image.image_id,
                     run_id=run_id,
                     output={"predicted_table": predicted_table},
-                    raw_response=vlm_output.json_data,
+                    raw_response=vlm_output.text,
                     latency_ms=latency_ms,
                     input_tokens=getattr(vlm_output, "input_tokens", None),
                     output_tokens=getattr(vlm_output, "output_tokens", None),

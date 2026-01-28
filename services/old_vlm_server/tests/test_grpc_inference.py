@@ -38,16 +38,9 @@ def test_inference(
     response = stub.GenerateResponse(request)
 
     print("\nResponse:")
-    if response.json:
-        print(f"  json: {response.json}")
     if response.text:
-        print(f"  text: {response.text}")
-    if response.html:
-        print(f"  html: {response.html}")
-    if response.csv:
-        print(f"  csv: {response.csv}")
-    if response.markdown:
-        print(f"  markdown: {response.markdown}")
+        s = response.text
+        print(f"  text: {s[:500]}{'...' if len(s) > 500 else ''}")
 
 
 if __name__ == "__main__":

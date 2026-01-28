@@ -5,17 +5,12 @@ package vlm;
 message InferenceRequest {
   bytes image = 1;
   string config_json = 2;  // InferenceConfig
-  string prompt = 3;
 }
 
 message Response {
-  string html = 1;
-  string json = 2;
-  string csv = 3;
-  string text = 4;
-  string markdown = 5;
+  string text = 1;
 }
 
 service VLMServer {
-  rpc GenerateResponse (InferenceRequest) returns (Response);
+  rpc Inference (InferenceRequest) returns (Response);
 }
