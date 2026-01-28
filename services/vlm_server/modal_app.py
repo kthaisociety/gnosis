@@ -7,11 +7,11 @@ Pre-download model: modal run modal_app.py::download_model --model-name "nanonet
 """
 
 import os
-from typing import List, Optional, Any, Dict
 from pathlib import Path
-from pydantic import BaseModel
+from typing import Any, Dict, List, Optional
 
 import modal
+from pydantic import BaseModel
 
 try:
     from dotenv import load_dotenv
@@ -139,7 +139,7 @@ else:
             {
                 "HF_HOME": MODEL_CACHE_DIR,
                 "PYTHONPATH": "/root/vlm_server:/root/lib",
-                "BUILD_VERSION": "2026-01-26-v6",
+                "BUILD_VERSION": "2026-01-26-v7",
             }
         )
         .pip_install(
@@ -219,13 +219,13 @@ class OCRInference:
         Returns:
             List of VLMOutput objects (defined in this module for serialization)
         """
-        import time
         import io
-        from PIL import Image
+        import time
 
         # Import from mounted vlm_server code
         from inference.main import infer as run_infer
         from models.vlm_models import InferenceConfig as VLMInferenceConfig
+        from PIL import Image
 
         start = time.time()
 
@@ -290,8 +290,9 @@ def main():
     print("Testing OCRInference...")
 
     # Create a simple test image
-    from PIL import Image
     import io
+
+    from PIL import Image
 
     img = Image.new("RGB", (100, 100), color="white")
     buf = io.BytesIO()
