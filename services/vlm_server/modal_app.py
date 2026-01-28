@@ -72,8 +72,8 @@ if not (os.getenv("MODAL_TOKEN_ID") and os.getenv("MODAL_TOKEN_SECRET")):
 app = modal.App("gnosis-infer-app")
 
 # GPU configuration via environment variables
-GPU_TYPE = os.getenv("GPU_TYPE", "A100-80GB")
-GPU_COUNT = int(os.getenv("GPU_COUNT", "1"))
+GPU_TYPE = os.getenv("GPU_TYPE", "L4")
+GPU_COUNT = int(os.getenv("GPU_COUNT", "4"))
 
 # Resolve paths - now in vlm_server, paths are simpler
 SCRIPT_DIR = Path(__file__).resolve().parent
