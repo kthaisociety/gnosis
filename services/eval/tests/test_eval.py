@@ -1,39 +1,36 @@
-#
-# Requires GEMINI_API_KEY in eval/.env
-#
-
-from dotenv import load_dotenv
-import os
-
-from lib.models.vlm_models import InferenceConfig
-from lib.db import close_db_pool
 from eval.eval import eval
-from eval.data.db import upsert_eval_table
+from lib.models.vlm_models import InferenceConfig
 
-load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("No API KEY found in .env")
+prompt = """Extract frm this graph:
+1. Title
+2. X-axis label
+3. Y-axis label
+4. Legend (if present)
+5. ALL data values
+Required JSON format:
+{
+    "title": str or null,
+    "x_label": str or null,
+    "y_label": str or null,
+    "legend": ["serie1", "serie2"] or null,
+    "data": [{"x": x1, "y": y1}, {"x": x2, "y": y2}, {"x": x3, "y": y3}, ...]
+}
+Return ONLY the JSON object, nothing else.
 
+Respond with only 3 data points to not reach the token limit.
+"""
 
-res = eval(
-    runner="local",
-    config=InferenceConfig(
-        model_name="gemini-2.5-flash",
-        api_key=GEMINI_API_KEY,
-        # output_schema_name="VLMTableOutput",
-        use_gpu=False,
-    ),
-    dataset_name="test",
-    local_dataset=False,
-)
-
-upsert_eval_table(res)
-
-
-if res:
+if __name__ == "__main__":
+    res = eval(
+        prompt=prompt,
+        runner="local",
+        config=InferenceConfig(
+            model_name="gemini-2.5-flash",  # nanonets/Nanonets-OCR-s",  # "Qwen/Qwen3-VL-Embedding-8B",
+            use_gpu=True,
+            attn_implementation="eager",
+            output_schema_name="VLMTableOutput",
+            api_key="",
+        ),
+        dataset_name="benchmark_v1",
+    )
     print(res.model_dump_json(indent=4))
-else:
-    print(res)
-
-close_db_pool()

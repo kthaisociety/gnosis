@@ -8,7 +8,7 @@ START_TIME_UTC = datetime.utcnow()
 
 
 @router.get(
-    "/",
+    "",
     summary="Health Check Dashboard",
     description="Performs a health check.",
     response_class=HTMLResponse,

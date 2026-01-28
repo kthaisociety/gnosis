@@ -12,6 +12,7 @@ from lib.models.vlm_models import (
     VLMResponseFormat,
     VLMTableOutput,
     DataPoint,
+    VLMTableOutput,
     InferenceConfig,
 )
 from lib.utils.log import get_logger
@@ -19,6 +20,7 @@ from lib.utils.log import get_logger
 logger = get_logger(__name__)
 
 # Create stub modules for Modal deserialization
+# Modal expects these to exist locally to deserialize the remote objects
 _infer_module = types.ModuleType("infer")
 _infer_module.vlm = types.ModuleType("infer.vlm")
 _infer_module.vlm.vlm = types.ModuleType("infer.vlm.vlm")
@@ -47,27 +49,15 @@ sys.modules["models"] = _models_module
 sys.modules["models.vlm_models"] = _models_vlm_models_module
 
 
+from gateway.config import config
+
+
 def ensure_modal_auth():
     """Ensure Modal credentials are available."""
-    modal_token_id = os.getenv("MODAL_TOKEN_ID")
-    modal_token_secret = os.getenv("MODAL_TOKEN_SECRET")
-
-    if not (modal_token_id and modal_token_secret):
-        try:
-            from dotenv import load_dotenv
-
-            load_dotenv()
-        except ImportError:
-            pass
-
-        modal_token_id = os.getenv("MODAL_TOKEN_ID")
-        modal_token_secret = os.getenv("MODAL_TOKEN_SECRET")
-
-    if not (modal_token_id and modal_token_secret):
+    if not (config.MODAL_TOKEN_ID and config.MODAL_TOKEN_SECRET):
         raise RuntimeError(
             "Modal credentials not found. Set MODAL_TOKEN_ID and MODAL_TOKEN_SECRET in .env"
         )
-
     # Modal reads credentials from environment variables automatically
     logger.info("Modal credentials found.")
 

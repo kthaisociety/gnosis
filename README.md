@@ -38,58 +38,74 @@ graph TD
 ```
 .
 ├── data
-│   ├── images
-│   └── oildata.csv
-├── lib                                        # Shared library
-│   ├── pyproject.toml
-│   └── src
-│       └── lib
+│   ├── images
+│   └── oildata.csv
+├── lib
+│   ├── pyproject.toml
+│   └── src
+│       └── lib
 |           ├── db
-│           │   ├── operations                 # CRUD files for models
-│           │   └── client.py
-│           ├── gRPC
-│           ├── metrics
-│                ├──rms.py
-│                ├──rnss.py
-│                └──tests
-│           ├── models
-│           │   └── vlm_models.py
-│           └── utils
-│               ├── image.py
-│               ├── log.py
-│               └── system.py
+│           │   ├── operations
+│           │   └── client.py
+│           ├── gRPC
+│           ├── metrics
+│                ├──rms.py
+│                ├──rnss.py
+│                └──tests
+│           ├── models
+│           │   └── vlm_models.py
+│           └── utils
+│               ├── image.py
+│               ├── log.py
+│               └── system.py
 ├── pyproject.toml
 ├── scripts
 └── services
-    ├── gateway                                # Main REST API
-    │   ├── pyproject.toml
-    │   ├── src
-    │   │   └── gateway
-    │   │       ├── preprocessing
-    │   │       │   ├── main.py
-    │   │       │   ├── rotate.py
-    │   │       │   └── standardize.py
-    │   │       ├── routers
-    │   │       │   ├── grpc_runner.py
-    │   │       │   ├── health_router.py
-    │   │       │   ├── modal_runner.py
-    │   │       │   ├── process_router.py
-    │   │       └── server.py
-    │   └── tests
-    │       └── test_inference.py
-    └── vlm_server                             # inference server
+    ├── eval
+    │   ├── .env.example
+    │   ├── pyproject.toml
+    │   ├── scripts
+    │   │   └── process_and_upload_dataset.py
+    │   └── src
+    │       └── eval
+    │           ├── data
+    │           │   ├── __init__.py
+    │           │   ├── benchmark_db.py
+    │           │   ├── data.py
+    │           │   ├── db.py
+    │           │   ├── pipeline.py
+    │           │   └── s3_bucket.py
+    │           ├── eval.py
+    │           └── models.py
+    ├── gateway
+    │   ├── pyproject.toml
+    │   ├── src
+    │   │   └── gateway
+    │   │       ├── preprocessing
+    │   │       │   ├── main.py
+    │   │       │   ├── rotate.py
+    │   │       │   └── standardize.py
+    │   │       ├── routers
+    │   │       │   ├── grpc_runner.py
+    │   │       │   ├── health_router.py
+    │   │       │   ├── modal_runner.py
+    │   │       │   ├── process_router.py
+    │   │       └── server.py
+    │   └── tests
+    │       └── test_inference.py
+    └── vlm_server
         ├── pyproject.toml
         ├── src
-        │   └── vlm_server
-        │       ├── inference
-        │       │   ├── main.py
-        │       │   ├── prompts
-        │       │   └── vlm
-        │       │       ├── gemini.py
-        │       │       ├── models.json
-        │       │       ├── transformer.py
-        │       │       └── vlm.py
-        │       └── server.py
+        │   └── vlm_server
+        │       ├── inference
+        │       │   ├── main.py
+        │       │   ├── prompts
+        │       │   └── vlm
+        │       │       ├── gemini.py
+        │       │       ├── models.json
+        │       │       ├── transformer.py
+        │       │       └── vlm.py
+        │       └── server.py
         └── tests
             └── test_grpc_inference.py
 ```
