@@ -4,10 +4,7 @@ import json
 import re
 import os
 
-from lib.models import (
-    ModelInfo,
-    InferenceConfig
-)
+from lib.models import ModelInfo, InferenceConfig
 
 
 # For generic structured output schemas
@@ -32,11 +29,10 @@ class VLM(ABC):
 
     @classmethod
     def get_output_schema(cls, name: str | None):
-        if not name:
-            raise ValueError("No output schema name supplied")
-
         from lib.models import VLMTableOutput
-        if name == "VLMTableOutput":
+
+        # Default to VLMTableOutput if no schema name provided
+        if not name or name == "VLMTableOutput" or name == "VLMOutput":
             return VLMTableOutput
         else:
             raise ValueError(f"Unknown schema: {name}")
@@ -67,8 +63,7 @@ class VLM(ABC):
             cls.load_model_info()
 
         if model_name not in cls.model_info:
-            print(
-                f"model '{model_name}' not found in models.json (unsupported)")
+            print(f"model '{model_name}' not found in models.json (unsupported)")
             return None
 
         return cls.model_info[model_name]
@@ -80,8 +75,7 @@ class VLM(ABC):
 
         supported_inference_classes = []
         for key in cls.model_info:
-            supported_inference_classes.append(
-                cls.model_info[key].inference_class)
+            supported_inference_classes.append(cls.model_info[key].inference_class)
         return supported_inference_classes
 
     @classmethod
@@ -125,8 +119,7 @@ class VLM(ABC):
     def parse_output(self, text: str, schema: Type[T]) -> Optional[T]:
         try:
             # Strip markdown code blocks (```json ... ``` or ``` ... ```)
-            text = re.sub(r"^```(?:json)?\s*", "",
-                          text.strip(), flags=re.MULTILINE)
+            text = re.sub(r"^```(?:json)?\s*", "", text.strip(), flags=re.MULTILINE)
             text = re.sub(r"\s*```$", "", text.strip(), flags=re.MULTILINE)
 
             json_match = re.search(r"\{.*\}", text, re.DOTALL)
@@ -155,8 +148,9 @@ class VLM(ABC):
             ret = []
             for image in images:
                 raw_output = self.run(image, prompt)
-                ret.append(self.parse_output(
-                    raw_output, self.config.get("output_schema")))
+                ret.append(
+                    self.parse_output(raw_output, self.config.get("output_schema"))
+                )
         except Exception as e:
             raise Exception(
                 f"Failed to inference model of inference class {

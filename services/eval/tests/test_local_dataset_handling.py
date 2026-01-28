@@ -15,8 +15,9 @@ items = []
 for filename in os.listdir(IMAGES_DIR):
     full_path = os.path.join(IMAGES_DIR, filename)
     items.append(
-        EvalDatasetItem(image_path=full_path,
-                        output_schema_name="generic", expected="hihihaha")
+        EvalDatasetItem(
+            image_path=full_path, output_schema_name="generic", expected="hihihaha"
+        )
     )
 
 # Save the dataset as csv

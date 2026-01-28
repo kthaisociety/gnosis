@@ -155,7 +155,9 @@ def _process_image(
 
 
 def _worker_loop() -> None:
-    logger.info("Worker loop started. Waiting for jobs on Redis list '%s'...", QUEUE_KEY)
+    logger.info(
+        "Worker loop started. Waiting for jobs on Redis list '%s'...", QUEUE_KEY
+    )
 
     while True:
         _, raw = redis_connection.brpop(QUEUE_KEY)
@@ -322,7 +324,9 @@ async def process_image_file(
             return await run_modal_inference(
                 processed_img, inference_config, prompt, filename
             )
-        return await run_grpc_inference(processed_img, inference_config, prompt, filename)
+        return await run_grpc_inference(
+            processed_img, inference_config, prompt, filename
+        )
 
     except HTTPException:
         raise

@@ -28,6 +28,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("gateway")
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if QUEUE_ENABLED:

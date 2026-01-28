@@ -5,10 +5,12 @@ REST API gateway for VLM inference with routing to Modal or local gRPC server.
 ## Architecture
 
 **Routing**: Routes inference requests via the `runner` form field:
+
 - `modal` - Modal inference (serverless)
 - `local` - gRPC to `vlm_server`
 
 **Components**:
+
 - `src/gateway/routers/process_router.py`: Request validation, queueing, and routing
 - `src/gateway/routers/modal_runner.py`: Modal inference runner
 - `src/gateway/routers/grpc_runner.py`: gRPC inference runner
@@ -29,11 +31,12 @@ bash scripts/gen_grpc_protos.sh
 ```
 
 Create `.env` file:
+
 ```bash
-MODAL_TOKEN_ID=
-MODAL_TOKEN_SECRET=
-SERVER_IP=localhost  # For gRPC client
-GRPC_PORT=50051      # For gRPC client/server
+<<<<<<< HEAD
+MODAL_TOKEN_ID=your_token_id
+MODAL_TOKEN_SECRET=your_token_secret
+SERVER_IP=localhost  # For gRPC
 
 # Optional gateway settings
 TITLE="The Gnosis API"
@@ -48,11 +51,13 @@ The gateway can use Redis for request queueing and rate limiting. If disabled,
 requests run inline without Redis.
 
 Start Redis (Docker):
+
 ```bash
 docker run --rm -p 6379:6379 redis:7
 ```
 
 Enable in `.env`:
+
 ```bash
 QUEUE_ENABLED=true
 REDIS_URL=redis://localhost:6379
@@ -67,16 +72,19 @@ RESULT_POLL_INTERVAL_S=0.02
 RATE_LIMIT_PER_IP_PER_MIN=10
 RATE_LIMIT_GLOBAL_PER_MIN=60
 RATE_LIMIT_WINDOW_SECONDS=60
+>>>>>>> origin/dev
 ```
 
 ## Run Server
 
 You can run the server directly using uvicorn:
+
 ```bash
 uv run uvicorn gateway.server:app --host 127.0.0.1 --port 8000
 ```
 
 Alternatively, you can use the helper script from the project root:
+
 ```bash
 # From the project root
 bash scripts/run_gateway.sh
@@ -101,6 +109,7 @@ Base URL: `http://127.0.0.1:8000` (override with `HOST` and `PORT` env vars)
 `POST /process` (multipart/form-data)
 
 Fields:
+
 - `file` (required): Image file upload
 - `runner` (optional): `modal` or `local` (default `modal`)
 - `config` (required): JSON string matching `InferenceConfig`
@@ -109,20 +118,24 @@ Fields:
 `InferenceConfig` (JSON)
 
 Required:
+
 - `model_name`
 - `output_schema_name` for Gemini models (supported: `VLMTableOutput`)
 
 Optional:
+
 - `use_gpu`, `dtype`, `max_tokens`, `temperature`, `top_p`, `top_k`
 - `api_key` (for API models like Gemini)
 - `max_model_len`, `model_class`, `device_map`, `return_tensors`, `padding`, `attn_implementation`
 
 Example (Modal):
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/process"   -F "file=@image.png"   -F "runner=modal"   -F 'config={"model_name":"gemini-2.5-flash","output_schema_name":"VLMTableOutput"}'
 ```
 
 Example (local gRPC):
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/process"   -F "file=@image.png"   -F "runner=local"   -F 'config={"model_name":"gemini-2.5-flash","output_schema_name":"VLMTableOutput"}'
 ```

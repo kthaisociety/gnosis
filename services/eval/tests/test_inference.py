@@ -18,7 +18,7 @@ res = infer(
         output_schema_name="VLMTableOutput",
         use_gpu=False,
     ),
-    local_dataset="example"
+    local_dataset="example",
 )
 
 if res:

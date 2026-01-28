@@ -48,8 +48,10 @@ def infer(
 
     except requests.exceptions.HTTPError as e:
         if e.response is not None:
-            logger.error(f"HTTP Error {e.response.status_code}: {
-                         e.response.text}")
+            logger.error(
+                f"HTTP Error {e.response.status_code}: {
+                         e.response.text}"
+            )
         else:
             logger.error(f"HTTP Error: {e}")
         return None
