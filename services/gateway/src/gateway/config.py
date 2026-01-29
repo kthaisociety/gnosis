@@ -16,6 +16,7 @@ logger = logging.getLogger("gateway.config")
 class Config:
     # -- Core --
     TITLE: str = os.getenv("TITLE", "The Gnosis API")
+    PROD: bool = os.getenv("PROD", "false").lower() == "true"
     HOST: str = os.getenv("HOST", "127.0.0.1")
     PORT: int = int(os.getenv("PORT", "8000"))
     WORKERS: int = int(os.getenv("WORKERS", "1"))

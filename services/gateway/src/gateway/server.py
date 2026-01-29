@@ -49,7 +49,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 @app.get("/", include_in_schema=False)
 async def root():
     """Redirect root to API documentation or return API info."""
-    if PROD:
+    if config.PROD:
         return {"message": "Gnosis API", "status": "running"}
     return RedirectResponse(url="/docs")
 
