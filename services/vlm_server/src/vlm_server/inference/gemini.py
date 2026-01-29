@@ -3,7 +3,10 @@ from google import genai
 from google.genai import types
 
 from lib.models.vlm import InferenceConfig
-from lib.inference import get_output_schema
+from lib.utils.log import get_logger
+from lib.inference import get_schema
+
+logger = get_logger(__name__)
 
 
 class Gemini:
@@ -16,11 +19,11 @@ class Gemini:
         temp = self.config.temperature
         top_p = self.config.top_p
         top_k = self.config.top_k
-        max_tokens = self.config_max_tokens
+        max_tokens = self.config.max_tokens
 
-        schema = get_output_schema(self.config.output_schema)
+        schema = get_schema(self.config.output_schema_name)
         if not schema:
-            pass  # TODO
+            logger.warn("no output schema detected")
 
         response = self.client.models.generate_content(
             model=self.model,

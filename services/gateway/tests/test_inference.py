@@ -22,7 +22,7 @@ CONFIGS = {
             "model_name": "nanonets/Nanonets-OCR-s",
             "use_gpu": True,
             "attn_implementation": "sdpa",
-            "output_schema_name": "VLMTableOutput",
+            "output_schema_name": "TableOutput",
         },
     },
     "local": {
@@ -30,7 +30,7 @@ CONFIGS = {
         "config": {
             "model_name": "nanonets/Nanonets-OCR-s",
             "use_gpu": False,
-            "output_schema_name": "VLMTableOutput",
+            "output_schema_name": "TableOutput",
         },
     },
 }

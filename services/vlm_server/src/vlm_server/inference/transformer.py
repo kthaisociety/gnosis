@@ -5,7 +5,7 @@ from transformers import (
     AutoModelForImageTextToText,
 )
 
-from lib.models.vlm import ModelInfo, InferenceConfig
+from lib.models.vlm import InferenceConfig
 from lib.utils.log import get_logger
 
 logger = get_logger(__name__)
@@ -14,7 +14,7 @@ MODEL_CLASS = {"AutoModelForImageTextToText": AutoModelForImageTextToText}
 
 
 class Transformer:
-    def __init__(self, model_info: ModelInfo, config: InferenceConfig):
+    def __init__(self, config: InferenceConfig):
         self.config = config
         self.load_model()
 

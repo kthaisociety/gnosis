@@ -120,7 +120,7 @@ Fields:
 Required:
 
 - `model_name`
-- `output_schema_name` for Gemini models (supported: `VLMTableOutput`)
+- `output_schema_name` for Gemini models (supported: `TableOutput`)
 
 Optional:
 

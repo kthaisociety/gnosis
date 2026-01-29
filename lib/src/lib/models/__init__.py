@@ -3,12 +3,12 @@ from .vlm import (
     ModelInfo,
     InferenceConfig,
     # structured output schemas
-    VLMTableOutput,
+    TableOutput,
 )
 
 __all__ = [
     "VLMResponseFormat",
     "ModelInfo",
     "InferenceConfig",
-    "VLMTableOutput",
+    "TableOutput",
 ]

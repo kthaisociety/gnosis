@@ -24,7 +24,7 @@ for filename in os.listdir(IMAGES_DIR):
     items.append(
         EvalDatasetItem(
             image_path=full_path,
-            output_schema_name="VLMTableOutput",
+            output_schema_name="TableOutput",
             expected="hihihaha",
         )
     )

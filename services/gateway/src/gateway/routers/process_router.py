@@ -24,10 +24,10 @@ router = APIRouter(prefix="/process", tags=["Image Processing"])
 
 CONFIG_DOC = (
     "InferenceConfig JSON. Required: model_name. For Gemini: output_schema_name "
-    '(only "VLMTableOutput" supported right now). Optional fields: use_gpu, '
+    '(only "TableOutput" supported right now). Optional fields: use_gpu, '
     "dtype, max_tokens, temperature, top_p, top_k, api_key, max_model_len, "
     "model_class, device_map, return_tensors, padding, attn_implementation. "
-    'Example: {"model_name":"gemini-2.5-flash","output_schema_name":"VLMTableOutput"}'
+    'Example: {"model_name":"gemini-2.5-flash","output_schema_name":"TableOutput"}'
 )
 
 # Redis configuration

@@ -15,7 +15,7 @@ res = infer(
     config=InferenceConfig(
         model_name="gemini-2.5-flash",
         api_key=GEMINI_API_KEY,
-        output_schema_name="VLMTableOutput",
+        output_schema_name="TableOutput",
         use_gpu=False,
     ),
     local_dataset="example",

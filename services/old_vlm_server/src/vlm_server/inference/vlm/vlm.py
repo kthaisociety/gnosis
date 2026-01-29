@@ -29,11 +29,11 @@ class VLM(ABC):
 
     @classmethod
     def get_output_schema(cls, name: str | None):
-        from lib.models import VLMTableOutput
+        from lib.models import TableOutput
 
-        # Default to VLMTableOutput if no schema name provided
-        if not name or name == "VLMTableOutput" or name == "VLMOutput":
-            return VLMTableOutput
+        # Default to TableOutput if no schema name provided
+        if not name or name == "TableOutput" or name == "VLMOutput":
+            return TableOutput
         else:
             raise ValueError(f"Unknown schema: {name}")
 

@@ -15,7 +15,7 @@ class DataPoint(BaseModel):
     y: float
 
 
-class VLMTableOutput(BaseModel):
+class TableOutput(BaseModel):
     title: Optional[str] = None
     x_label: Optional[str] = None
     y_label: Optional[str] = None
@@ -34,8 +34,8 @@ class ModelInfo(BaseModel):
 
 class InferenceConfig(BaseModel):
     model_name: str
+    prompt: str
     output_schema_name: Optional[str] = None  # structured output
-    prompt: Optional[str] = None
 
     # Common parameters
     use_gpu: Optional[bool] = None

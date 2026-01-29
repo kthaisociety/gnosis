@@ -3,32 +3,30 @@ from lib.db import get_all_inference_models
 
 
 # loads defaults into config without overwriting
-def load_defaults(inference_type: str, config: InferenceConfig, defaults):
+def load_defaults(inference_type: str, config: InferenceConfig, defaults: dict):
     # output_schema_name, device_map, use_gpu, api_key
     # have no defaults
 
-    if config.prompt is None:
-        config.prompt = defaults.prompt
     if config.max_tokens is None:
-        config.max_tokens = defaults.max_tokens
+        config.max_tokens = defaults.get("max_tokens")
     if config.temperature is None:
-        config.temperature = defaults.temperature
+        config.temperature = defaults.get("temperature")
     if config.top_p is None:
-        config.top_p = defaults.top_p
+        config.top_p = defaults.get("top_p")
     if config.top_k is None:
-        config.top_k = defaults.top_k
+        config.top_k = defaults.get("top_k")
 
     if inference_type == "transformers":
         if config.dtype is None:
-            config.dtype = defaults.dtype
+            config.dtype = defaults.get("dtype")
         if config.model_class is None:
-            config.model_class = defaults.model_class
+            config.model_class = defaults.get("model_class")
         if config.return_tensors is None:
-            config.return_tensors = defaults.model_class
+            config.return_tensors = defaults.get("return_tensors")
         if config.padding is None:
-            config.padding = defaults.padding
+            config.padding = defaults.get("padding")
         if config.attn_implementation is None:
-            config.attn_implementation = defaults.attn_implementation
+            config.attn_implementation = defaults.get("attn_implementation")
 
 
 # ensures inference config is valid

@@ -28,7 +28,7 @@ if __name__ == "__main__":
             model_name="gemini-2.5-flash",  # nanonets/Nanonets-OCR-s",  # "Qwen/Qwen3-VL-Embedding-8B",
             use_gpu=True,
             attn_implementation="eager",
-            output_schema_name="VLMTableOutput",
+            output_schema_name="TableOutput",
             api_key="",
         ),
         dataset_name="benchmark_v1",
