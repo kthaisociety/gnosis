@@ -37,11 +37,12 @@ def test(image: Image, config: InferenceConfig):
     logger.info("Starting inference...")
     t0 = time.perf_counter()
 
-    try:
-        out = inference(image, config)
-    except Exception as e:
-        logger.error(f"Inference failed: {e}")
-        return
+    out = inference(image, config)
+    #try:
+    #    out = inference(image, config)
+    #except Exception as e:
+    #    logger.error(f"Inference failed: {e}")
+    #    return
 
     logger.info(f"Done in {(time.perf_counter() - t0) * 1000:.1f} ms")
     logger.info(f"Inference output: {out}")
@@ -62,8 +63,8 @@ def main():
         model_name="nanonets/Nanonets-OCR-s", prompt=PROMPT
     )
 
-    logger.info("Testing gemini inference")
-    test(image, gemini_config)
+    #logger.info("Testing gemini inference")
+    #test(image, gemini_config)
 
     logger.info("Testing transformers inference")
     test(image, transformers_config)

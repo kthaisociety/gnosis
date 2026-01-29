@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tvlm.proto\x12\x03vlm\"1\n\x10InferenceRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x0e\n\x06\x63onfig\x18\x02 \x01(\t\"\x18\n\x08Response\x12\x0c\n\x04text\x18\x01 \x01(\t2E\n\tVLMServer\x12\x38\n\x10GenerateResponse\x12\x15.vlm.InferenceRequest\x1a\r.vlm.Responseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\tvlm.proto\x12\x03vlm\"6\n\x10InferenceRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x13\n\x0b\x63onfig_json\x18\x02 \x01(\t\"\x18\n\x08Response\x12\x0c\n\x04text\x18\x01 \x01(\t2>\n\tVLMServer\x12\x31\n\tInference\x12\x15.vlm.InferenceRequest\x1a\r.vlm.Responseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,9 +32,9 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'vlm_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_INFERENCEREQUEST']._serialized_start=18
-  _globals['_INFERENCEREQUEST']._serialized_end=67
-  _globals['_RESPONSE']._serialized_start=69
-  _globals['_RESPONSE']._serialized_end=93
-  _globals['_VLMSERVER']._serialized_start=95
-  _globals['_VLMSERVER']._serialized_end=164
+  _globals['_INFERENCEREQUEST']._serialized_end=72
+  _globals['_RESPONSE']._serialized_start=74
+  _globals['_RESPONSE']._serialized_end=98
+  _globals['_VLMSERVER']._serialized_start=100
+  _globals['_VLMSERVER']._serialized_end=162
 # @@protoc_insertion_point(module_scope)

@@ -1,5 +1,4 @@
 import logging
-import os
 from contextlib import asynccontextmanager
 import uvicorn
 
@@ -22,7 +21,7 @@ HOST = config.HOST
 PORT = config.PORT
 WORKERS = config.WORKERS
 
-logger = logging.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 @asynccontextmanager

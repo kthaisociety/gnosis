@@ -1,26 +1,7 @@
-from typing import Any, List, Dict, Optional
-from pydantic import BaseModel
 from datetime import datetime
+from typing import Any, Dict, Optional
 
-
-class VLMResponseFormat(BaseModel):
-    text: Optional[str] = None
-    model_name: Optional[str] = None
-    inference_time_ms: Optional[float] = None
-    tokens_used: Optional[int] = None
-
-
-class DataPoint(BaseModel):
-    x: float
-    y: float
-
-
-class TableOutput(BaseModel):
-    title: Optional[str] = None
-    x_label: Optional[str] = None
-    y_label: Optional[str] = None
-    legend: Optional[List[str]] = None
-    data: List[DataPoint]
+from pydantic import BaseModel
 
 
 class ModelInfo(BaseModel):
@@ -35,9 +16,8 @@ class ModelInfo(BaseModel):
 class InferenceConfig(BaseModel):
     model_name: str
     prompt: str
-    output_schema_name: Optional[str] = None  # structured output
+    output_schema_name: Optional[str] = None
 
-    # Common parameters
     use_gpu: Optional[bool] = None
     dtype: Optional[str] = None
     max_tokens: Optional[int] = None
@@ -45,15 +25,13 @@ class InferenceConfig(BaseModel):
     top_p: Optional[float] = None
     top_k: Optional[int] = None
 
-    # API models
     api_key: Optional[str] = None
 
-    # Transformers models
     model_class: Optional[str] = None
     device_map: Optional[str] = None
     return_tensors: Optional[str] = None
     padding: Optional[str] = None
-    attn_implementation: Optional[str] = None  # "eager", "sdpa", "flash_attention_2"
+    attn_implementation: Optional[str] = None
 
 
 class Infer(ModelInfo):

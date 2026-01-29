@@ -1,6 +1,7 @@
 import time
 from typing import Optional
 
+from lib.inference import detect_format
 from lib.models.vlm import InferenceConfig
 from lib.utils.log import get_logger
 from .metrics import compute_rms, compute_rnss
@@ -115,7 +116,25 @@ def eval(
                             error_message="No output from model",
                         )
                     )
+                    failed_count += 1
+                    continue
 
+                fmt = detect_format(vlm_output.text)
+                if fmt != "json":
+                    logger.warning(
+                        f"VLM output format '{fmt}' for {image.file_path}; expected json"
+                    )
+                    create_prediction(
+                        PredictionCreate(
+                            image_id=image.image_id,
+                            run_id=run_id,
+                            output=None,
+                            raw_response=vlm_output.text,
+                            latency_ms=latency_ms,
+                            success=False,
+                            error_message=f"Output format '{fmt}', expected json",
+                        )
+                    )
                     failed_count += 1
                     continue
 

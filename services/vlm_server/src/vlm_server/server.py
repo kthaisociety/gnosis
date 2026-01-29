@@ -8,7 +8,6 @@ from concurrent import futures
 from lib.utils.log import get_logger
 from lib.utils.image import bytes_to_pil
 from lib.models.vlm import InferenceConfig
-from lib.inference import normalize_output
 from lib.gRPC.generated import vlm_pb2, vlm_pb2_grpc
 
 from vlm_server.inference import inference
@@ -31,11 +30,10 @@ class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
             logger.info(f"[ Inference ] model={config.model_name} gpu={config.use_gpu}")
 
             out = inference(image, config)
-            normalized = normalize_output(out)
 
-            logger.info(f"[ Inference ] done in {(time.perf_counter() - t0) * 1000:.1f} ms")
+            logger.info(f"[ Inference ] done in {(time.perf_counter() - t0) * 1000:.0f} ms")
 
-            return vlm_pb2.Response(**normalized)
+            return vlm_pb2.Response(text=out)
 
         except Exception as e:
             logger.exception("[ Inference ] FAILED")

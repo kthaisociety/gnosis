@@ -34,8 +34,8 @@ class VLMServerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GenerateResponse = channel.unary_unary(
-                '/vlm.VLMServer/GenerateResponse',
+        self.Inference = channel.unary_unary(
+                '/vlm.VLMServer/Inference',
                 request_serializer=vlm__pb2.InferenceRequest.SerializeToString,
                 response_deserializer=vlm__pb2.Response.FromString,
                 _registered_method=True)
@@ -44,7 +44,7 @@ class VLMServerStub(object):
 class VLMServerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GenerateResponse(self, request, context):
+    def Inference(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -53,8 +53,8 @@ class VLMServerServicer(object):
 
 def add_VLMServerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GenerateResponse': grpc.unary_unary_rpc_method_handler(
-                    servicer.GenerateResponse,
+            'Inference': grpc.unary_unary_rpc_method_handler(
+                    servicer.Inference,
                     request_deserializer=vlm__pb2.InferenceRequest.FromString,
                     response_serializer=vlm__pb2.Response.SerializeToString,
             ),
@@ -70,7 +70,7 @@ class VLMServer(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GenerateResponse(request,
+    def Inference(request,
             target,
             options=(),
             channel_credentials=None,
@@ -83,7 +83,7 @@ class VLMServer(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/vlm.VLMServer/GenerateResponse',
+            '/vlm.VLMServer/Inference',
             vlm__pb2.InferenceRequest.SerializeToString,
             vlm__pb2.Response.FromString,
             options,

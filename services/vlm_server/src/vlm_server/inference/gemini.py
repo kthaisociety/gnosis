@@ -12,30 +12,35 @@ logger = get_logger(__name__)
 class Gemini:
     def __init__(self, config: InferenceConfig):
         self.config = config
-        self.client = genai.Client(api_key=self.config.api_key)
-        self.model = self.config.model_name
+        api_key = (config.api_key or "").strip()
+        if not api_key:
+            raise ValueError("Gemini requires a non-empty api_key")
+        self.client = genai.Client(api_key=api_key)
+        self.model = config.model_name
 
     def run(self, image: Image, prompt: str) -> str:
-        temp = self.config.temperature
-        top_p = self.config.top_p
-        top_k = self.config.top_k
-        max_tokens = self.config.max_tokens
+        prompt = prompt if prompt is not None else ""
+        config_kw = {}
+        if self.config.temperature is not None:
+            config_kw["temperature"] = self.config.temperature
+        if self.config.top_p is not None:
+            config_kw["top_p"] = self.config.top_p
+        if self.config.top_k is not None:
+            config_kw["top_k"] = self.config.top_k
+        if self.config.max_tokens is not None:
+            config_kw["max_output_tokens"] = self.config.max_tokens
 
         schema = get_schema(self.config.output_schema_name)
-        if not schema:
-            logger.warn("no output schema detected")
+        if schema:
+            config_kw["response_mime_type"] = "application/json"
+            config_kw["response_schema"] = schema
 
         response = self.client.models.generate_content(
             model=self.model,
             contents=[image, prompt],
-            config=types.GenerateContentConfig(
-                temperature=temp,
-                top_p=top_p,
-                top_k=top_k,
-                max_output_tokens=max_tokens,
-                response_mime_type="application/json",
-                response_schema=schema
-            )
+            config=types.GenerateContentConfig(**config_kw) if config_kw else None,
         )
 
+        if not response or not getattr(response, "text", None):
+            return ""
         return response.text

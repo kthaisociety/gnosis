@@ -1,9 +1,10 @@
 import time
 import grpc
-from typing import Optional
+
 from gateway.config import config
 from lib.gRPC.generated import vlm_pb2, vlm_pb2_grpc
-from lib.models.vlm import VLMResponseFormat, InferenceConfig
+from lib.inference import normalize_vlm_response
+from lib.models.vlm import InferenceConfig, VLMResponseFormat
 from lib.utils.log import get_logger
 
 logger = get_logger(__name__)
@@ -39,10 +40,7 @@ async def run_grpc_inference(
         logger.info(f"[ gRPC ] done in {processed_time:.1f} ms")
         await channel.close()
 
-        return VLMResponseFormat(
-            text=response.text or None,
-            inference_time_ms=processed_time,
-        )
+        return normalize_vlm_response(response.text, processed_time)
 
     except Exception as e:
         logger.error(f"[ gRPC ] failed inference: {e}")

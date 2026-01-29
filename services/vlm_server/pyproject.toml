@@ -4,17 +4,22 @@ version = "0.1.0"
 description = "VLM Inference Service"
 requires-python = ">=3.13"
 dependencies = [
+    "accelerate>=1.12.0",
     "dotenv>=0.9.9",
     "google-genai>=1.60.0",
     "lib",
     "pillow>=12.0.0",
     "psycopg[binary]>=3.3.2",
     "torch>=2.10.0",
+    "torchvision>=0.20.0",
     "transformers>=5.0.0",
 ]
 
 [tool.uv.sources]
 lib = { workspace = true }
+
+[project.scripts]
+vlm-server = "vlm_server.server:serve"
 
 [build-system]
 requires = ["hatchling"]

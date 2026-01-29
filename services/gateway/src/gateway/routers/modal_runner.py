@@ -3,19 +3,18 @@ import sys
 import time
 import asyncio
 import types
-import json
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
 
 import modal
 
-from lib.utils.log import get_logger
+from lib.inference import normalize_vlm_response
 from lib.models.vlm import (
-    VLMResponseFormat,
-    TableOutput,
     DataPoint,
     InferenceConfig,
+    TableOutput,
+    VLMResponseFormat,
 )
+from lib.utils.log import get_logger
 
 logger = get_logger(__name__)
 
@@ -74,14 +73,12 @@ async def run_modal_inference(
 
         t0 = time.perf_counter()
         loop = asyncio.get_event_loop()
+        cfg = config.model_dump(exclude_none=True)
+        prompt = config.prompt
         with ThreadPoolExecutor() as executor:
             result = await loop.run_in_executor(
                 executor,
-                lambda: OCRInference().infer.remote(
-                    [img_bytes],
-                    config.model_dump(exclude_none=True),
-                    prompt,
-                ),
+                lambda: OCRInference().infer.remote([img_bytes], cfg, prompt),
             )
 
         processed_time = (time.perf_counter() - t0) * 1000
@@ -89,16 +86,8 @@ async def run_modal_inference(
 
         if isinstance(result, list) and result:
             result = result[0]
-        if hasattr(result, "model_dump_json"):
-            out = result.model_dump_json(exclude_none=True)
-        elif hasattr(result, "model_dump"):
-            out = json.dumps(result.model_dump(exclude_none=True))
-        elif isinstance(result, dict):
-            out = json.dumps(result)
-        else:
-            out = str(result)
-        return VLMResponseFormat(text=out, inference_time_ms=processed_time)
+        return normalize_vlm_response(result, processed_time)
 
     except Exception as e:
-        logger.error(f"[ Modal ] failed inference}: {e}")
+        logger.error(f"[ Modal ] failed inference: {e}")
         raise
