@@ -139,7 +139,7 @@ else:
             {
                 "HF_HOME": MODEL_CACHE_DIR,
                 "PYTHONPATH": "/root/vlm_server:/root/lib",
-                "BUILD_VERSION": "2026-01-26-v7",
+                "BUILD_VERSION": "2026-01-28-v10",
             }
         )
         .pip_install(

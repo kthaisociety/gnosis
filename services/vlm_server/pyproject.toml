@@ -31,3 +31,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vlm_server"]
+
+[tool.uv.sources]
+lib = { workspace = true }
