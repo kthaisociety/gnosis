@@ -2,7 +2,7 @@ import json
 import re
 from typing import Any, Literal, Tuple
 
-from lib.models.vlm import VLMResponseFormat
+from lib.models.vlm import VLMResponse
 
 VLMFormat = Literal["json", "html", "text"]
 
@@ -17,15 +17,15 @@ def raw_to_text(raw: Any) -> str:
     return str(raw)
 
 
-# Normalize gRPC or Modal output to VLMResponseFormat.
-def normalize_vlm_response(raw: Any, inference_time_ms: float) -> VLMResponseFormat:
+# Normalize gRPC or Modal output to VLMResponse.
+def normalize_vlm_response(raw: Any, inference_time_ms: float) -> VLMResponse:
     if raw is None:
-        return VLMResponseFormat(text=None, format=None, inference_time_ms=inference_time_ms)
+        return VLMResponse(text=None, format=None, inference_time_ms=inference_time_ms)
     text = raw_to_text(raw)
     if not (text and isinstance(text, str) and text.strip()):
-        return VLMResponseFormat(text=None, format=None, inference_time_ms=inference_time_ms)
+        return VLMResponse(text=None, format=None, inference_time_ms=inference_time_ms)
     fmt = detect_format(text)
-    return VLMResponseFormat(text=text, format=fmt, inference_time_ms=inference_time_ms)
+    return VLMResponse(text=text, format=fmt, inference_time_ms=inference_time_ms)
 
 
 def detect_format(text: str | None) -> VLMFormat:

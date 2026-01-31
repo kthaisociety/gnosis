@@ -17,7 +17,7 @@ from gateway.routers.grpc_runner import run_grpc_inference
 
 from lib.utils.image import validate_image_bytes
 from lib.utils.log import get_logger
-from lib.models.vlm import VLMResponseFormat, InferenceConfig
+from lib.models.vlm import VLMResponse, InferenceConfig
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/process", tags=["Image Processing"])
@@ -135,7 +135,7 @@ def _process_image(
     filename: str,
     runner: str,
     inference_config: InferenceConfig,
-) -> VLMResponseFormat:
+) -> VLMResponse:
     try:
         processed_img = process_and_validate_image_bytes(raw_bytes, filename)
     except Exception as e:
@@ -212,7 +212,7 @@ def start_worker() -> None:
 
 @router.post(
     "",
-    response_model=VLMResponseFormat,
+    response_model=VLMResponse,
     responses={
         200: {"description": "Successful image processing."},
         400: {"description": "Bad Request - Invalid or empty image file or config."},
@@ -289,7 +289,7 @@ async def process_image_file(
                     data = json.loads(raw)
 
                     if data.get("ok"):
-                        return VLMResponseFormat(**data["result"])
+                        return VLMResponse(**data["result"])
 
                     raise HTTPException(
                         status_code=500, detail=data.get("error", "Job failed")

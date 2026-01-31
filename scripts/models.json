@@ -1,0 +1,42 @@
+{
+	"nanonets/Nanonets-OCR-s": {
+		"inference_type": "transformers",
+		"inference_class": "transformers",
+		"requires_gpu": false,
+		"default_config": {
+			"model_class": "AutoModelForImageTextToText",
+			"use_gpu": true,
+			"dtype": "auto",
+			"device_map": "auto",
+			"return_tensors": "pt",
+			"padding": true,
+			"max_tokens": 8192
+		}
+	},
+	"nanonets/Nanonets-OCR2-3B": {
+		"inference_type": "transformers",
+		"inference_class": "transformers",
+		"requires_gpu": false,
+		"default_config": {
+			"model_class": "AutoModelForImageTextToText",
+			"use_gpu": true,
+			"dtype": "auto",
+			"device_map": "auto",
+			"return_tensors": "pt",
+			"padding": true,
+			"max_tokens": 8192
+		}
+	},
+	"gemini-2.5-flash": {
+		"inference_type": "api",
+		"inference_class": "gemini",
+		"requires_gpu": false,
+		"default_config": {
+			"api_key": "",
+			"temperature": 0.1,
+			"top_p": 0.9,
+			"top_k": 40,
+			"max_tokens": 8192
+		}
+	}
+}

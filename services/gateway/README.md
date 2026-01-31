@@ -164,5 +164,5 @@ uv run tests/test_inference.py
 - `src/gateway/routers/`: FastAPI routers (process, health)
 - `src/gateway/preprocessing/`: Image preprocessing
 - `lib/src/lib/gRPC/`: gRPC protocol definitions and generated stubs
-- `lib/src/lib/models/`: Pydantic models (VLMResponseFormat, InferenceConfig, etc.)
+- `lib/src/lib/models/`: Pydantic models (VLMResponse, InferenceConfig, etc.)
 - `lib/src/lib/utils/`: Helpers (logging, image validation, etc.)

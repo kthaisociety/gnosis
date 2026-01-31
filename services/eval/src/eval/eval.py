@@ -22,7 +22,7 @@ from .data import (
 )
 from .data.s3_bucket import get_s3_url
 from .data.utils import parse_vlm_output_to_table
-from .api import infer
+from .api import inference
 
 logger = get_logger(__name__)
 
@@ -95,7 +95,7 @@ def eval(
                 s3_url = get_s3_url(image.file_path)
                 start_time = time.time()
 
-                vlm_output = infer(
+                vlm_output = inference(
                     runner=runner,
                     image_path=s3_url,
                     config=config,

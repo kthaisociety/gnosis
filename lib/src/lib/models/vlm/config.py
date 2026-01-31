@@ -9,7 +9,6 @@ class ModelInfo(BaseModel):
     inference_type: str
     inference_class: str
     requires_gpu: Optional[bool] = True
-    default_prompt_name: Optional[str] = None
     default_config: Optional[Dict[str, Any]] = {}
 
 
@@ -37,7 +36,6 @@ class InferenceConfig(BaseModel):
 class Infer(ModelInfo):
     version: int
     multimodal: bool
-    max_len_tokens: int
     avg_latency: float
     top_percentile_accuracy: float
     latest_eval_accuracy: float

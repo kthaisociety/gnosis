@@ -18,6 +18,9 @@ dependencies = [
     "requests>=2.32.5",
 ]
 
+[tool.uv.sources]
+lib = { workspace = true }
+
 [project.scripts]
 gateway-server = "gateway.server:serve"
 

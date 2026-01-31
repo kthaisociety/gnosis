@@ -46,9 +46,7 @@ class Transformer:
             attn_implementation = "sdpa"
 
         if model_class not in MODEL_CLASS:
-            raise ValueError(
-                f"unsupported model_class '{model_class}' (supported: {list(MODEL_CLASS)})"
-            )
+            raise ValueError(f"unsupported model_class '{model_class}' (supported: {list(MODEL_CLASS)})")
 
         logger.info(f"loading {model_name}... (device={device_map})")
         t0 = time.perf_counter()

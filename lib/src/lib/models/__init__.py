@@ -1,5 +1,5 @@
 from .vlm import (
-    VLMResponseFormat,
+    VLMResponse,
     ModelInfo,
     InferenceConfig,
     # structured output schemas
@@ -7,7 +7,7 @@ from .vlm import (
 )
 
 __all__ = [
-    "VLMResponseFormat",
+    "VLMResponse",
     "ModelInfo",
     "InferenceConfig",
     "TableOutput",

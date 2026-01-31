@@ -17,6 +17,6 @@ members = [
     "lib",
     "services/gateway",
     "services/vlm_server",
-    "services/new_vlm_server",
+    "services/eval",
 ]
 

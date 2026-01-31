@@ -4,7 +4,7 @@ import grpc
 from gateway.config import config
 from lib.gRPC.generated import vlm_pb2, vlm_pb2_grpc
 from lib.inference import normalize_vlm_response
-from lib.models.vlm import InferenceConfig, VLMResponseFormat
+from lib.models.vlm import InferenceConfig, VLMResponse
 from lib.utils.log import get_logger
 
 logger = get_logger(__name__)
@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 async def run_grpc_inference(
     img_bytes: bytes,
     vlm_config: InferenceConfig,
-) -> VLMResponseFormat:
+) -> VLMResponse:
     try:
         server_ip = config.SERVER_IP
         grpc_port = config.GRPC_PORT

@@ -12,7 +12,7 @@ from lib.models.vlm import (
     DataPoint,
     InferenceConfig,
     TableOutput,
-    VLMResponseFormat,
+    VLMResponse,
 )
 from lib.utils.log import get_logger
 
@@ -64,7 +64,7 @@ def ensure_modal_auth():
 async def run_modal_inference(
     img_bytes: bytes,
     config: InferenceConfig,
-) -> VLMResponseFormat:
+) -> VLMResponse:
     try:
         ensure_modal_auth()
         OCRInference = modal.Cls.from_name("gnosis-infer-app", "OCRInference")

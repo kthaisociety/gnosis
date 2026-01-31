@@ -1,5 +1,5 @@
 from .config import InferenceConfig, Infer, ModelInfo
-from .response import VLMResponseFormat
+from .response import VLMResponse
 from .table import DataPoint, TableOutput
 
 __all__ = [
@@ -8,5 +8,5 @@ __all__ = [
     "Infer",
     "ModelInfo",
     "TableOutput",
-    "VLMResponseFormat",
+    "VLMResponse",
 ]

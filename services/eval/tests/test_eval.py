@@ -1,36 +1,59 @@
-from eval.eval import eval
+import os
+from dotenv import load_dotenv
+
 from lib.models.vlm import InferenceConfig
+from eval.eval import eval
 
-prompt = """Extract frm this graph:
-1. Title
-2. X-axis label
-3. Y-axis label
-4. Legend (if present)
-5. ALL data values
-Required JSON format:
-{
-    "title": str or null,
-    "x_label": str or null,
-    "y_label": str or null,
-    "legend": ["serie1", "serie2"] or null,
-    "data": [{"x": x1, "y": y1}, {"x": x2, "y": y2}, {"x": x3, "y": y3}, ...]
-}
-Return ONLY the JSON object, nothing else.
+load_dotenv()
 
-Respond with only 3 data points to not reach the token limit.
+TEST_PROMPT = """
+Extract all data from this graph.
 """
 
-if __name__ == "__main__":
-    res = eval(
-        prompt=prompt,
-        runner="local",
-        config=InferenceConfig(
-            model_name="gemini-2.5-flash",  # nanonets/Nanonets-OCR-s",  # "Qwen/Qwen3-VL-Embedding-8B",
-            use_gpu=True,
-            attn_implementation="eager",
-            output_schema_name="TableOutput",
-            api_key="",
-        ),
-        dataset_name="benchmark_v1",
+
+def test_eval_local():
+    config = InferenceConfig(
+        model_name="gemini-2.5-flash",
+        output_schema_name="TableOutput",
+        api_key=os.getenv("GEMINI_API_KEY"),
+        prompt=TEST_PROMPT
     )
-    print(res.model_dump_json(indent=4))
+
+    result = eval(
+        runner="local",
+        config=config,
+        dataset_name="benchmark_v1",
+        initiated_by="test",
+    )
+
+    assert result is not None
+    assert result.model_name == "gemini-2.5-flash"
+    assert result.dataset_name == "benchmark_v1"
+    assert result.avg_rms >= 0
+    assert result.avg_rnss >= 0
+
+
+def test_eval_modal():
+    config = InferenceConfig(
+        model_name="nanonets/Nanonets-OCR-s",
+        output_schema_name="TableOutput",
+        prompt=TEST_PROMPT
+    )
+
+    result = eval(
+        runner="modal",
+        config=config,
+        dataset_name="benchmark_v1",
+        initiated_by="test",
+    )
+
+    assert result is not None
+    assert result.model_name == "gemini-2.5-flash"
+    assert result.dataset_name == "benchmark_v1"
+    assert result.avg_rms >= 0
+    assert result.avg_rnss >= 0
+
+
+if __name__ == "__main__":
+    test_eval_local()
+    test_eval_modal()

@@ -60,7 +60,7 @@ def main():
         model_name="gemini-2.5-flash", prompt=PROMPT, api_key=GEMINI_API_KEY
     )
     transformers_config = InferenceConfig(
-        model_name="nanonets/Nanonets-OCR-s", prompt=PROMPT
+        model_name="nanonets/Nanonets-OCR2-3B", prompt=PROMPT
     )
 
     #logger.info("Testing gemini inference")
