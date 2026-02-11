@@ -18,14 +18,15 @@ def parse_vlm_output_to_table(
 # Convert TableOutput to 2D table
 # Format:
 # [
-#   ["", "y_label"],
+#   ["x_label", "y_label"],
 #   ["x1", y1],
 #   ["x2", y2],
 #   ...
 # ]
 def vlm_table_output_to_table(output: TableOutput) -> List[List[Union[str, float]]]:
+    x_label = output.x_label or "x"
     y_label = output.y_label or "y"
-    table = [["", y_label]]
+    table = [[x_label, y_label]]
     for point in output.data:
-        table.append([str(point.x), point.y])
+        table.append([f"{point.x:g}", point.y])
     return table

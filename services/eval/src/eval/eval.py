@@ -60,7 +60,7 @@ def eval(
         model_version=getattr(config, "model_version", None),
         dataset_id=dataset.dataset_id,
         dataset_version=dataset.version,
-        config=config.model_dump(),
+        config=config.model_dump(exclude={"api_key"}),
         initiated_by=initiated_by or "manual",
     )
 

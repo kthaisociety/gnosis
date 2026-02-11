@@ -33,7 +33,7 @@ Return ONLY the JSON object, nothing else.
 """
 
 
-def test(image: Image, config: InferenceConfig):
+def test(image: Image.Image, config: InferenceConfig):
     logger.info("Starting inference...")
     t0 = time.perf_counter()
 
