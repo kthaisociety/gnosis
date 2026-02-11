@@ -5,7 +5,6 @@ import os
 import threading
 import time
 import uuid
-from typing import Optional
 
 import grpc
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request
