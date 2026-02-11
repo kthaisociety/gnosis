@@ -1,7 +1,8 @@
 import time
 from typing import Optional
 
-from lib.models.vlm_models import InferenceConfig
+from lib.inference import detect_format
+from lib.models.vlm import InferenceConfig
 from lib.utils.log import get_logger
 from .metrics import compute_rms, compute_rnss
 from .models import (
@@ -21,7 +22,7 @@ from .data import (
 )
 from .data.s3_bucket import get_s3_url
 from .data.utils import parse_vlm_output_to_table
-from .api import infer
+from .api import inference
 
 logger = get_logger(__name__)
 
@@ -30,7 +31,6 @@ def eval(
     runner: str, # 'modal' or 'local'
     config: InferenceConfig,
     dataset_name: str,
-    prompt: Optional[str] = None, # optional custom prompt
     initiated_by: Optional[str] = None, # optional identifier for who started the eval
 ) -> EvalOutput:
     """
@@ -95,16 +95,15 @@ def eval(
                 s3_url = get_s3_url(image.file_path)
                 start_time = time.time()
 
-                vlm_output = infer(
+                vlm_output = inference(
                     runner=runner,
                     image_path=s3_url,
-                    prompt=prompt,
                     config=config,
                 )
 
                 latency_ms = int((time.time() - start_time) * 1000)
 
-                if vlm_output is None or vlm_output.json_data is None:
+                if vlm_output is None or vlm_output.text is None:
                     logger.warning(f"No output for {image.file_path}")
                     create_prediction(
                         PredictionCreate(
@@ -117,12 +116,30 @@ def eval(
                             error_message="No output from model",
                         )
                     )
+                    failed_count += 1
+                    continue
 
+                fmt = detect_format(vlm_output.text)
+                if fmt != "json":
+                    logger.warning(
+                        f"VLM output format '{fmt}' for {image.file_path}; expected json"
+                    )
+                    create_prediction(
+                        PredictionCreate(
+                            image_id=image.image_id,
+                            run_id=run_id,
+                            output=None,
+                            raw_response=vlm_output.text,
+                            latency_ms=latency_ms,
+                            success=False,
+                            error_message=f"Output format '{fmt}', expected json",
+                        )
+                    )
                     failed_count += 1
                     continue
 
                 predicted_table = parse_vlm_output_to_table(
-                    vlm_output.json_data, config.output_schema_name
+                    vlm_output.text, config.output_schema_name
                 )
                 target_table = image.ground_truth
 
@@ -137,7 +154,7 @@ def eval(
                     image_id=image.image_id,
                     run_id=run_id,
                     output={"predicted_table": predicted_table},
-                    raw_response=vlm_output.json_data,
+                    raw_response=vlm_output.text,
                     latency_ms=latency_ms,
                     input_tokens=getattr(vlm_output, "input_tokens", None),
                     output_tokens=getattr(vlm_output, "output_tokens", None),

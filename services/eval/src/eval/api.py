@@ -1,9 +1,8 @@
 from dotenv import load_dotenv
 import requests
-import json
 import os
 
-from lib.models.vlm_models import InferenceConfig, VLMResponseFormat
+from lib.models.vlm import InferenceConfig, VLMResponse
 from lib.utils.log import get_logger
 from lib.utils.image import get_image_mime_type
 
@@ -13,12 +12,11 @@ load_dotenv()
 URL = os.getenv("GATEWAY_URL")
 
 
-def infer(
+def inference(
     runner: str,
     image_path: str,
-    prompt: str,
     config: InferenceConfig,
-):
+) -> VLMResponse:
     try:
         # Get image
         image_res = requests.get(image_path)
@@ -30,8 +28,7 @@ def infer(
             f"{URL}/process",
             data={
                 "runner": runner,
-                "config": json.dumps(config.model_dump()),
-                "prompt": prompt,
+                "config": config.model_dump_json(exclude_none=True),
             },
             files={
                 "file": (
@@ -44,7 +41,7 @@ def infer(
 
         res.raise_for_status()
 
-        return VLMResponseFormat(**res.json())
+        return VLMResponse(**res.json())
 
     except requests.exceptions.HTTPError as e:
         if e.response is not None:

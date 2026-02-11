@@ -3,17 +3,16 @@ import sys
 import time
 import asyncio
 import types
-import json
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
 
 import modal
-from lib.models.vlm_models import (
-    VLMResponseFormat,
-    VLMTableOutput,
+
+from lib.inference import normalize_vlm_response
+from lib.models.vlm import (
     DataPoint,
-    VLMTableOutput,
     InferenceConfig,
+    TableOutput,
+    VLMResponse,
 )
 from lib.utils.log import get_logger
 
@@ -25,16 +24,16 @@ _infer_module = types.ModuleType("infer")
 _infer_module.vlm = types.ModuleType("infer.vlm")
 _infer_module.vlm.vlm = types.ModuleType("infer.vlm.vlm")
 _infer_module.vlm.DataPoint = DataPoint
-_infer_module.vlm.VLMTableOutput = VLMTableOutput
+_infer_module.vlm.TableOutput = TableOutput
 _infer_module.vlm.vlm.DataPoint = DataPoint
-_infer_module.vlm.vlm.VLMTableOutput = VLMTableOutput
+_infer_module.vlm.vlm.TableOutput = TableOutput
 sys.modules["infer"] = _infer_module
 sys.modules["infer.vlm"] = _infer_module.vlm
 sys.modules["infer.vlm.vlm"] = _infer_module.vlm.vlm
 
 # Stub for modal_app module (where VLMOutput is defined in the Modal deployment)
 _modal_app_module = types.ModuleType("modal_app")
-_modal_app_module.VLMOutput = VLMTableOutput
+_modal_app_module.VLMOutput = TableOutput
 _modal_app_module.DataPoint = DataPoint
 _modal_app_module.InferenceConfig = InferenceConfig
 sys.modules["modal_app"] = _modal_app_module
@@ -42,7 +41,7 @@ sys.modules["modal_app"] = _modal_app_module
 # Stub for models.vlm_models (mounted lib path in Modal container)
 _models_module = types.ModuleType("models")
 _models_vlm_models_module = types.ModuleType("models.vlm_models")
-_models_vlm_models_module.VLMOutput = VLMTableOutput
+_models_vlm_models_module.VLMOutput = TableOutput
 _models_vlm_models_module.DataPoint = DataPoint
 _models_vlm_models_module.InferenceConfig = InferenceConfig
 sys.modules["models"] = _models_module
@@ -65,60 +64,30 @@ def ensure_modal_auth():
 async def run_modal_inference(
     img_bytes: bytes,
     config: InferenceConfig,
-    prompt: Optional[str],
-    filename: str = "",
-) -> VLMResponseFormat:
-    """Run VLM inference via Modal."""
+) -> VLMResponse:
     try:
         ensure_modal_auth()
         OCRInference = modal.Cls.from_name("gnosis-infer-app", "OCRInference")
 
-        logger.info(f"[Modal] Starting inference: model={config.model_name}")
+        logger.info(f"[ Modal ] Starting inference: model={config.model_name}")
 
         t0 = time.perf_counter()
         loop = asyncio.get_event_loop()
+        cfg = config.model_dump(exclude_none=True)
+        prompt = config.prompt
         with ThreadPoolExecutor() as executor:
             result = await loop.run_in_executor(
                 executor,
-                lambda: OCRInference().infer.remote(
-                    [img_bytes],
-                    config.model_dump(exclude_none=True),
-                    prompt,
-                ),
+                lambda: OCRInference().infer.remote([img_bytes], cfg, prompt),
             )
 
         processed_time = (time.perf_counter() - t0) * 1000
-        logger.info(f"[Modal] Done in {processed_time:.1f} ms for {filename}")
-
-        # Normalize result
-        json_data: Optional[str] = None
-        text_data: Optional[str] = None
+        logger.info(f"[ Modal ] done in {processed_time:.1f} ms")
 
         if isinstance(result, list) and result:
             result = result[0]
-
-        if hasattr(result, "model_dump_json"):
-            json_data = result.model_dump_json(exclude_none=True)
-        elif hasattr(result, "model_dump"):
-            json_data = json.dumps(result.model_dump(exclude_none=True))
-        elif isinstance(result, dict):
-            json_data = json.dumps(result)
-        elif isinstance(result, str):
-            try:
-                json.loads(result)
-                json_data = result
-            except json.JSONDecodeError:
-                text_data = result
-        else:
-            text_data = str(result)
-
-        if json_data:
-            return VLMResponseFormat(
-                json_data=json_data, inference_time_ms=processed_time
-            )
-        else:
-            return VLMResponseFormat(text=text_data, inference_time_ms=processed_time)
+        return normalize_vlm_response(result, processed_time)
 
     except Exception as e:
-        logger.error(f"[Modal] Failed for {filename}: {e}")
+        logger.error(f"[ Modal ] failed inference: {e}")
         raise

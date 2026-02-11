@@ -4,8 +4,13 @@
 import sys
 import asyncio
 import json
+import os
 from pathlib import Path
 import httpx
+from dotenv import load_dotenv
+
+load_dotenv()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Get paths
 CURRENT_DIR = Path(__file__).parent
@@ -20,17 +25,21 @@ CONFIGS = {
         "runner": "modal",
         "config": {
             "model_name": "nanonets/Nanonets-OCR-s",
+            "prompt": "Extract all data from this image.",
             "use_gpu": True,
             "attn_implementation": "sdpa",
-            "output_schema_name": "VLMTableOutput",
+            "output_schema_name": "TableOutput",
         },
     },
     "local": {
         "runner": "local",
         "config": {
-            "model_name": "nanonets/Nanonets-OCR-s",
+            "model_name": "gemini-2.5-flash",
+            "api_key": os.getenv("GEMINI_API_KEY"),
+#            "model_name": "nanonets/Nanonets-OCR-s",
+            "prompt": "Extract all data from this image.",
             "use_gpu": False,
-            "output_schema_name": "VLMTableOutput",
+            "output_schema_name": "TableOutput",
         },
     },
 }
@@ -67,18 +76,9 @@ async def test_inference(image_path: Path, config_name: str):
                 print("✅ Success!")
                 print(f"   Inference time: {result.get('inference_time_ms', 'N/A')} ms")
 
-                if result.get("html"):
-                    print(f"   HTML length: {len(result['html'])} chars")
-                if result.get("json_data"):
-                    print(f"   JSON length: {len(result['json_data'])} chars")
-                    print(f"   JSON preview: {result['json_data'][:200]}...")
                 if result.get("text"):
-                    text_preview = result["text"][:200].replace("\n", " ")
-                    print(f"   Text preview: {text_preview}...")
-                if result.get("markdown"):
-                    print(f"   Markdown length: {len(result['markdown'])} chars")
-                if result.get("csv"):
-                    print(f"   CSV length: {len(result['csv'])} chars")
+                    preview = result["text"][:200].replace("\n", " ")
+                    print(f"   Text: {preview}...")
                 return True
             else:
                 print(f"❌ Error {response.status_code}: {response.text}")
@@ -99,8 +99,8 @@ async def test_runner(runner_name: str, image_files: list):
     print(f"{'#'*60}")
 
     if runner_name == "local":
-        print("\n⚠️  Make sure vlm_server is running:")
-        print("   cd vlm_server && python -m app.server\n")
+        print("\n⚠️  Ensure vlm_server is running (gRPC on port 50051):")
+        print("   cd services/vlm_server && uv run python -m vlm_server.server\n")
 
     results = []
     for img_path in sorted(image_files)[:3]:  # Test first 3 images
@@ -123,8 +123,8 @@ async def main():
 
     print(f"Found {len(image_files)} test images")
     print(f"API URL: {API_URL}")
-    print("\n⚠️  Make sure gateway is running:")
-    print("   cd gateway && uv run uvicorn app.server:app --host 127.0.0.1 --port 8000")
+    print("\n⚠️  Ensure gateway is running:")
+    print("   uv run uvicorn gateway.server:app --host 127.0.0.1 --port 8000")
 
     # Test both runners
     all_results = {}

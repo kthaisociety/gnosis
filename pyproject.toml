@@ -13,5 +13,10 @@ dependencies = [
 ]
 
 [tool.uv.workspace]
-members = ["lib", "services/gateway", "services/vlm_server"]
+members = [
+    "lib",
+    "services/gateway",
+    "services/vlm_server",
+    "services/eval",
+]
 

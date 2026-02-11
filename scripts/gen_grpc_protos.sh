@@ -4,11 +4,8 @@
 cd "$(dirname "$0")/../lib/src/lib/gRPC"
 mkdir -p generated/
 
-uv run python -m grpc_tools.protoc \
-    -I./protos \
-    --python_out=./generated \
-    --grpc_python_out=./generated \
-    ./protos/vlm.proto
+PROTOC_ARGS="-I./protos --python_out=./generated --grpc_python_out=./generated ./protos/vlm.proto"
+uv run python -m grpc_tools.protoc $PROTOC_ARGS 2>/dev/null || python3 -m grpc_tools.protoc $PROTOC_ARGS
 
 # Create __init__.py
 cat > ./generated/__init__.py << 'EOF'

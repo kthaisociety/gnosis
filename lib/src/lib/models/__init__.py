@@ -1,14 +1,14 @@
-from .vlm_models import (
-    VLMResponseFormat,
+from .vlm import (
+    VLMResponse,
     ModelInfo,
     InferenceConfig,
     # structured output schemas
-    VLMTableOutput,
+    TableOutput,
 )
 
 __all__ = [
-    "VLMResponseFormat",
+    "VLMResponse",
     "ModelInfo",
     "InferenceConfig",
-    "VLMTableOutput",
+    "TableOutput",
 ]

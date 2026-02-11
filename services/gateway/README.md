@@ -120,7 +120,7 @@ Fields:
 Required:
 
 - `model_name`
-- `output_schema_name` for Gemini models (supported: `VLMTableOutput`)
+- `output_schema_name` for Gemini models (supported: `TableOutput`)
 
 Optional:
 
@@ -144,18 +144,14 @@ curl -X POST "http://127.0.0.1:8000/process"   -F "file=@image.png"   -F "runner
 
 ```json
 {
-  "html": null,
-  "json_data": "{"title":"...","data":[{"x":1.0,"y":2.0}]}",
-  "csv": null,
-  "text": null,
-  "markdown": null,
+  "text": "{\"title\":\"...\",\"data\":[{\"x\":1.0,\"y\":2.0}]}",
   "model_name": null,
   "inference_time_ms": 1234.5,
   "tokens_used": null
 }
 ```
 
-Note: `json_data` is a JSON-encoded string. Parse it on the client if present.
+The VLM returns a single string (`text`). For structured output (e.g. `VLMTableOutput`), it is JSON-encoded; parse on the client as needed.
 
 ## Testing
 
@@ -168,5 +164,5 @@ uv run tests/test_inference.py
 - `src/gateway/routers/`: FastAPI routers (process, health)
 - `src/gateway/preprocessing/`: Image preprocessing
 - `lib/src/lib/gRPC/`: gRPC protocol definitions and generated stubs
-- `lib/src/lib/models/`: Pydantic models (VLMResponseFormat, InferenceConfig, etc.)
+- `lib/src/lib/models/`: Pydantic models (VLMResponse, InferenceConfig, etc.)
 - `lib/src/lib/utils/`: Helpers (logging, image validation, etc.)

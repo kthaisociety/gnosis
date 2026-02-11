@@ -17,17 +17,17 @@ from gateway.routers.grpc_runner import run_grpc_inference
 
 from lib.utils.image import validate_image_bytes
 from lib.utils.log import get_logger
-from lib.models.vlm_models import VLMResponseFormat, InferenceConfig
+from lib.models.vlm import VLMResponse, InferenceConfig
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/process", tags=["Image Processing"])
 
 CONFIG_DOC = (
-    "InferenceConfig JSON. Required: model_name. For Gemini: output_schema_name "
-    '(only "VLMTableOutput" supported right now). Optional fields: use_gpu, '
-    "dtype, max_tokens, temperature, top_p, top_k, api_key, max_model_len, "
+    "InferenceConfig JSON. Required: model_name, prompt. "
+    "For Gemini: output_schema_name (e.g. TableOutput). "
+    "Optional: use_gpu, dtype, max_tokens, temperature, top_p, top_k, api_key, "
     "model_class, device_map, return_tensors, padding, attn_implementation. "
-    'Example: {"model_name":"gemini-2.5-flash","output_schema_name":"VLMTableOutput"}'
+    'Example: {"model_name":"gemini-2.5-flash","prompt":"...","output_schema_name":"TableOutput"}'
 )
 
 # Redis configuration
@@ -135,8 +135,7 @@ def _process_image(
     filename: str,
     runner: str,
     inference_config: InferenceConfig,
-    prompt: Optional[str],
-) -> VLMResponseFormat:
+) -> VLMResponse:
     try:
         processed_img = process_and_validate_image_bytes(raw_bytes, filename)
     except Exception as e:
@@ -146,12 +145,8 @@ def _process_image(
     logger.info(f"Running {runner}: model={inference_config.model_name}")
 
     if runner == "modal":
-        return asyncio.run(
-            run_modal_inference(processed_img, inference_config, prompt, filename)
-        )
-    return asyncio.run(
-        run_grpc_inference(processed_img, inference_config, prompt, filename)
-    )
+        return asyncio.run(run_modal_inference(processed_img, inference_config))
+    return asyncio.run(run_grpc_inference(processed_img, inference_config))
 
 
 def _worker_loop() -> None:
@@ -166,7 +161,6 @@ def _worker_loop() -> None:
         job_id = job["id"]
         filename = job["filename"]
         runner = job["runner"]
-        prompt = job.get("prompt")
         config_dict = job["config"]
 
         raw_bytes = base64.b64decode(job["image_b64"])
@@ -187,7 +181,6 @@ def _worker_loop() -> None:
                 filename=filename,
                 runner=runner,
                 inference_config=inference_config,
-                prompt=prompt,
             )
             redis_connection.setex(
                 RESULT_PREFIX + job_id,
@@ -219,7 +212,7 @@ def start_worker() -> None:
 
 @router.post(
     "",
-    response_model=VLMResponseFormat,
+    response_model=VLMResponse,
     responses={
         200: {"description": "Successful image processing."},
         400: {"description": "Bad Request - Invalid or empty image file or config."},
@@ -241,7 +234,6 @@ async def process_image_file(
         ...,
         description=CONFIG_DOC,
     ),
-    prompt: Optional[str] = Form(None, description="Custom prompt (optional)"),
 ):
     filename = file.filename or "unknown"
 
@@ -282,7 +274,6 @@ async def process_image_file(
                 "id": job_id,
                 "filename": filename,
                 "runner": runner,
-                "prompt": prompt,
                 "config": inference_config.model_dump(),
                 "image_b64": base64.b64encode(raw_bytes).decode("ascii"),
             }
@@ -298,7 +289,7 @@ async def process_image_file(
                     data = json.loads(raw)
 
                     if data.get("ok"):
-                        return VLMResponseFormat(**data["result"])
+                        return VLMResponse(**data["result"])
 
                     raise HTTPException(
                         status_code=500, detail=data.get("error", "Job failed")
@@ -321,12 +312,8 @@ async def process_image_file(
         logger.info(f"Running {runner}: model={inference_config.model_name}")
 
         if runner == "modal":
-            return await run_modal_inference(
-                processed_img, inference_config, prompt, filename
-            )
-        return await run_grpc_inference(
-            processed_img, inference_config, prompt, filename
-        )
+            return await run_modal_inference(processed_img, inference_config)
+        return await run_grpc_inference(processed_img, inference_config)
 
     except HTTPException:
         raise
