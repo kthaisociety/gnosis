@@ -1,5 +1,7 @@
 // API service for communicating with the Gnosis gateway backend
 
+import { authClient } from "@/lib/auth";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 // ── Types matching backend models ──────────────────────────────────
@@ -45,9 +47,26 @@ export interface ProcessRequest {
   config: InferenceConfig;
 }
 
+// ── Auth helper ────────────────────────────────────────────────────
+
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  try {
+    const session = await authClient.getSession();
+    const token = session?.data?.session?.token;
+    if (token) {
+      return { Authorization: `Bearer ${token}` };
+    }
+  } catch {
+    // Session fetch failed — continue without auth header
+  }
+  return {};
+}
+
 // ── API Functions ──────────────────────────────────────────────────
 
 export async function processImage(request: ProcessRequest): Promise<VLMResponse> {
+  const authHeaders = await getAuthHeaders();
+
   const formData = new FormData();
   formData.append("file", request.file, request.file.name);
   formData.append("runner", request.runner);
@@ -56,7 +75,10 @@ export async function processImage(request: ProcessRequest): Promise<VLMResponse
   const response = await fetch(`${API_BASE_URL}/process`, {
     method: "POST",
     body: formData,
-    // Note: Do NOT set Content-Type header — browser sets it with boundary
+    headers: {
+      ...authHeaders,
+      // Note: Do NOT set Content-Type — browser sets it with multipart boundary
+    },
   });
 
   if (!response.ok) {
@@ -71,9 +93,14 @@ export async function processImage(request: ProcessRequest): Promise<VLMResponse
 }
 
 export async function getHealthStatus(): Promise<HealthStatus> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(`${API_BASE_URL}/health/json`, {
     method: "GET",
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      ...authHeaders,
+    },
   });
 
   if (!response.ok) {
