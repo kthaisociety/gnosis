@@ -13,6 +13,7 @@ load_dotenv(dotenv_path=root_env)
 
 logger = logging.getLogger("gateway.config")
 
+
 class Config:
     # -- Core --
     TITLE: str = os.getenv("TITLE", "The Gnosis API")
@@ -21,6 +22,9 @@ class Config:
     PORT: int = int(os.getenv("PORT", "8000"))
     WORKERS: int = int(os.getenv("WORKERS", "1"))
     LOGGING_LEVEL: str = os.getenv("LOGGING_LEVEL", "INFO")
+    CORS_ORIGINS: str = os.getenv(
+        "CORS_ORIGINS", "http://localhost:8080,http://127.0.0.1:8080"
+    )
 
     # -- gRPC / VLM Server --
     SERVER_IP: str = os.getenv("SERVER_IP", "127.0.0.1")
@@ -37,7 +41,9 @@ class Config:
     RESULT_POLL_INTERVAL_S: float = float(os.getenv("RESULT_POLL_INTERVAL_S", "0.02"))
 
     # -- Rate Limiting --
-    RATE_LIMIT_ENABLED: bool = os.getenv("RATE_LIMIT_ENABLED", str(QUEUE_ENABLED)).lower() == "true"
+    RATE_LIMIT_ENABLED: bool = (
+        os.getenv("RATE_LIMIT_ENABLED", str(QUEUE_ENABLED)).lower() == "true"
+    )
     RATE_LIMIT_PER_IP_PER_MIN: int = int(os.getenv("RATE_LIMIT_PER_IP_PER_MIN", "10"))
     RATE_LIMIT_GLOBAL_PER_MIN: int = int(os.getenv("RATE_LIMIT_GLOBAL_PER_MIN", "60"))
     RATE_LIMIT_WINDOW_SECONDS: int = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
@@ -61,24 +67,27 @@ class Config:
         logger.info(f"SERVER_IP: {cls.SERVER_IP}")
         logger.info(f"GRPC_PORT: {cls.GRPC_PORT}")
         logger.info(f"QUEUE_ENABLED: {cls.QUEUE_ENABLED}")
-        
+
         if cls.QUEUE_ENABLED:
             logger.info(f"REDIS_URL: {cls.REDIS_URL}")
             logger.info(f"QUEUE_KEY: {cls.QUEUE_KEY}")
             logger.info(f"MAX_QUEUE_SIZE: {cls.MAX_QUEUE_SIZE}")
-        
+
         logger.info(f"RATE_LIMIT_ENABLED: {cls.RATE_LIMIT_ENABLED}")
         if cls.RATE_LIMIT_ENABLED:
             logger.info(f"RATE_LIMIT_PER_IP_PER_MIN: {cls.RATE_LIMIT_PER_IP_PER_MIN}")
             logger.info(f"RATE_LIMIT_GLOBAL_PER_MIN: {cls.RATE_LIMIT_GLOBAL_PER_MIN}")
 
         if not cls.MODAL_TOKEN_ID or not cls.MODAL_TOKEN_SECRET:
-            logger.warning("MODAL_TOKEN_ID or MODAL_TOKEN_SECRET not set. Modal runner will fail if used.")
+            logger.warning(
+                "MODAL_TOKEN_ID or MODAL_TOKEN_SECRET not set. Modal runner will fail if used."
+            )
         else:
             logger.info("Modal credentials found.")
 
         logger.info(f"MAX_IMAGE_SIZE_BYTES: {cls.MAX_IMAGE_SIZE_BYTES}")
         logger.info("-----------------------------")
+
 
 # Initialize and validate
 config = Config()
