@@ -56,7 +56,9 @@ def main():
     assert image, f"Could not open image at {image_path}"
 
     gemini_config = InferenceConfig(
-        model_name="gemini-2.5-flash", prompt=PROMPT, api_key=GEMINI_API_KEY
+        model_name="gemini-2.5-flash",
+        prompt=PROMPT,
+        api_key=GEMINI_API_KEY,
     )
     transformers_config = InferenceConfig(
         model_name="nanonets/Nanonets-OCR2-3B", prompt=PROMPT
