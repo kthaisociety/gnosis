@@ -3,35 +3,36 @@ from typing import Optional
 
 from lib.inference import detect_format
 from lib.models.vlm import InferenceConfig
+from lib.storage.s3 import get_s3_url
 from lib.utils.log import get_logger
+
+from .api import inference
+from .data import (
+    create_evaluation_run,
+    create_metric,
+    create_prediction,
+    get_dataset_by_name,
+    list_images_by_dataset,
+    update_run_status,
+)
+from .data.utils import parse_vlm_output_to_table
 from .metrics import compute_rms, compute_rnss
 from .models import (
     EvalOutput,
     EvaluationRunCreate,
-    RunStatus,
-    PredictionCreate,
     MetricCreate,
+    PredictionCreate,
+    RunStatus,
 )
-from .data import (
-    get_dataset_by_name,
-    list_images_by_dataset,
-    create_evaluation_run,
-    update_run_status,
-    create_prediction,
-    create_metric,
-)
-from .data.s3_bucket import get_s3_url
-from .data.utils import parse_vlm_output_to_table
-from .api import inference
 
 logger = get_logger(__name__)
 
 
 def eval(
-    runner: str, # 'modal' or 'local'
+    runner: str,  # 'modal' or 'local'
     config: InferenceConfig,
     dataset_name: str,
-    initiated_by: Optional[str] = None, # optional identifier for who started the eval
+    initiated_by: Optional[str] = None,  # optional identifier for who started the eval
 ) -> EvalOutput:
     """
     1. Fetch dataset and images from Neon DB
@@ -226,16 +227,16 @@ def eval(
             failed_images=failed_count,
         )
 
-        logger.info(f"\n{'='*60}")
+        logger.info(f"\n{'=' * 60}")
         logger.info("EVALUATION COMPLETE")
-        logger.info(f"{'='*60}")
+        logger.info(f"{'=' * 60}")
         logger.info(f"Dataset: {dataset_name}")
         logger.info(f"Model: {config.model_name}")
         logger.info(f"Processed: {processed_count}/{len(images)}")
         logger.info(f"Failed: {failed_count}/{len(images)}")
         logger.info(f"Average RMS: {avg_rms:.4f}")
         logger.info(f"Average RNSS: {avg_rnss:.4f}")
-        logger.info(f"{'='*60}\n")
+        logger.info(f"{'=' * 60}\n")
 
         return EvalOutput(
             model_name=config.model_name,
@@ -254,4 +255,3 @@ def eval(
             failed_images=failed_count,
         )
         raise
-

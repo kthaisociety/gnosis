@@ -9,35 +9,36 @@ Tests all CRUD operations for the benchmark schema:
 - Metrics
 """
 
-import pytest
 from uuid import uuid4
 
-from eval.data.db import (
+import pytest
+from lib.db.operations.eval import (
     create_dataset,
+    create_evaluation_run,
+    create_image,
+    create_metric,
+    create_prediction,
     get_dataset,
     get_dataset_by_name,
-    list_datasets,
-    create_image,
-    get_image,
-    update_image_status,
-    list_images_by_dataset,
-    create_evaluation_run,
-    update_run_status,
     get_evaluation_run,
-    create_prediction,
-    get_predictions_by_run,
-    create_metric,
+    get_image,
     get_metrics_by_prediction,
+    get_predictions_by_run,
     get_run_metrics_summary,
+    list_datasets,
+    list_images_by_dataset,
+    update_image_status,
+    update_run_status,
 )
+
 from eval.models import (
     DatasetCreate,
+    EvaluationRunCreate,
     ImageCreate,
     ImageStatus,
-    EvaluationRunCreate,
-    RunStatus,
-    PredictionCreate,
     MetricCreate,
+    PredictionCreate,
+    RunStatus,
 )
 
 
@@ -361,7 +362,7 @@ class TestPredictionOperations:
         for i in range(3):
             image = ImageCreate(
                 dataset_id=test_setup["dataset_id"],
-                file_path=f"test_pred_image_{i}.png"
+                file_path=f"test_pred_image_{i}.png",
             )
             image_id = create_image(image)
             prediction = PredictionCreate(

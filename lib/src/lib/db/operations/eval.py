@@ -3,33 +3,33 @@ Database operations for the VLM Benchmark schema.
 Handles datasets, images, evaluation runs, predictions, and metrics.
 """
 
-from psycopg.sql import SQL, Identifier
-from psycopg.rows import dict_row
-from psycopg import errors
-from typing import List, Optional
-from dotenv import load_dotenv
-from uuid import UUID
 import json
 import os
-from lib.utils.log import get_logger
-from lib.db import get_db_pool
+from typing import List, Optional
+from uuid import UUID
+
+from dotenv import load_dotenv
 from eval.models import (
     Dataset,
     DatasetCreate,
+    EvaluationRun,
+    EvaluationRunCreate,
     Image,
     ImageCreate,
     ImageStatus,
-    EvaluationRun,
-    EvaluationRunCreate,
-    RunStatus,
-    Prediction,
-    PredictionCreate,
     Metric,
     MetricCreate,
+    Prediction,
+    PredictionCreate,
+    RunStatus,
 )
+from lib.db.client import get_db_pool
+from lib.utils.log import get_logger
+from psycopg import errors
+from psycopg.rows import dict_row
+from psycopg.sql import SQL, Identifier
 
 logger = get_logger(__name__)
-
 
 load_dotenv()
 SCHEMA_NAME = os.getenv("SCHEMA_NAME")
@@ -46,11 +46,13 @@ def create_dataset(dataset: DatasetCreate) -> Optional[UUID]:
         UUID of created dataset, or None if creation failed
     """
     pool = get_db_pool()
-    sql = SQL("""
+    sql = SQL(
+        """
         INSERT INTO {schema}.datasets (name, description, version)
         VALUES (%(name)s, %(description)s, %(version)s)
         RETURNING dataset_id
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
@@ -157,7 +159,8 @@ def create_image(image: ImageCreate) -> Optional[UUID]:
         UUID of created image, or None if creation failed
     """
     pool = get_db_pool()
-    sql = SQL("""
+    sql = SQL(
+        """
         INSERT INTO {schema}.images
         (dataset_id, file_path, s3_etag, width, height, format,
          file_size_bytes, image_type, metadata, ground_truth)
@@ -166,7 +169,8 @@ def create_image(image: ImageCreate) -> Optional[UUID]:
             %(format)s, %(file_size_bytes)s, %(image_type)s, %(metadata)s, %(ground_truth)s
         )
         RETURNING image_id
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
@@ -231,18 +235,22 @@ def update_image_status(
     pool = get_db_pool()
 
     if s3_etag:
-        sql = SQL("""
+        sql = SQL(
+            """
             UPDATE {schema}.images
             SET status = %s, s3_etag = %s, updated_at = NOW()
             WHERE image_id = %s
-        """).format(schema=Identifier(SCHEMA_NAME))
+        """
+        ).format(schema=Identifier(SCHEMA_NAME))
         params = (status.value, s3_etag, image_id)
     else:
-        sql = SQL("""
+        sql = SQL(
+            """
             UPDATE {schema}.images
             SET status = %s, updated_at = NOW()
             WHERE image_id = %s
-        """).format(schema=Identifier(SCHEMA_NAME))
+        """
+        ).format(schema=Identifier(SCHEMA_NAME))
         params = (status.value, image_id)
 
     try:
@@ -271,18 +279,22 @@ def list_images_by_dataset(
     pool = get_db_pool()
 
     if status:
-        sql = SQL("""
+        sql = SQL(
+            """
             SELECT * FROM {schema}.images
             WHERE dataset_id = %s AND status = %s
             ORDER BY created_at DESC
-        """).format(schema=Identifier(SCHEMA_NAME))
+        """
+        ).format(schema=Identifier(SCHEMA_NAME))
         params = (dataset_id, status.value)
     else:
-        sql = SQL("""
+        sql = SQL(
+            """
             SELECT * FROM {schema}.images
             WHERE dataset_id = %s
             ORDER BY created_at DESC
-        """).format(schema=Identifier(SCHEMA_NAME))
+        """
+        ).format(schema=Identifier(SCHEMA_NAME))
         params = (dataset_id,)
 
     try:
@@ -307,13 +319,15 @@ def create_evaluation_run(run: EvaluationRunCreate) -> Optional[UUID]:
         UUID of created run, or None if creation failed
     """
     pool = get_db_pool()
-    sql = SQL("""
+    sql = SQL(
+        """
         INSERT INTO {schema}.evaluation_runs
         (model_name, model_version, dataset_id, dataset_version, config, initiated_by)
         VALUES (%(model_name)s, %(model_version)s, %(dataset_id)s,
                 %(dataset_version)s, %(config)s, %(initiated_by)s)
         RETURNING run_id
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
@@ -381,11 +395,13 @@ def update_run_status(
 
     params.append(run_id)
 
-    sql = SQL(f"""
+    sql = SQL(
+        f"""
         UPDATE {{schema}}.evaluation_runs
-        SET {', '.join(updates)}
+        SET {", ".join(updates)}
         WHERE run_id = %s
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
@@ -437,7 +453,8 @@ def create_prediction(prediction: PredictionCreate) -> Optional[UUID]:
         UUID of created prediction, or None if creation failed
     """
     pool = get_db_pool()
-    sql = SQL("""
+    sql = SQL(
+        """
         INSERT INTO {schema}.predictions
         (image_id, run_id, output, raw_response, latency_ms,
          input_tokens, output_tokens, success, error_message)
@@ -445,7 +462,8 @@ def create_prediction(prediction: PredictionCreate) -> Optional[UUID]:
                 %(latency_ms)s, %(input_tokens)s, %(output_tokens)s,
                 %(success)s, %(error_message)s)
         RETURNING prediction_id
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
@@ -474,11 +492,13 @@ def get_predictions_by_run(run_id: UUID) -> List[Prediction]:
         List of Prediction objects
     """
     pool = get_db_pool()
-    sql = SQL("""
+    sql = SQL(
+        """
         SELECT * FROM {schema}.predictions
         WHERE run_id = %s
         ORDER BY created_at
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
@@ -505,12 +525,14 @@ def create_metric(metric: MetricCreate) -> Optional[UUID]:
         UUID of created metric, or None if creation failed
     """
     pool = get_db_pool()
-    sql = SQL("""
+    sql = SQL(
+        """
         INSERT INTO {schema}.metrics
         (prediction_id, metric_name, metric_value, meta_data)
         VALUES (%(prediction_id)s, %(metric_name)s, %(metric_value)s, %(meta_data)s)
         RETURNING metric_id
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
@@ -538,11 +560,13 @@ def get_metrics_by_prediction(prediction_id: UUID) -> List[Metric]:
         List of Metric objects
     """
     pool = get_db_pool()
-    sql = SQL("""
+    sql = SQL(
+        """
         SELECT * FROM {schema}.metrics
         WHERE prediction_id = %s
         ORDER BY metric_name
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
@@ -566,7 +590,8 @@ def get_run_metrics_summary(run_id: UUID) -> dict:
         Dictionary with metric statistics (avg, min, max per metric type)
     """
     pool = get_db_pool()
-    sql = SQL("""
+    sql = SQL(
+        """
         SELECT
             m.metric_name,
             AVG(m.metric_value) as avg_value,
@@ -577,7 +602,8 @@ def get_run_metrics_summary(run_id: UUID) -> dict:
         JOIN {schema}.predictions p ON m.prediction_id = p.prediction_id
         WHERE p.run_id = %s
         GROUP BY m.metric_name
-    """).format(schema=Identifier(SCHEMA_NAME))
+    """
+    ).format(schema=Identifier(SCHEMA_NAME))
 
     try:
         with pool.connection() as conn:
