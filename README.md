@@ -110,37 +110,28 @@ graph TD
 │   ├── pyproject.toml
 │   └── src
 │       └── lib
-|           ├── db
+│           ├── db
 │           │   ├── operations
 │           │   └── client.py
 │           ├── gRPC
-│           ├── metrics
-│                ├──rms.py
-│                ├──rnss.py
-│                └──tests
+│           │   ├── generated
+│           │   └── protos
+│           ├── inference
 │           ├── models
-│           │   └── vlm_models.py
+│           │   └── vlm
+│           ├── storage
 │           └── utils
-│               ├── image.py
-│               ├── log.py
-│               └── system.py
 ├── pyproject.toml
 ├── scripts
 └── services
     ├── eval
-    │   ├── .env.example
     │   ├── pyproject.toml
     │   ├── scripts
     │   │   └── process_and_upload_dataset.py
     │   └── src
     │       └── eval
     │           ├── data
-    │           │   ├── __init__.py
-    │           │   ├── benchmark_db.py
-    │           │   ├── data.py
-    │           │   ├── db.py
-    │           │   ├── pipeline.py
-    │           │   └── s3_bucket.py
+    │           ├── metrics
     │           ├── eval.py
     │           └── models.py
     ├── gateway
@@ -148,14 +139,7 @@ graph TD
     │   ├── src
     │   │   └── gateway
     │   │       ├── preprocessing
-    │   │       │   ├── main.py
-    │   │       │   ├── rotate.py
-    │   │       │   └── standardize.py
     │   │       ├── routers
-    │   │       │   ├── grpc_runner.py
-    │   │       │   ├── health_router.py
-    │   │       │   ├── modal_runner.py
-    │   │       │   ├── process_router.py
     │   │       └── server.py
     │   └── tests
     │       └── test_inference.py
@@ -164,13 +148,6 @@ graph TD
         ├── src
         │   └── vlm_server
         │       ├── inference
-        │       │   ├── main.py
-        │       │   ├── prompts
-        │       │   └── vlm
-        │       │       ├── gemini.py
-        │       │       ├── models.json
-        │       │       ├── transformer.py
-        │       │       └── vlm.py
         │       └── server.py
         └── tests
             └── test_grpc_inference.py
