@@ -14,7 +14,13 @@ def load_defaults(inference_type: str, config: InferenceConfig, defaults: dict) 
         if getattr(config, key) is None:
             setattr(config, key, defaults[key])
     if inference_type == "transformers":
-        for key in ("dtype", "model_class", "return_tensors", "padding", "attn_implementation"):
+        for key in (
+            "dtype",
+            "model_class",
+            "return_tensors",
+            "padding",
+            "attn_implementation",
+        ):
             if key not in defaults or defaults[key] is None:
                 continue
             if getattr(config, key) is None:
@@ -25,13 +31,25 @@ def _validate_gemini(config: InferenceConfig, model_name: str) -> None:
     if not (config.api_key or "").strip():
         raise ValueError(f"model '{model_name}' requires a non-empty api_key")
     if config.temperature is not None and not (0 <= config.temperature <= 2):
-        raise ValueError(f"model '{model_name}': temperature must be in [0, 2], got {config.temperature}")
+        raise ValueError(
+            f"model '{model_name}': temperature must be in [0, 2], got {config.temperature}"
+        )
     if config.top_p is not None and not (0 < config.top_p <= 1):
-        raise ValueError(f"model '{model_name}': top_p must be in (0, 1], got {config.top_p}")
-    if config.top_k is not None and (not isinstance(config.top_k, int) or config.top_k < 1):
-        raise ValueError(f"model '{model_name}': top_k must be a positive int, got {config.top_k}")
-    if config.max_tokens is not None and (not isinstance(config.max_tokens, int) or config.max_tokens < 1):
-        raise ValueError(f"model '{model_name}': max_tokens must be a positive int, got {config.max_tokens}")
+        raise ValueError(
+            f"model '{model_name}': top_p must be in (0, 1], got {config.top_p}"
+        )
+    if config.top_k is not None and (
+        not isinstance(config.top_k, int) or config.top_k < 1
+    ):
+        raise ValueError(
+            f"model '{model_name}': top_k must be a positive int, got {config.top_k}"
+        )
+    if config.max_tokens is not None and (
+        not isinstance(config.max_tokens, int) or config.max_tokens < 1
+    ):
+        raise ValueError(
+            f"model '{model_name}': max_tokens must be a positive int, got {config.max_tokens}"
+        )
 
 
 def _validate_transformers(config: InferenceConfig, model_name: str) -> None:
@@ -49,7 +67,9 @@ def _validate_transformers(config: InferenceConfig, model_name: str) -> None:
     if config.max_tokens is None:
         raise ValueError(f"model '{model_name}' (transformers) requires max_tokens")
     if not isinstance(config.max_tokens, int) or config.max_tokens < 1:
-        raise ValueError(f"model '{model_name}': max_tokens must be a positive int, got {config.max_tokens}")
+        raise ValueError(
+            f"model '{model_name}': max_tokens must be a positive int, got {config.max_tokens}"
+        )
 
 
 # Validate config, apply defaults, return ModelInfo for the model.
@@ -63,7 +83,9 @@ def validate_config(config: InferenceConfig) -> ModelInfo:
     if not model_info:
         raise ValueError(f"model '{config.model_name}' is not supported")
 
-    defaults = model_info.default_config if model_info.default_config is not None else {}
+    defaults = (
+        model_info.default_config if model_info.default_config is not None else {}
+    )
     load_defaults(model_info.inference_type, config, defaults)
 
     if getattr(model_info, "requires_gpu", True) and config.use_gpu is False:

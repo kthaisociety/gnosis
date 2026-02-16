@@ -199,4 +199,3 @@ Workflow should correct all formatting issues and the bot will push the formatti
 ```bash
 git commit -m "[YOUR COOL COMMIT MESSAGE]" # otherwise just commit normally and it should format your code.
 ```
-

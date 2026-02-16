@@ -7,10 +7,10 @@ project_root = script_dir.parent
 lib_src = project_root / "lib" / "src"
 sys.path.insert(0, str(lib_src))
 
-from lib.storage.s3 import ensure_s3_bucket_exists, S3_BUCKET_NAME
-
 
 def main():
+    from lib.storage.s3 import S3_BUCKET_NAME, ensure_s3_bucket_exists
+
     if not S3_BUCKET_NAME:
         print("Error: BUCKET_NAME environment variable is not set.", file=sys.stderr)
         sys.exit(1)
@@ -21,7 +21,10 @@ def main():
     if success:
         print(f"S3 bucket '{S3_BUCKET_NAME}' is ready.")
     else:
-        print(f"Error: Failed to ensure S3 bucket '{S3_BUCKET_NAME}' exists.", file=sys.stderr)
+        print(
+            f"Error: Failed to ensure S3 bucket '{S3_BUCKET_NAME}' exists.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 
