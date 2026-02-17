@@ -68,7 +68,11 @@ def test_extract_mappings_basic():
 
 
 def test_extract_mappings_ignores_non_numeric_cells():
-    table = [["Year", "Sales", "Note"], ["2020", "100", "approx"], ["2021", "N/A", "missing"]]
+    table = [
+        ["Year", "Sales", "Note"],
+        ["2020", "100", "approx"],
+        ["2021", "N/A", "missing"],
+    ]
     mappings = extract_mappings(table)
     expected = {("2020", "Sales", 100.0)}
     assert set(mappings) == expected

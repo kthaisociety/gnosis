@@ -46,7 +46,9 @@ class Transformer:
             attn_implementation = "sdpa"
 
         if model_class not in MODEL_CLASS:
-            raise ValueError(f"unsupported model_class '{model_class}' (supported: {list(MODEL_CLASS)})")
+            raise ValueError(
+                f"unsupported model_class '{model_class}' (supported: {list(MODEL_CLASS)})"
+            )
 
         logger.info(f"loading {model_name}... (device={device_map})")
         t0 = time.perf_counter()
@@ -60,7 +62,9 @@ class Transformer:
             low_cpu_mem_usage=False,
         )
 
-        logger.info(f"loaded {model_name} in {(time.perf_counter() - t0) * 1000:.0f} ms")
+        logger.info(
+            f"loaded {model_name} in {(time.perf_counter() - t0) * 1000:.0f} ms"
+        )
 
     def run(self, image: Image.Image, prompt: str) -> str:
         prompt = prompt if prompt is not None else ""

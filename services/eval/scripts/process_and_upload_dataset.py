@@ -34,7 +34,9 @@ def load_ground_truth(dataset_path: str) -> Dict[str, Any]:
     return json.loads(ground_truth_file.read_text())
 
 
-def upload(folder_path: str, dataset_name: str, create_new: bool = False) -> Dict[str, Any]:
+def upload(
+    folder_path: str, dataset_name: str, create_new: bool = False
+) -> Dict[str, Any]:
     folder = Path(folder_path)
 
     if not ensure_s3_bucket_exists():
@@ -54,7 +56,9 @@ def upload(folder_path: str, dataset_name: str, create_new: bool = False) -> Dic
             if dataset:
                 dataset_id = dataset.dataset_id
             else:
-                raise RuntimeError(f"Failed to create or retrieve dataset '{dataset_name}'")
+                raise RuntimeError(
+                    f"Failed to create or retrieve dataset '{dataset_name}'"
+                )
     else:
         dataset = get_dataset_by_name(dataset_name)
         if not dataset:
@@ -70,7 +74,9 @@ def upload(folder_path: str, dataset_name: str, create_new: bool = False) -> Dic
         image_path = folder / item["filename"]
         if not image_path.exists():
             print(f"Image file not found: {image_path}")
-            results["failed"].append({"filename": item["filename"], "error": "File not found"})
+            results["failed"].append(
+                {"filename": item["filename"], "error": "File not found"}
+            )
             continue
 
         try:
@@ -85,10 +91,14 @@ def upload(folder_path: str, dataset_name: str, create_new: bool = False) -> Dic
 
             if image_id:
                 print(f"Uploaded with ID: {image_id}")
-                results["successful"].append({"filename": item["filename"], "image_id": str(image_id)})
+                results["successful"].append(
+                    {"filename": item["filename"], "image_id": str(image_id)}
+                )
             else:
                 print("Upload returned None")
-                results["failed"].append({"filename": item["filename"], "error": "Upload returned None"})
+                results["failed"].append(
+                    {"filename": item["filename"], "error": "Upload returned None"}
+                )
 
         except Exception as e:
             print(f"Upload failed: {e}")
@@ -104,7 +114,11 @@ def upload(folder_path: str, dataset_name: str, create_new: bool = False) -> Dic
 
 def main():
     parser = argparse.ArgumentParser(description="Upload images to benchmark dataset")
-    parser.add_argument("--folder", required=True, help="Path to folder with images and ground_truth.json")
+    parser.add_argument(
+        "--folder",
+        required=True,
+        help="Path to folder with images and ground_truth.json",
+    )
     parser.add_argument("--dataset", required=True, help="Dataset name to upload to")
     args = parser.parse_args()
 
@@ -113,7 +127,9 @@ def main():
         print("UPLOADING TO S3 AND NEON")
         print("=" * 60)
 
-        results = upload(folder_path=args.folder, dataset_name=args.dataset, create_new=True)
+        results = upload(
+            folder_path=args.folder, dataset_name=args.dataset, create_new=True
+        )
 
         print("\n" + "=" * 60)
         print("UPLOAD SUMMARY")
@@ -135,4 +151,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

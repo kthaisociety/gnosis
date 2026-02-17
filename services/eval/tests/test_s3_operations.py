@@ -11,21 +11,21 @@ Tests all S3 bucket operations including:
 """
 
 import os
-import pytest
 import tempfile
 from uuid import UUID
-from PIL import Image
 
-from eval.data.s3_bucket import (
+import pytest
+from lib.storage.s3 import (
+    S3_BUCKET_NAME,
+    check_image_exists,
+    delete_image_from_s3,
     ensure_s3_bucket_exists,
     generate_s3_key,
-    upload_image_to_s3,
     get_image_metadata,
-    delete_image_from_s3,
     get_s3_url,
-    check_image_exists,
-    S3_BUCKET_NAME,
+    upload_image_to_s3,
 )
+from PIL import Image
 
 
 class TestS3BucketOperations:

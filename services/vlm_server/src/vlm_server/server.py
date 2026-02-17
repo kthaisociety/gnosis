@@ -31,7 +31,9 @@ class VLMServerServicer(vlm_pb2_grpc.VLMServerServicer):
 
             out = inference(image, config)
 
-            logger.info(f"[ Inference ] done in {(time.perf_counter() - t0) * 1000:.0f} ms")
+            logger.info(
+                f"[ Inference ] done in {(time.perf_counter() - t0) * 1000:.0f} ms"
+            )
 
             return vlm_pb2.Response(text=out)
 

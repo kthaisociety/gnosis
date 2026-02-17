@@ -36,7 +36,7 @@ CONFIGS = {
         "config": {
             "model_name": "gemini-2.5-flash",
             "api_key": os.getenv("GEMINI_API_KEY"),
-#            "model_name": "nanonets/Nanonets-OCR-s",
+            #            "model_name": "nanonets/Nanonets-OCR-s",
             "prompt": "Extract all data from this image.",
             "use_gpu": False,
             "output_schema_name": "TableOutput",
