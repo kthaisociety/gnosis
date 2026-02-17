@@ -66,7 +66,7 @@ class Transformer:
             f"loaded {model_name} in {(time.perf_counter() - t0) * 1000:.0f} ms"
         )
 
-    def run(self, image: Image, prompt: str) -> str:
+    def run(self, image: Image.Image, prompt: str) -> str:
         prompt = prompt if prompt is not None else ""
         messages = [
             {
