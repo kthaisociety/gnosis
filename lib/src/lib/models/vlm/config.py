@@ -16,6 +16,7 @@ class InferenceConfig(BaseModel):
     model_name: str
     prompt: str
     output_schema_name: Optional[str] = None
+    system_prompt: Optional[str] = None
 
     use_gpu: Optional[bool] = None
     dtype: Optional[str] = None

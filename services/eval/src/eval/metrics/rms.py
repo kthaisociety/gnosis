@@ -79,16 +79,11 @@ def compute_rms(
         val_sim = 1.0 - value_cost[i, j]
         similarities.append(key_sim * val_sim)
 
-    # Unmatched entries are treated as maximally wrong
-    matched = len(similarities)
-    unmatched_p = N - matched
-    unmatched_t = M - matched
+    # Unmatched entries implicitly contribute 0 similarity
+    total_sim = sum(similarities)
 
-    total_error = sum(1.0 - s for s in similarities)
-    total_error += unmatched_p + unmatched_t
-
-    precision = 1.0 - total_error / N
-    recall = 1.0 - total_error / M
+    precision = total_sim / N
+    recall = total_sim / M
 
     if precision + recall == 0:
         return 0.0

@@ -18,7 +18,7 @@ class Gemini:
         self.client = genai.Client(api_key=api_key)
         self.model = config.model_name
 
-    def run(self, image: Image, prompt: str) -> str:
+    def run(self, image: Image.Image, prompt: str) -> str:
         prompt = prompt if prompt is not None else ""
         config_kw = {}
         if self.config.temperature is not None:
@@ -29,6 +29,8 @@ class Gemini:
             config_kw["top_k"] = self.config.top_k
         if self.config.max_tokens is not None:
             config_kw["max_output_tokens"] = self.config.max_tokens
+        if self.config.system_prompt is not None:
+            config_kw["system_instruction"] = self.config.system_prompt
 
         schema = get_schema(self.config.output_schema_name)
         if schema:

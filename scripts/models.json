@@ -38,5 +38,23 @@
 			"top_k": 40,
 			"max_tokens": 8192
 		}
+	},
+	"gemini-3-flash-preview": {
+		"inference_type": "api",
+		"inference_class": "gemini",
+		"requires_gpu": false,
+		"default_config": {}
+	},
+	"gpt-5.2": {
+		"inference_type": "api",
+		"inference_class": "gpt"
+	},
+	"gpt-5-mini": {
+		"inference_type": "api",
+		"inference_class": "gpt"
+	},
+	"gpt-5-nano": {
+		"inference_type": "api",
+		"inference_class": "gpt"
 	}
 }
