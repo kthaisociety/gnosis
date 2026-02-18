@@ -146,7 +146,7 @@ else:
             {
                 "HF_HOME": MODEL_CACHE_DIR,
                 "PYTHONPATH": "/root/vlm_server:/root/lib:/root/eval_service",
-                "BUILD_VERSION": "2026-01-28-v16",
+                "BUILD_VERSION": "2026-02-18-v19",
             }
         )
         .pip_install(
@@ -196,7 +196,7 @@ class OCRInference:
 
     @modal.enter()
     def setup(self):
-        """Called once when container starts - load model."""
+        """Called once when container starts - load model into memory."""
         import torch
 
         print(f"CUDA available: {torch.cuda.is_available()}")
@@ -206,17 +206,33 @@ class OCRInference:
                 f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
             )
 
-        # Pre-load default model
         model_name = "nanonets/Nanonets-OCR-s"
-        print(f"Pre-loading model: {model_name}")
+        print(f"Loading model into memory: {model_name}")
 
         try:
-            from inference.main import download_model
+            from inference.main import make_model
+            from lib.models.vlm import InferenceConfig as VLMInferenceConfig, ModelInfo
 
-            download_model(model_name)
-            print(f"Model {model_name} ready")
+            model_info = ModelInfo(
+                model_name=model_name,
+                inference_type="transformers",
+                inference_class="transformers",
+                requires_gpu=True,
+            )
+            inf_config = VLMInferenceConfig(
+                model_name=model_name,
+                prompt="",
+                model_class="AutoModelForImageTextToText",
+                use_gpu=True,
+                attn_implementation=DEFAULT_ATTN_IMPL,
+            )
+            self.model = make_model(model_info, inf_config)
+            self.loaded_model_name = model_name
+            print(f"Model {model_name} loaded and ready")
         except Exception as e:
             print(f"Warning: Could not pre-load model: {e}")
+            self.model = None
+            self.loaded_model_name = None
 
     @modal.method()
     def infer(
@@ -246,34 +262,54 @@ class OCRInference:
 
         start = time.time()
 
-        # Convert dict to InferenceConfig, injecting prompt if provided
+        # Convert dict to InferenceConfig, injecting prompt and defaults if missing
         if prompt:
             config = {**config, "prompt": prompt}
+        # Always set model_class — override None/missing with the default
+        if not config.get("model_class"):
+            config = {**config, "model_class": "AutoModelForImageTextToText"}
         inf_config = VLMInferenceConfig(**config)
 
-        # Build ModelInfo directly — avoids a DB round-trip from the container.
-        # inference_class maps to the branch in vlm_server/inference/main.py:make_model:
-        #   "transformers" → Transformer, "gemini" → Gemini, "gpt" → GPT
-        _MODEL_REGISTRY = {
-            "nanonets/Nanonets-OCR-s": ("transformers", "transformers"),
-            "gemini-2.5-flash": ("api", "gemini"),
-        }
-        inference_type, inference_class = _MODEL_REGISTRY.get(
-            inf_config.model_name, ("transformers", "transformers")
-        )
-        model_info = ModelInfo(
-            model_name=inf_config.model_name,
-            inference_type=inference_type,
-            inference_class=inference_class,
-            requires_gpu=inf_config.use_gpu,
-        )
-        model = make_model(model_info, inf_config)
+        # Reuse the pre-loaded model if it matches, otherwise load on demand
+        if (
+            hasattr(self, "model")
+            and self.model is not None
+            and self.loaded_model_name == inf_config.model_name
+        ):
+            model = self.model
+            print(f"Reusing pre-loaded model: {inf_config.model_name}")
+        else:
+            print(f"Loading model on demand: {inf_config.model_name}")
+            # Build ModelInfo directly — avoids a DB round-trip from the container.
+            # inference_class maps to the branch in vlm_server/inference/main.py:make_model:
+            #   "transformers" → Transformer, "gemini" → Gemini, "gpt" → GPT
+            _MODEL_REGISTRY = {
+                "nanonets/Nanonets-OCR-s": ("transformers", "transformers"),
+                "gemini-2.5-flash": ("api", "gemini"),
+            }
+            inference_type, inference_class = _MODEL_REGISTRY.get(
+                inf_config.model_name, ("transformers", "transformers")
+            )
+            model_info = ModelInfo(
+                model_name=inf_config.model_name,
+                inference_type=inference_type,
+                inference_class=inference_class,
+                requires_gpu=inf_config.use_gpu,
+            )
+            model = make_model(model_info, inf_config)
+            self.model = model
+            self.loaded_model_name = inf_config.model_name
 
         # Run inference on each image, collecting text results
         results = []
         for img_bytes in images_bytes:
+            print(
+                f"Image bytes received: {len(img_bytes)}, header: {img_bytes[:8].hex()}"
+            )
             image = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+            print(f"Image opened: size={image.size}, mode={image.mode}")
             raw_text = model.run(image, inf_config.prompt)
+            print(f"Raw output ({len(raw_text)} chars): {raw_text[:200]!r}")
             results.append(raw_text)
 
         print(f"Inference completed in {time.time() - start:.2f}s")

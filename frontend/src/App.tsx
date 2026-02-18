@@ -40,10 +40,10 @@ const App = () => {
           <Toaster />
           <Sonner />
           <Routes>
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/account/:view" element={<Account />} />
-            </Route>
+            {/* <Route element={<ProtectedRoute />}> */}
+            <Route path="/" element={<Index />} />
+            <Route path="/account/:view" element={<Account />} />
+            {/* </Route> */}
             <Route element={<AdminRoute />}>
               <Route path="/admin/*" element={<AdminPage />} />
             </Route>

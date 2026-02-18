@@ -7,6 +7,15 @@ interface FileUploadZoneProps {
   onFileSelect: (file: File | null) => void;
 }
 
+const ALLOWED_TYPES = [
+  "application/pdf",
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/tiff",
+  "image/bmp",
+];
+
 const FileUploadZone = ({ file, onFileSelect }: FileUploadZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -32,19 +41,10 @@ const FileUploadZone = ({ file, onFileSelect }: FileUploadZoneProps) => {
       e.preventDefault();
       e.stopPropagation();
       setIsDragging(false);
-
       const files = e.dataTransfer.files;
       if (files && files.length > 0) {
         const droppedFile = files[0];
-        const allowed = [
-          "application/pdf",
-          "image/png",
-          "image/jpeg",
-          "image/webp",
-          "image/tiff",
-          "image/bmp",
-        ];
-        if (allowed.includes(droppedFile.type)) {
+        if (ALLOWED_TYPES.includes(droppedFile.type)) {
           onFileSelect(droppedFile);
         }
       }
@@ -59,9 +59,7 @@ const FileUploadZone = ({ file, onFileSelect }: FileUploadZoneProps) => {
     }
   };
 
-  const removeFile = () => {
-    onFileSelect(null);
-  };
+  const removeFile = () => onFileSelect(null);
 
   if (file) {
     return (
@@ -118,7 +116,7 @@ const FileUploadZone = ({ file, onFileSelect }: FileUploadZoneProps) => {
           {isDragging ? "Drop your file here" : "Drag & drop an image or PDF"}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          PNG, JPEG, WebP, TIFF, or PDF
+          PNG, JPEG, WebP, TIFF, BMP, or PDF
         </p>
       </div>
       <input

@@ -57,7 +57,17 @@ const BenchmarkCard = ({ onLogout }: BenchmarkCardProps) => {
           typeof err.message === "string"
             ? err.message
             : JSON.stringify(err.message);
-        setError(`Error ${err.status}: ${detail}`);
+        // Show clean message for known transient errors, raw detail otherwise
+        if (
+          err.status === 503 ||
+          detail.toLowerCase().includes("interrupted")
+        ) {
+          setError("Modal run was interrupted, please try again.");
+        } else if (err.status == 400) {
+          setError("Corrupted or Invalid Image");
+        } else {
+          setError(detail);
+        }
       } else {
         setError("Failed to connect to the API. Is the gateway running?");
       }
@@ -76,15 +86,13 @@ const BenchmarkCard = ({ onLogout }: BenchmarkCardProps) => {
     <div className="min-h-screen flex flex-col">
       <Navbar onLogout={onLogout} />
 
-      {/* Health status bar */}
-      <div className="max-w-5xl mx-auto w-full px-4 py-2 flex justify-end">
-        <HealthIndicator health={healthState} />
-      </div>
-
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-xl animate-scale-in">
-          <div className="glass-card rounded-xl p-6">
+          <div className="glass-card rounded-xl p-6 relative">
+            <div className="absolute top-4 right-4">
+              <HealthIndicator health={healthState} />
+            </div>
             <div className="mb-6">
               <h2 className="text-lg font-medium mb-1">Graph Extraction</h2>
               <p className="text-sm text-muted-foreground">
@@ -147,11 +155,12 @@ const BenchmarkCard = ({ onLogout }: BenchmarkCardProps) => {
             </div>
 
             {/* Results */}
-            {results && (
+            {results && file && (
               <ResultsPanel
-                fileName={file?.name || "document"}
+                fileName={file.name}
                 model={model}
                 data={results}
+                file={file}
               />
             )}
           </div>

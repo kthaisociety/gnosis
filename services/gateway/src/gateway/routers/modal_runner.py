@@ -73,6 +73,8 @@ async def run_modal_inference(
         t0 = time.perf_counter()
         loop = asyncio.get_event_loop()
         cfg = config.model_dump(exclude_none=True)
+        if not cfg.get("model_class"):
+            cfg["model_class"] = "AutoModelForImageTextToText"
         prompt = config.prompt
         with ThreadPoolExecutor() as executor:
             result = await loop.run_in_executor(
@@ -85,8 +87,14 @@ async def run_modal_inference(
 
         if isinstance(result, list) and result:
             result = result[0]
-        return normalize_vlm_response(result, processed_time)
+        return normalize_vlm_response(
+            result, processed_time, model_name=config.model_name
+        )
 
     except Exception as e:
         logger.error(f"[ Modal ] failed inference: {e}")
-        raise
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=503, detail="Modal inference failed, please try again."
+        )

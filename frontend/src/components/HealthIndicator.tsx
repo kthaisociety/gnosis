@@ -17,7 +17,7 @@ const HealthIndicator = ({
           className={cn(
             "inline-block w-2 h-2 rounded-full transition-colors",
             isOnline === null && "bg-muted-foreground animate-pulse",
-            isOnline === true && "bg-green-500",
+            isOnline === true && "bg-green-500 animate-pulse",
             isOnline === false && "bg-red-500",
           )}
         />
@@ -25,7 +25,7 @@ const HealthIndicator = ({
           {isOnline === null
             ? "Checking…"
             : isOnline
-              ? `API Online · ${health?.uptime_human ?? ""}`
+              ? "API Online"
               : "API Offline"}
         </span>
       </div>
