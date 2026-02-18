@@ -7,7 +7,6 @@ import { NeonAuthUIProvider } from "@neondatabase/neon-js/auth/react";
 import { authClient } from "@/lib/auth";
 import Index from "./pages/Index";
 import AdminPage from "./pages/AdminPage";
-import InvitePage from "./pages/InvitePage";
 import LoginPage from "./components/LoginPage";
 import Account from "./pages/Account";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -48,7 +47,6 @@ const App = () => {
             <Route element={<AdminRoute />}>
               <Route path="/admin/*" element={<AdminPage />} />
             </Route>
-            <Route path="/invite/:token" element={<InvitePage />} />
             <Route path="/auth/:view" element={<LoginPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

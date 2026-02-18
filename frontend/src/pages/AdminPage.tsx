@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { authClient } from "@/lib/auth";
 import HealthCheck from "@/components/admin/HealthCheck";
-import UserManagement from "@/components/admin/UserManagement";
 import AdminBenchmark from "@/components/admin/AdminBenchmark";
 
 const AdminDashboard = () => (
@@ -10,12 +9,9 @@ const AdminDashboard = () => (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="mb-6">
         <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage users and monitor system health
-        </p>
+        <p className="text-sm text-muted-foreground">Monitor system health</p>
       </div>
       <HealthCheck />
-      <UserManagement />
     </div>
   </div>
 );
