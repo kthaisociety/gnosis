@@ -33,16 +33,15 @@ Return ONLY the JSON object, nothing else.
 """
 
 
-def test(image: Image, config: InferenceConfig):
+def test(image: Image.Image, config: InferenceConfig):
     logger.info("Starting inference...")
     t0 = time.perf_counter()
 
-    out = inference(image, config)
-    #try:
-    #    out = inference(image, config)
-    #except Exception as e:
-    #    logger.error(f"Inference failed: {e}")
-    #    return
+    try:
+        out = inference(image, config)
+    except Exception as e:
+        logger.error(f"Inference failed: {e}")
+        return
 
     logger.info(f"Done in {(time.perf_counter() - t0) * 1000:.1f} ms")
     logger.info(f"Inference output: {out}")
@@ -57,14 +56,16 @@ def main():
     assert image, f"Could not open image at {image_path}"
 
     gemini_config = InferenceConfig(
-        model_name="gemini-2.5-flash", prompt=PROMPT, api_key=GEMINI_API_KEY
+        model_name="gemini-2.5-flash",
+        prompt=PROMPT,
+        api_key=GEMINI_API_KEY,
     )
     transformers_config = InferenceConfig(
         model_name="nanonets/Nanonets-OCR2-3B", prompt=PROMPT
     )
 
-    #logger.info("Testing gemini inference")
-    #test(image, gemini_config)
+    logger.info("Testing gemini inference")
+    test(image, gemini_config)
 
     logger.info("Testing transformers inference")
     test(image, transformers_config)

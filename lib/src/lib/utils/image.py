@@ -86,3 +86,10 @@ def get_image_mime_type(file_path: str) -> str:
         return "application/octet-stream"
 
     return mime_type
+
+
+def pil_to_b64(img: Image.Image, fmt: str = "PNG") -> str:
+    """Convert PIL Image to base64 string."""
+    buffered = io.BytesIO()
+    img.save(buffered, format=fmt)
+    return base64.b64encode(buffered.getvalue()).decode("utf-8")

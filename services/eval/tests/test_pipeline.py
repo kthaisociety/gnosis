@@ -4,24 +4,25 @@ Test suite for the image upload pipeline.
 Tests the complete workflow: Local File → S3 → Database
 """
 
-import pytest
-import tempfile
 import os
+import tempfile
 from uuid import uuid4
-from PIL import Image
 
-from eval.data.pipeline import (
-    upload_benchmark_image,
-    bulk_upload_images,
-    verify_image_upload,
-)
-from eval.data.db import (
+import pytest
+from lib.db.operations.eval import (
     create_dataset,
     get_image,
 )
-from eval.data.s3_bucket import (
+from lib.storage.s3 import (
     check_image_exists,
     delete_image_from_s3,
+)
+from PIL import Image
+
+from eval.data.pipeline import (
+    bulk_upload_images,
+    upload_benchmark_image,
+    verify_image_upload,
 )
 from eval.models import (
     DatasetCreate,

@@ -5,7 +5,6 @@ import os
 import threading
 import time
 import uuid
-from typing import Optional
 
 import grpc
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request
@@ -253,8 +252,7 @@ async def process_image_file(
         try:
             inference_config = InferenceConfig(**json.loads(config))
         except (json.JSONDecodeError, TypeError, ValueError) as e:
-            raise HTTPException(
-                status_code=400, detail=f"Invalid config JSON: {e}")
+            raise HTTPException(status_code=400, detail=f"Invalid config JSON: {e}")
 
         if QUEUE_ENABLED:
             if not redis_connection:
@@ -301,12 +299,10 @@ async def process_image_file(
 
         # 3. Preprocess (cleaning, deskewing)
         try:
-            processed_img = process_and_validate_image_bytes(
-                raw_bytes, filename)
+            processed_img = process_and_validate_image_bytes(raw_bytes, filename)
         except Exception as e:
             logger.error(f"Preprocessing failed for {filename}: {e}")
-            raise HTTPException(
-                status_code=422, detail="Image preprocessing failed")
+            raise HTTPException(status_code=422, detail="Image preprocessing failed")
 
         # 4. Execution
         logger.info(f"Running {runner}: model={inference_config.model_name}")

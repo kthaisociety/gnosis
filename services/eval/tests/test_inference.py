@@ -31,7 +31,7 @@ def test_inference_local():
         model_name="gemini-2.5-flash",
         output_schema_name="TableOutput",
         api_key=os.getenv("GEMINI_API_KEY"),
-        prompt=TEST_PROMPT
+        prompt=TEST_PROMPT,
     )
 
     result = inference(
@@ -48,7 +48,7 @@ def test_inference_modal():
     config = InferenceConfig(
         model_name="nanonets/Nanonets-OCR-s",
         output_schema_name="TableOutput",
-        prompt=TEST_PROMPT
+        prompt=TEST_PROMPT,
     )
 
     result = inference(

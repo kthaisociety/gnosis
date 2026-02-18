@@ -7,19 +7,20 @@ of uploading benchmark images with UUID-based tracking.
 
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 from uuid import UUID
 
 from dotenv import load_dotenv
-from lib.utils.log import get_logger
-from eval.models import ImageCreate, ImageStatus
-from .s3_bucket import (
-    generate_s3_key,
-    upload_image_to_s3,
-    get_image_metadata,
+from lib.db.operations.eval import get_image, update_image_status
+from lib.storage.s3 import (
     ensure_s3_bucket_exists,
+    generate_s3_key,
+    get_image_metadata,
+    upload_image_to_s3,
 )
-from .db import update_image_status, get_image
+from lib.utils.log import get_logger
+
+from eval.models import ImageCreate, ImageStatus
 
 load_dotenv()
 logger = get_logger(__name__)
@@ -111,9 +112,10 @@ def upload_benchmark_image(
 
         # We need to create the record with the specific UUID
         # This requires a custom insert
+        import json
+
         from lib.db import get_db_pool
         from psycopg.sql import SQL, Identifier
-        import json
 
         pool = get_db_pool()
         sql = SQL("""
