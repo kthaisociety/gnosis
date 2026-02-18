@@ -11,15 +11,23 @@ MAX_SIZE = int(os.getenv("MAX_IMAGE_SIZE_BYTES", "20971520"))  # 20MB
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 
+def _is_pdf(data: bytes) -> bool:
+    return data[:4] == b"%PDF"
+
+
 def validate_image_bytes(data: bytes) -> None:
-    """Validates image size, integrity, and format. Raises ValueError on failure."""
+    """Validates image/PDF size, integrity, and format. Raises ValueError on failure."""
     # 1. Size Check
     if len(data) > MAX_SIZE:
-        raise ValueError(f"Image too large ({len(data)} > {MAX_SIZE} bytes)")
+        raise ValueError(f"File too large ({len(data)} > {MAX_SIZE} bytes)")
     if len(data) == 0:
-        raise ValueError("Image file is empty")
+        raise ValueError("File is empty")
 
-    # 2. Integrity & Format
+    # 2. PDF — validate header only, Pillow can't open PDFs
+    if _is_pdf(data):
+        return
+
+    # 3. Image integrity & format
     try:
         with Image.open(io.BytesIO(data)) as img:
             img.verify()  # Check for broken streams

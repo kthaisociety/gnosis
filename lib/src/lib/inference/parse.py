@@ -18,14 +18,31 @@ def raw_to_text(raw: Any) -> str:
 
 
 # Normalize gRPC or Modal output to VLMResponse.
-def normalize_vlm_response(raw: Any, inference_time_ms: float) -> VLMResponse:
+def normalize_vlm_response(
+    raw: Any, inference_time_ms: float, model_name: str | None = None
+) -> VLMResponse:
     if raw is None:
-        return VLMResponse(text=None, format=None, inference_time_ms=inference_time_ms)
+        return VLMResponse(
+            text=None,
+            format=None,
+            inference_time_ms=inference_time_ms,
+            model_name=model_name,
+        )
     text = raw_to_text(raw)
     if not (text and isinstance(text, str) and text.strip()):
-        return VLMResponse(text=None, format=None, inference_time_ms=inference_time_ms)
+        return VLMResponse(
+            text=None,
+            format=None,
+            inference_time_ms=inference_time_ms,
+            model_name=model_name,
+        )
     fmt = detect_format(text)
-    return VLMResponse(text=text, format=fmt, inference_time_ms=inference_time_ms)
+    return VLMResponse(
+        text=text,
+        format=fmt,
+        inference_time_ms=inference_time_ms,
+        model_name=model_name,
+    )
 
 
 def detect_format(text: str | None) -> VLMFormat:

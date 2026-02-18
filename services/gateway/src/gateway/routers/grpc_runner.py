@@ -40,7 +40,9 @@ async def run_grpc_inference(
         logger.info(f"[ gRPC ] done in {processed_time:.1f} ms")
         await channel.close()
 
-        return normalize_vlm_response(response.text, processed_time)
+        return normalize_vlm_response(
+            response.text, processed_time, model_name=vlm_config.model_name
+        )
 
     except Exception as e:
         logger.error(f"[ gRPC ] failed inference: {e}")

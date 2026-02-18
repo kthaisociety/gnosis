@@ -13,6 +13,25 @@ from lib.utils.log import get_logger
 
 logger = get_logger(__name__)
 
+
+def pdf_to_image_bytes(pdf_bytes: bytes, dpi: int = 200) -> bytes:
+    """Convert the first page of a PDF to PNG bytes using pymupdf."""
+    import fitz  # pymupdf
+
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    page = doc[0]
+    mat = fitz.Matrix(dpi / 72, dpi / 72)
+    pix = page.get_pixmap(matrix=mat, colorspace=fitz.csRGB)
+    return pix.tobytes("png")
+
+
+def resize_only(image_bytes: bytes) -> bytes:
+    """Resize image to model input size without any destructive processing."""
+    img = bytes_to_cv2(image_bytes)
+    resized = standardize_image_size(img)
+    return cv2_to_bytes(resized)
+
+
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
 
@@ -26,8 +45,14 @@ def process_image(img: np.ndarray) -> np.ndarray:
 
 
 def process_and_validate_image_bytes(image_bytes: bytes, filename: str = "") -> bytes:
-    """Process raw image bytes and return processed PNG bytes."""
+    """Process raw image/PDF bytes and return processed PNG bytes."""
     try:
+        # PDFs: render first page cleanly, skip destructive preprocessing
+        if image_bytes[:4] == b"%PDF":
+            logger.info(f"Converting PDF first page to image: {filename}")
+            image_bytes = pdf_to_image_bytes(image_bytes)
+            return resize_only(image_bytes)
+
         img = bytes_to_cv2(image_bytes)
         processed = process_image(img)
         return cv2_to_bytes(processed)
