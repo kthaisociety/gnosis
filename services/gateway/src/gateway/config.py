@@ -23,7 +23,8 @@ class Config:
     WORKERS: int = int(os.getenv("WORKERS", "1"))
     LOGGING_LEVEL: str = os.getenv("LOGGING_LEVEL", "INFO")
     CORS_ORIGINS: str = os.getenv(
-        "CORS_ORIGINS", "http://localhost:8080,http://127.0.0.1:8080"
+        "CORS_ORIGINS",
+        "http://localhost:8081,http://127.0.0.1:8081,http://localhost:8080,http://127.0.0.1:8080",
     )
 
     # -- gRPC / VLM Server --
