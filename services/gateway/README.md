@@ -33,7 +33,6 @@ bash scripts/gen_grpc_protos.sh
 Create `.env` file:
 
 ```bash
-<<<<<<< HEAD
 MODAL_TOKEN_ID=your_token_id
 MODAL_TOKEN_SECRET=your_token_secret
 SERVER_IP=localhost  # For gRPC
@@ -45,7 +44,7 @@ PORT=8000
 WORKERS=1
 ```
 
-## Redis queue (optional)
+## Redis Queue (Optional)
 
 The gateway can use Redis for request queueing and rate limiting. If disabled,
 requests run inline without Redis.
@@ -72,7 +71,6 @@ RESULT_POLL_INTERVAL_S=0.02
 RATE_LIMIT_PER_IP_PER_MIN=10
 RATE_LIMIT_GLOBAL_PER_MIN=60
 RATE_LIMIT_WINDOW_SECONDS=60
->>>>>>> origin/dev
 ```
 
 ## Run Server
