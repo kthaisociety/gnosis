@@ -56,11 +56,25 @@ class Transformer:
         self.processor = AutoProcessor.from_pretrained(model_name)
         self.model = MODEL_CLASS[model_class].from_pretrained(
             model_name,
-            dtype=dtype,
+            torch_dtype=dtype,
             device_map=device_map,
             attn_implementation=attn_implementation,
             low_cpu_mem_usage=False,
         )
+
+        # Tie lm_head to embed_tokens explicitly.
+        # Checkpoints trained before the transformers 5 Qwen2.5-VL refactor omit
+        # lm_head.weight (expecting it to be tied), but the new _tied_weights_keys
+        # path 'model.language_model.embed_tokens.weight' doesn't match the old
+        # checkpoint key 'model.embed_tokens.weight', so auto-tying silently fails.
+        if hasattr(self.model, "lm_head") and hasattr(self.model, "model"):
+            inner = self.model.model
+            embed_tokens = (
+                inner.language_model.embed_tokens
+                if hasattr(inner, "language_model")
+                else inner.embed_tokens
+            )
+            self.model.lm_head.weight = embed_tokens.weight
 
         logger.info(
             f"loaded {model_name} in {(time.perf_counter() - t0) * 1000:.0f} ms"

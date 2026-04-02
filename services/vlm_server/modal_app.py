@@ -346,17 +346,12 @@ def download_model(model_name: str = "nanonets/Nanonets-OCR-s"):
 @app.local_entrypoint()
 def main():
     """Test the Modal app."""
-    print("Testing OCRInference...")
-
-    # Create a simple test image
     import io
+    import pathlib
 
     from PIL import Image
 
-    img = Image.new("RGB", (100, 100), color="white")
-    buf = io.BytesIO()
-    img.save(buf, format="PNG")
-    img_bytes = buf.getvalue()
+    print("Testing OCRInference...")
 
     config = {
         "model_name": "nanonets/Nanonets-OCR-s",
@@ -366,6 +361,22 @@ def main():
         "attn_implementation": DEFAULT_ATTN_IMPL,
         "max_tokens": 512,
     }
+
+    # Prefer a real document image; fall back to a blank white image
+    data_dir = SCRIPT_DIR.parent.parent / "data" / "images" / "raw"
+    real_images = list(data_dir.glob("*.png"))[:1] if data_dir.exists() else []
+
+    if real_images:
+        img_path = real_images[0]
+        print(f"Using real image: {img_path.name}")
+        img = Image.open(img_path).convert("RGB")
+    else:
+        print("No real images found, using blank white image")
+        img = Image.new("RGB", (100, 100), color="white")
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    img_bytes = buf.getvalue()
 
     result = OCRInference().infer.remote([img_bytes], config)
     print(f"Result: {result}")
