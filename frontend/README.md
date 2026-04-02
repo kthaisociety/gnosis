@@ -1,23 +1,23 @@
-# FRONTEND
+# Frontend
 
-## Admin login (dev)
+React web app for uploading images, selecting VLM models, and viewing benchmark results.
+
+## Admin Login (dev)
 
 email = `admin@ocrbench.com`
 password = `admin123`
 
-## How to run
+## How to Run
 
 ```sh
-# Step 1: Install the necessary dependencies.
+# Install dependencies
 npm i
 
-# Step 2: Start the development server with auto-reloading and an instant preview.
+# Start dev server
 npm run dev
 ```
 
-## What technologies are used for this project?
-
-This project is built with:
+## Tech Stack
 
 - Vite
 - TypeScript
@@ -25,18 +25,23 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How to deploy this project?
+## Deployment
 
-Deploy this project to GitHub Pages for now or we will fix it later and do a proper vercel deployment.
+The frontend is containerized for production. It builds as a static bundle served by nginx.
 
-## What is necessary
+```bash
+# Via docker-compose from the project root (serves on port 8080):
+docker compose up frontend
+```
 
-We need routes for login and benchmark.
+See `Dockerfile` and `nginx.conf` for the production setup.
+
+## Routes
 
 ```
 /login
 /benchmark
 /models
+/account
+/admin
 ```
-
-This will need to be handled via the API layer in the backend

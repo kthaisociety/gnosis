@@ -1,6 +1,6 @@
 # Gnosis
 
-WIP Gnosis monorepo
+Gnosis is a VLM (Vision Language Model) evaluation platform for extracting structured data from scanned oil & gas industry documents. It benchmarks multiple VLM backends against ground-truth datasets using custom scoring metrics. Built by [KTH AI Society](https://github.com/kthaisociety).
 
 ## Onboarding and Running the Project
 
@@ -23,6 +23,12 @@ This project uses `uv` for dependency management and virtual environments within
     # Open .env in your editor and fill out the necessary values
     ```
 
+3.  **Install Pre-commit Hooks** (formats with Ruff on commit):
+
+    ```bash
+    pre-commit install
+    ```
+
 ### Running Services
 
 After running the setup script, you can run each service directly using `uv run` and the script name:
@@ -43,46 +49,31 @@ After running the setup script, you can run each service directly using `uv run`
 
 ## Deployment with Docker
 
-For production environments, each service can be containerized using Docker. Below is an example `Dockerfile` for the `gateway` service. Similar Dockerfiles can be created for other services.
-
-**Example: `Dockerfile.gateway`**
-
-```dockerfile
-# Use a Python base image
-FROM python:3.13-slim
-
-# Set working directory
-WORKDIR /app
-
-# Copy the service's pyproject.toml and related files
-COPY services/gateway/pyproject.toml services/gateway/pyproject.toml
-COPY services/gateway/src/ services/gateway/src/
-COPY lib/pyproject.toml lib/pyproject.toml
-COPY lib/src/ lib/src/
-
-# Install dependencies for the gateway service and the shared library
-RUN pip install --no-cache-dir hatchling uv
-RUN uv pip install -e lib -e services/gateway
-
-# Expose the port the Gateway service runs on
-EXPOSE 8000
-
-# Command to run the Gateway service
-CMD ["uvicorn", "services.gateway.src.gateway.server:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-**How to build and run the Docker image (for Gateway):**
+The project includes a `docker-compose.yml` that builds and runs all three services (frontend, gateway, VLM server) in a single network:
 
 ```bash
-docker build -t gnosis-gateway -f Dockerfile.gateway .
-docker run -p 8000:8000 gnosis-gateway
+docker compose up --build
 ```
+
+This starts:
+
+| Service      | Port  | Description                    |
+|--------------|-------|--------------------------------|
+| `frontend`   | 8080  | React app served via nginx     |
+| `gateway`    | 8000  | REST API (FastAPI)             |
+| `vlm-server` | 50051 | gRPC inference server          |
+
+Each service has its own `Dockerfile` (`frontend/Dockerfile`, `services/gateway/Dockerfile`, `services/vlm_server/Dockerfile`). Environment variables are configured in the `docker-compose.yml` or via a `.env` file.
 
 ## Architecture
 
 ```mermaid
 graph TD
     Client <-->|REST| Routing
+
+    subgraph Frontend
+        UI["React App<br>(Vite + shadcn)"]
+    end
 
     subgraph Gateway
         Preprocessing
@@ -93,48 +84,83 @@ graph TD
         Inference
     end
 
+    subgraph "Eval Service"
+        Benchmarking
+        Metrics["Metrics<br>(RMS, RNSS)"]
+    end
+
+    UI <-->|HTTP| Routing
     Routing <-->|gRPC| Inference
-    Inference <--> Modal["Modal<br>\(Cloud Compute\)"]
+    Inference <--> Modal["Modal<br>(Cloud Compute)"]
+    Benchmarking -->|HTTP| Routing
+    Benchmarking --> S3["S3 / R2<br>(Dataset Storage)"]
 
     Scraper --> DB[(Database)]
+    Inference <--> DB
+    Benchmarking --> DB
 ```
 
-# Tree
+## Tree
 
 ```
 .
+├── docker-compose.yml
+├── .env.example
+├── pyproject.toml
 ├── data
 │   ├── images
+│   │   ├── processed
+│   │   └── raw
 │   └── oildata.csv
+├── docs
+│   ├── arch_and_comms.md
+│   └── neon_schema.sql
+├── frontend
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── package.json
+│   └── src
+│       ├── components
+│       ├── hooks
+│       ├── pages
+│       └── stores
 ├── lib
 │   ├── pyproject.toml
 │   └── src
 │       └── lib
 │           ├── db
-│           │   ├── operations
-│           │   └── client.py
 │           ├── gRPC
 │           │   ├── generated
 │           │   └── protos
 │           ├── inference
 │           ├── models
-│           │   └── vlm
 │           ├── storage
 │           └── utils
-├── pyproject.toml
 ├── scripts
+│   ├── setup.sh
+│   ├── gen_grpc_protos.sh
+│   ├── format.sh
+│   ├── sync.sh
+│   ├── dump_schema.sh
+│   ├── delete_pycache.sh
+│   ├── populate_db_with_models.py
+│   ├── read_oildata.py
+│   ├── setup_s3_bucket.py
+│   ├── models.json
+│   └── schema.sql
 └── services
     ├── eval
     │   ├── pyproject.toml
     │   ├── scripts
-    │   │   └── process_and_upload_dataset.py
-    │   └── src
-    │       └── eval
-    │           ├── data
-    │           ├── metrics
-    │           ├── eval.py
-    │           └── models.py
+    │   ├── src
+    │   │   └── eval
+    │   │       ├── data
+    │   │       ├── metrics
+    │   │       ├── eval.py
+    │   │       └── models.py
+    │   └── tests
     ├── gateway
+    │   ├── Dockerfile
     │   ├── pyproject.toml
     │   ├── src
     │   │   └── gateway
@@ -142,37 +168,25 @@ graph TD
     │   │       ├── routers
     │   │       └── server.py
     │   └── tests
-    │       └── test_inference.py
     └── vlm_server
+        ├── Dockerfile
+        ├── modal_app.py
         ├── pyproject.toml
         ├── src
         │   └── vlm_server
         │       ├── inference
         │       └── server.py
         └── tests
-            └── test_grpc_inference.py
 ```
 
-## HOW TO DO WORK
-
-## ENVIRONMENT
-
-- Make sure to have `uv` on your machine.
-- This project targets Python 3.13.
-
-```bash
-# Install pre-commit hook (formats with Ruff on commit)
-pre-commit install
-```
-
-## Commits and formatting
+## Commits and Formatting
 
 ```bash
 pre-commit run --all-files # in case you forgot to do this before
 ```
 
-Workflow should correct all formatting issues and the bot will push the formatting fixes to avoid formatting issues down the road
+The CI workflow will auto-format and push fixes for any remaining formatting issues.
 
 ```bash
-git commit -m "[YOUR COOL COMMIT MESSAGE]" # otherwise just commit normally and it should format your code.
+git commit -m "[YOUR COOL COMMIT MESSAGE]" # pre-commit hook formats your code automatically
 ```
