@@ -49,13 +49,13 @@ async def test_inference(image_path: Path, config_name: str):
     """Test inference on a single image."""
     test_config = CONFIGS[config_name]
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Testing: {image_path.name}")
     print(f"  Runner: {test_config['runner']}")
     print(f"  Model: {test_config['config']['model_name']}")
     print(f"  GPU: {test_config['config']['use_gpu']}")
     #    print(f"  Prompt: {test_config['prompt'][:50]}...")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     try:
         config_json = json.dumps(test_config["config"])
@@ -94,9 +94,9 @@ async def test_inference(image_path: Path, config_name: str):
 
 async def test_runner(runner_name: str, image_files: list):
     """Test a specific runner on all images."""
-    print(f"\n{'#'*60}")
+    print(f"\n{'#' * 60}")
     print(f"# Testing Runner: {runner_name.upper()}")
-    print(f"{'#'*60}")
+    print(f"{'#' * 60}")
 
     if runner_name == "local":
         print("\n⚠️  Ensure vlm_server is running (gRPC on port 50051):")
@@ -138,9 +138,9 @@ async def main():
     all_results["local"] = local_results
 
     # Final summary
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("FINAL SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     for runner_name, results in all_results.items():
         success_count = sum(1 for _, success in results if success)

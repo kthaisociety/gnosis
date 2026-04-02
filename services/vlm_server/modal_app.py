@@ -79,12 +79,15 @@ GPU_COUNT = int(os.getenv("GPU_COUNT", "4"))
 SCRIPT_DIR = Path(__file__).resolve().parent
 VLM_SERVER_SRC = SCRIPT_DIR / "src" / "vlm_server"
 LIB_SRC = SCRIPT_DIR.parent.parent / "lib" / "src" / "lib"
+EVAL_SRC = SCRIPT_DIR.parent.parent / "services" / "eval" / "src"
 
 # Validate paths exist
 if not VLM_SERVER_SRC.exists():
     print(f"Warning: VLM server source not found at {VLM_SERVER_SRC}")
 if not LIB_SRC.exists():
     print(f"Warning: Lib source not found at {LIB_SRC}")
+if not EVAL_SRC.exists():
+    print(f"Warning: Eval source not found at {EVAL_SRC}")
 
 # Model cache volume
 model_volume = modal.Volume.from_name("gnosis-models-cache", create_if_missing=True)
@@ -108,7 +111,7 @@ if USE_FLASH_ATTN:
         .env(
             {
                 "HF_HOME": MODEL_CACHE_DIR,
-                "PYTHONPATH": "/root/vlm_server:/root/lib",
+                "PYTHONPATH": "/root/vlm_server:/root/lib:/root/eval_service",
             }
         )
         .pip_install(
@@ -125,11 +128,15 @@ if USE_FLASH_ATTN:
             "pydantic>=2.0.0",
             "google-genai>=1.0.0",
             "python-dotenv>=1.0.0",
+            "psycopg[binary]>=3.1.0",
+            "psycopg-pool>=3.1.0",
+            "openai>=1.0.0",
         )
         # Install flash-attn using run_commands so torch is available
         .run_commands("pip install flash-attn>=2.5.0 --no-build-isolation")
         .add_local_dir(str(VLM_SERVER_SRC), remote_path="/root/vlm_server")
         .add_local_dir(str(LIB_SRC), remote_path="/root/lib")
+        .add_local_dir(str(EVAL_SRC), remote_path="/root/eval_service")
     )
 else:
     # Standard image without flash-attn (uses sdpa for attention)
@@ -138,8 +145,8 @@ else:
         .env(
             {
                 "HF_HOME": MODEL_CACHE_DIR,
-                "PYTHONPATH": "/root/vlm_server:/root/lib",
-                "BUILD_VERSION": "2026-01-28-v10",
+                "PYTHONPATH": "/root/vlm_server:/root/lib:/root/eval_service",
+                "BUILD_VERSION": "2026-02-18-v19",
             }
         )
         .pip_install(
@@ -153,9 +160,19 @@ else:
             "pydantic>=2.0.0",
             "google-genai>=1.0.0",
             "python-dotenv>=1.0.0",
+            "psycopg[binary]>=3.1.0",
+            "psycopg-pool>=3.1.0",
+            "openai>=1.0.0",
+            "opencv-python-headless>=4.8.0",
+            "boto3>=1.26.0",
+            "scipy>=1.10.0",
+            "grpcio>=1.50.0",
+            "requests>=2.28.0",
+            "python-Levenshtein>=0.21.0",
         )
         .add_local_dir(str(VLM_SERVER_SRC), remote_path="/root/vlm_server")
         .add_local_dir(str(LIB_SRC), remote_path="/root/lib")
+        .add_local_dir(str(EVAL_SRC), remote_path="/root/eval_service")
     )
 
 # Default attention implementation based on flash-attn availability
@@ -179,7 +196,7 @@ class OCRInference:
 
     @modal.enter()
     def setup(self):
-        """Called once when container starts - load model."""
+        """Called once when container starts - load model into memory."""
         import torch
 
         print(f"CUDA available: {torch.cuda.is_available()}")
@@ -189,17 +206,33 @@ class OCRInference:
                 f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
             )
 
-        # Pre-load default model
         model_name = "nanonets/Nanonets-OCR-s"
-        print(f"Pre-loading model: {model_name}")
+        print(f"Loading model into memory: {model_name}")
 
         try:
-            from inference.main import download_model
+            from inference.main import make_model
+            from lib.models.vlm import InferenceConfig as VLMInferenceConfig, ModelInfo
 
-            download_model(model_name)
-            print(f"Model {model_name} ready")
+            model_info = ModelInfo(
+                model_name=model_name,
+                inference_type="transformers",
+                inference_class="transformers",
+                requires_gpu=True,
+            )
+            inf_config = VLMInferenceConfig(
+                model_name=model_name,
+                prompt="",
+                model_class="AutoModelForImageTextToText",
+                use_gpu=True,
+                attn_implementation=DEFAULT_ATTN_IMPL,
+            )
+            self.model = make_model(model_info, inf_config)
+            self.loaded_model_name = model_name
+            print(f"Model {model_name} loaded and ready")
         except Exception as e:
             print(f"Warning: Could not pre-load model: {e}")
+            self.model = None
+            self.loaded_model_name = None
 
     @modal.method()
     def infer(
@@ -207,7 +240,7 @@ class OCRInference:
         images_bytes: List[bytes],
         config: Dict[str, Any],
         prompt: Optional[str] = None,
-    ) -> List[VLMOutput]:
+    ) -> List[str]:
         """
         Main inference method using vlm_server inference code.
 
@@ -217,41 +250,67 @@ class OCRInference:
             prompt: Optional prompt override
 
         Returns:
-            List of VLMOutput objects (defined in this module for serialization)
+            List of raw text strings, one per input image.
         """
         import io
         import time
 
-        # Import from mounted vlm_server code
-        from inference.main import infer as run_infer
-        from models.vlm_models import InferenceConfig as VLMInferenceConfig
+        # Import from mounted vlm_server and lib code
+        from inference.main import make_model
+        from lib.models.vlm import InferenceConfig as VLMInferenceConfig, ModelInfo
         from PIL import Image
 
         start = time.time()
 
-        # Convert bytes to PIL Images
-        images = [
-            Image.open(io.BytesIO(img_bytes)).convert("RGB")
-            for img_bytes in images_bytes
-        ]
-
-        # Convert dict to InferenceConfig
+        # Convert dict to InferenceConfig, injecting prompt and defaults if missing
+        if prompt:
+            config = {**config, "prompt": prompt}
+        # Always set model_class — override None/missing with the default
+        if not config.get("model_class"):
+            config = {**config, "model_class": "AutoModelForImageTextToText"}
         inf_config = VLMInferenceConfig(**config)
 
-        # Run inference using vlm_server code
-        raw_results = run_infer(images, inf_config, prompt)
+        # Reuse the pre-loaded model if it matches, otherwise load on demand
+        if (
+            hasattr(self, "model")
+            and self.model is not None
+            and self.loaded_model_name == inf_config.model_name
+        ):
+            model = self.model
+            print(f"Reusing pre-loaded model: {inf_config.model_name}")
+        else:
+            print(f"Loading model on demand: {inf_config.model_name}")
+            # Build ModelInfo directly — avoids a DB round-trip from the container.
+            # inference_class maps to the branch in vlm_server/inference/main.py:make_model:
+            #   "transformers" → Transformer, "gemini" → Gemini, "gpt" → GPT
+            _MODEL_REGISTRY = {
+                "nanonets/Nanonets-OCR-s": ("transformers", "transformers"),
+                "gemini-2.5-flash": ("api", "gemini"),
+            }
+            inference_type, inference_class = _MODEL_REGISTRY.get(
+                inf_config.model_name, ("transformers", "transformers")
+            )
+            model_info = ModelInfo(
+                model_name=inf_config.model_name,
+                inference_type=inference_type,
+                inference_class=inference_class,
+                requires_gpu=inf_config.use_gpu,
+            )
+            model = make_model(model_info, inf_config)
+            self.model = model
+            self.loaded_model_name = inf_config.model_name
 
-        # Convert results to our VLMOutput class for consistent serialization
+        # Run inference on each image, collecting text results
         results = []
-        for raw in raw_results:
-            if raw is None:
-                results.append(VLMOutput(data=[]))
-            elif hasattr(raw, "model_dump"):
-                # Already a pydantic model, convert to our VLMOutput
-                data = raw.model_dump()
-                results.append(VLMOutput(**data))
-            else:
-                results.append(VLMOutput(data=[]))
+        for img_bytes in images_bytes:
+            print(
+                f"Image bytes received: {len(img_bytes)}, header: {img_bytes[:8].hex()}"
+            )
+            image = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+            print(f"Image opened: size={image.size}, mode={image.mode}")
+            raw_text = model.run(image, inf_config.prompt)
+            print(f"Raw output ({len(raw_text)} chars): {raw_text[:200]!r}")
+            results.append(raw_text)
 
         print(f"Inference completed in {time.time() - start:.2f}s")
         return results
@@ -301,8 +360,11 @@ def main():
 
     config = {
         "model_name": "nanonets/Nanonets-OCR-s",
+        "prompt": "Extract all text and data from this image.",
+        "model_class": "AutoModelForImageTextToText",
         "use_gpu": True,
         "attn_implementation": DEFAULT_ATTN_IMPL,
+        "max_tokens": 512,
     }
 
     result = OCRInference().infer.remote([img_bytes], config)

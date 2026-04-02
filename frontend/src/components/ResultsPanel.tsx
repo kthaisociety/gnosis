@@ -1,14 +1,61 @@
-import { FileText, Copy, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { FileText, Copy, Check, File as FileIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 interface ResultsPanelProps {
   fileName: string;
   model: string;
   data: object;
+  file: File;
 }
 
-const ResultsPanel = ({ fileName, model, data }: ResultsPanelProps) => {
+const BROWSER_PREVIEW_IMAGES = ["image/png", "image/jpeg", "image/webp"];
+
+function FilePreview({ file }: { file: File }) {
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const url = URL.createObjectURL(file);
+    setObjectUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  if (!objectUrl) return null;
+
+  if (file.type === "application/pdf") {
+    return (
+      <iframe
+        src={objectUrl}
+        className="w-full rounded-b-lg"
+        style={{ height: "300px" }}
+        title="PDF preview"
+      />
+    );
+  }
+
+  if (BROWSER_PREVIEW_IMAGES.includes(file.type)) {
+    return (
+      <img
+        src={objectUrl}
+        alt="Preview"
+        className="w-full rounded-b-lg object-contain bg-muted/20"
+        style={{ maxHeight: "300px" }}
+      />
+    );
+  }
+
+  // TIFF, BMP — not natively renderable
+  return (
+    <div className="w-full flex flex-col items-center justify-center gap-2 py-10 bg-muted/20 rounded-b-lg">
+      <FileIcon className="w-10 h-10 text-muted-foreground" />
+      <p className="text-xs text-muted-foreground">
+        Preview not available for {file.type.split("/")[1].toUpperCase()}
+      </p>
+    </div>
+  );
+}
+
+const ResultsPanel = ({ fileName, model, data, file }: ResultsPanelProps) => {
   const [copied, setCopied] = useState(false);
 
   const jsonString = JSON.stringify(data, null, 2);
@@ -29,7 +76,7 @@ const ResultsPanel = ({ fileName, model, data }: ResultsPanelProps) => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        {/* PDF Preview */}
+        {/* File Preview */}
         <div className="border border-border rounded-lg overflow-hidden bg-secondary/30">
           <div className="px-3 py-2 border-b border-border bg-secondary/50">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -37,14 +84,7 @@ const ResultsPanel = ({ fileName, model, data }: ResultsPanelProps) => {
               <span className="truncate">{fileName}</span>
             </div>
           </div>
-          <div className="aspect-[4/3] flex items-center justify-center bg-muted/20">
-            <div className="text-center p-6">
-              <div className="w-16 h-20 mx-auto mb-3 rounded border border-border bg-card flex items-center justify-center">
-                <FileText className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <p className="text-xs text-muted-foreground">PDF Preview</p>
-            </div>
-          </div>
+          <FilePreview file={file} />
         </div>
 
         {/* JSON Output */}
@@ -72,7 +112,7 @@ const ResultsPanel = ({ fileName, model, data }: ResultsPanelProps) => {
               )}
             </Button>
           </div>
-          <div className="p-4 max-h-64 overflow-auto">
+          <div className="p-4 max-h-[300px] overflow-auto">
             <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
               {jsonString}
             </pre>

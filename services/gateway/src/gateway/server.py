@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from lib.utils.log import get_logger
@@ -31,6 +32,18 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=TITLE, lifespan=lifespan)
+
+# CORS — allow frontend dev server and configurable origins
+CORS_ORIGINS = config.CORS_ORIGINS
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in CORS_ORIGINS.split(",")],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(health_router)
 app.include_router(process_router)
 
