@@ -31,7 +31,13 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title=TITLE, lifespan=lifespan)
+app = FastAPI(
+    title=TITLE,
+    lifespan=lifespan,
+    docs_url=None if config.PROD else "/docs",
+    redoc_url=None if config.PROD else "/redoc",
+    openapi_url=None if config.PROD else "/openapi.json",
+)
 
 # CORS — allow frontend dev server and configurable origins
 CORS_ORIGINS = config.CORS_ORIGINS
