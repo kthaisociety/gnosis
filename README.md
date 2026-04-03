@@ -192,3 +192,4 @@ The CI workflow will auto-format and push fixes for any remaining formatting iss
 ```bash
 git commit -m "[YOUR COOL COMMIT MESSAGE]" # pre-commit hook formats your code automatically
 ```
+ 
