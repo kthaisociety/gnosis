@@ -9,6 +9,7 @@ services:
       - gnosis-net
     depends_on:
       - gateway
+    restart: unless-stopped
 
   gateway:
     build:
@@ -26,6 +27,7 @@ services:
       - gnosis-net
     depends_on:
       - vlm-server
+    restart: unless-stopped
 
   vlm-server:
     build:
@@ -37,6 +39,7 @@ services:
       - GRPC_BIND=0.0.0.0
     networks:
       - gnosis-net
+    restart: unless-stopped
 
 networks:
   gnosis-net:

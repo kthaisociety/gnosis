@@ -27,6 +27,8 @@ uv.lock
 
 ## Frontend
 
+node_modules
+
 # Logs
 frontend/logs
 frontend/*.log
