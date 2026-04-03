@@ -22,7 +22,6 @@ dist/
 
 *.pyc
 
-uv.lock
 
 
 ## Frontend
