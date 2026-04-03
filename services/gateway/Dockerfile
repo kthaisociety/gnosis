@@ -33,6 +33,9 @@ COPY . .
 # Install the project packages
 RUN uv sync --frozen --package gateway --package lib
 
+RUN useradd -r -s /bin/false appuser
+USER appuser
+
 # Expose the gateway port
 EXPOSE 8000
 
