@@ -12,6 +12,7 @@ import Account from "./pages/Account";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import NotFound from "./pages/NotFound";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -37,20 +38,22 @@ const App = () => {
         social={{ providers: ["google"] }}
       >
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/account/:view" element={<Account />} />
-            </Route>
-            <Route element={<AdminRoute />}>
-              <Route path="/admin/*" element={<AdminPage />} />
-            </Route>
-            <Route path="/auth/:view" element={<LoginPage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <ErrorBoundary>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/account/:view" element={<Account />} />
+              </Route>
+              <Route element={<AdminRoute />}>
+                <Route path="/admin/*" element={<AdminPage />} />
+              </Route>
+              <Route path="/auth/:view" element={<LoginPage />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ErrorBoundary>
         </TooltipProvider>
       </NeonAuthUIProvider>
     </QueryClientProvider>
