@@ -39,6 +39,8 @@ JOB_TIMEOUT_S = int(os.getenv("JOB_TIMEOUT_S", "480"))
 RESULT_TTL_SECONDS = int(os.getenv("RESULT_TTL_SECONDS", "120"))
 RESULT_POLL_INTERVAL_S = float(os.getenv("RESULT_POLL_INTERVAL_S", "0.02"))
 
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB
+
 _rate_limit_env = os.getenv("RATE_LIMIT_ENABLED")
 if _rate_limit_env is None:
     RATE_LIMIT_ENABLED = QUEUE_ENABLED
@@ -240,6 +242,13 @@ async def process_image_file(
         _rate_limit_or_429(request)
 
         # 1. Read and validate
+        content_length = request.headers.get("content-length")
+        if content_length and int(content_length) > MAX_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File too large. Maximum upload size is {MAX_UPLOAD_BYTES // (1024 * 1024)} MB.",
+            )
+
         raw_bytes = await file.read()
         logger.info(f"Received {filename}: {len(raw_bytes)} bytes")
 

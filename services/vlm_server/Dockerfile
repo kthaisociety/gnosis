@@ -33,6 +33,9 @@ COPY . .
 # Install the project packages
 RUN uv sync --frozen --package vlm_server --package lib
 
+RUN useradd -r -s /bin/false appuser
+USER appuser
+
 # Expose the gRPC port
 EXPOSE 50051
 
