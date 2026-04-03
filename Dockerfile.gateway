@@ -26,13 +26,13 @@ COPY services/eval/pyproject.toml services/eval/
 RUN touch lib/src/lib/__init__.py services/gateway/src/gateway/__init__.py services/vlm_server/src/vlm_server/__init__.py services/eval/src/eval/__init__.py
 
 # Install dependencies from the lock file for gateway and lib
-RUN uv sync --frozen --no-install-project --package gateway --package lib
+RUN uv sync --frozen --no-install-project --package gateway --package lib --package eval
 
 # Copy the rest of the project, respecting .dockerignore
 COPY . .
 
 # Install the project packages
-RUN uv sync --frozen --package gateway --package lib
+RUN uv sync --frozen --package gateway --package lib --package eval
 
 # Expose the gateway port
 EXPOSE 8000
