@@ -14,7 +14,7 @@ const Navbar = ({ onLogout }: NavbarProps) => {
   
   const navItems = [
     ...(isAdmin ? [{ path: "/admin", label: "Admin Panel", icon: Shield }] : []),
-    { path: "/", label: "OCR Bench", icon: Scan },
+    { path: "/", label: "Gnosis: OCR Suite", icon: Scan },
   ];
 
   return (
