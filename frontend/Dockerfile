@@ -21,8 +21,14 @@ FROM nginx:alpine AS runner
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Allow the nginx user to write to required dirs
-RUN mkdir -p /var/cache/nginx /var/run/nginx \
+# Pre-create all nginx temp dirs so the non-root nginx user never
+# needs to mkdir at runtime (avoids Permission denied on client_temp etc.)
+RUN mkdir -p /var/cache/nginx/client_temp \
+             /var/cache/nginx/proxy_temp \
+             /var/cache/nginx/fastcgi_temp \
+             /var/cache/nginx/uwsgi_temp \
+             /var/cache/nginx/scgi_temp \
+             /var/run/nginx \
     && chown -R nginx:nginx /var/cache/nginx /var/run/nginx /var/log/nginx
 
 EXPOSE 8080
