@@ -20,6 +20,11 @@ RUN npm run build
 FROM nginx:alpine AS runner
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Allow the nginx user to write to required dirs
+RUN mkdir -p /var/cache/nginx /var/run/nginx \
+    && chown -R nginx:nginx /var/cache/nginx /var/run/nginx /var/log/nginx
+
 EXPOSE 8080
 USER nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off; pid /var/run/nginx/nginx.pid;"]
