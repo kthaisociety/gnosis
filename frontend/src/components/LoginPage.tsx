@@ -20,7 +20,7 @@ export function LoginPage() {
           <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
             <Scan className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="text-xl font-semibold tracking-tight">OCR Bench</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Gnosis: OCR Suite</h1>
         </div>
         <p>Contact admin - signup on invite only</p>
       </div>
@@ -41,7 +41,7 @@ export function LoginPage() {
         <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
           <Scan className="w-6 h-6 text-primary" />
         </div>
-        <h1 className="text-xl font-semibold tracking-tight">OCR Bench</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Gnosis: OCR Suite</h1>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
         Hint: Use your kthais email to login
