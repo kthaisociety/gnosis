@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.14"
 
 [manifest]
@@ -7,6 +7,7 @@ members = [
     "eval",
     "gateway",
     "gnosis",
+    "gnosis-cli",
     "lib",
     "vlm-server",
 ]
@@ -674,6 +675,17 @@ requires-dist = [
     { name = "psycopg-pool", specifier = ">=3.3.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
 ]
+
+[[package]]
+name = "gnosis-cli"
+version = "0.1.0"
+source = { virtual = "cli" }
+dependencies = [
+    { name = "requests" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "requests", specifier = ">=2.33.1" }]
 
 [[package]]
 name = "google-auth"

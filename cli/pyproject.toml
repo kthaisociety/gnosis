@@ -4,4 +4,6 @@ version = "0.1.0"
 description = "CLI to access Gnosis cloud service"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "requests>=2.33.1",
+]
