@@ -1,15 +1,17 @@
-from .ui import wait_for, input_line
+from .ui import wait_for
 from .api import health
 from .app import App
+
 
 def main():
 
     # init app
     app = App()
-    app.get_url()
+    app.auth()
 
     # check health
-    wait_for(health, app)
+    wait_for(health, app.url)
+
 
 if __name__ == "__main__":
     main()

@@ -1,12 +1,17 @@
 import requests
 
-from .app import App
 
-
-def health(app: App):
-    res = requests.get(f"{app.url}/health")
+def health(url: str):
+    res = requests.get(f"{url}/health")
     return res
 
 
-def process(app: App):
+# TODO
+def process(url: str, image, pdf):
     pass
+
+
+# TODO
+def auth(url: str, api_key: str):
+    # _ = requests.get(f"{app.url}/auth/{app.api_key}")
+    return True

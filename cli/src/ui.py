@@ -5,6 +5,7 @@ CLEAR = "\033[K"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 BRIGHT_RED = "\033[1;91m"
+BRIGHT_GREEN = "\033[1;92m"
 BLUE = "\033[1;94m"
 
 
@@ -30,9 +31,18 @@ def wait_for(fn, *args):
     t.join()
 
 
-def input_line(prompt):
-    return input(f"\r{CLEAR}{BOLD}{BLUE}{prompt}{RESET}: ").strip()
+def input_line(prompt, validate=None):
+    while True:
+        value = input(f"\r{CLEAR}{BOLD}{BLUE}{prompt}{RESET}: ").strip()
+        if validate and not validate(value):
+            error(f"Invalid {prompt.lower()}")
+            continue
+        return value
 
 
 def error(e):
     print(f"\r{CLEAR}{BRIGHT_RED}{e}{RESET}", flush=True)
+
+
+def success(s):
+    print(f"\r{CLEAR}{BRIGHT_GREEN}{s}{RESET}", flush=True)
