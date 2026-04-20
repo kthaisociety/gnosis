@@ -681,11 +681,17 @@ name = "gnosis-cli"
 version = "0.1.0"
 source = { virtual = "cli" }
 dependencies = [
+    { name = "dotenv" },
+    { name = "pydantic" },
     { name = "requests" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "requests", specifier = ">=2.33.1" }]
+requires-dist = [
+    { name = "dotenv", specifier = ">=0.9.9" },
+    { name = "pydantic", specifier = ">=2.12.5" },
+    { name = "requests", specifier = ">=2.33.1" },
+]
 
 [[package]]
 name = "google-auth"
