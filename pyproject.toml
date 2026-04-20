@@ -22,4 +22,5 @@ members = [
     "services/gateway",
     "services/vlm_server",
     "services/eval",
+    "cli",
 ]
