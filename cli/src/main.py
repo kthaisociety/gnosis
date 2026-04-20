@@ -5,8 +5,8 @@ from .app import App
 def main():
 
     # init app
-    BASE_URL = input_line("URL")
-    app = App(BASE_URL)
+    app = App()
+    app.get_url()
 
     # check health
     wait_for(health, app)
