@@ -9,7 +9,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from dotenv import load_dotenv
-from eval.models import (
+from .models import (
     Dataset,
     DatasetCreate,
     EvaluationRun,

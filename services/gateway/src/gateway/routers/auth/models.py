@@ -3,6 +3,10 @@ from typing import Optional
 import datetime
 
 
+class AuthResponse(BaseModel):
+    status: str
+
+
 class APIKeyCreateRequest(BaseModel):
     name: str
     expires_in_days: Optional[int] = None

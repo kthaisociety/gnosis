@@ -1,3 +1,5 @@
+import sys
+
 from .ui import wait_for
 from .api import health
 from .app import App

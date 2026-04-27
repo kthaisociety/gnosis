@@ -3,11 +3,14 @@ import os
 
 from .ui import input_line, error, success
 from .utils import is_valid_url
-import .api
+from .api import auth as api_auth
+
+from lib.utils.log import get_logger
 
 load_dotenv()
+logger = get_logger(__name__)
 
-PATH_CREDENTIALS = f"{os.path.abspath(__file__)}/credentials"
+PATH_CREDENTIALS = f"{os.path.dirname(os.path.abspath(__file__))}/credentials"
 
 
 class App:
@@ -29,10 +32,11 @@ class App:
                 self.get_url()
             if not self.api_key:
                 self.get_api_key()
-        if api.auth(self.url, self.api_key):
+        if api_auth(self.url, self.api_key):
             self.store_credentials()
             success("Authenticated")
             return True
+        error("Failed to authenticate")
         return False
 
     def read_credentials(self) -> bool:
@@ -41,7 +45,7 @@ class App:
                 lines = f.readlines()
                 url = lines[0].strip()
                 api_key = lines[1].strip()
-                if len(self.url) != 0 and len(self.api_key) != 0:
+                if url and api_key:
                     self.url = url
                     self.api_key = api_key
                     return True
@@ -54,5 +58,4 @@ class App:
 
     def store_credentials(self):
         with open(PATH_CREDENTIALS, "w", encoding="utf-8") as f:
-            f.writeline(self.url)
-            f.writeline(self.api_key)
+            f.write(f"{self.url}\n{self.api_key}\n")

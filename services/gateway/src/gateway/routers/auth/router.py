@@ -13,6 +13,7 @@ from lib.db.operations.api_keys import (
 
 from .utils import hash_key, get_admin_key
 from .models import (
+    AuthResponse,
     APIKeyCreateRequest,
     APIKeyCreateResponse,
     APIKeyListResponse,
@@ -21,6 +22,15 @@ from .models import (
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 security = HTTPBearer(auto_error=False)
+
+
+@router.get("", summary="Verify Credentials", response_model=AuthResponse)
+async def auth(user_api_key: str = Header(..., alias="X-API-Key")):
+    if not user_api_key:
+        raise HTTPException(status_code=401, detail="API key required")
+    key_hash = hash_key(user_api_key)
+    get_api_key(key_hash)
+    return AuthResponse(status="success")
 
 
 @router.post(
