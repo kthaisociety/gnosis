@@ -56,6 +56,9 @@ class Config:
     # -- Image Handling --
     MAX_IMAGE_SIZE_BYTES: int = int(os.getenv("MAX_IMAGE_SIZE_BYTES", "20971520"))
 
+    # -- API Key Auth --
+    ADMIN_API_KEY: Optional[str] = os.getenv("ADMIN_API_KEY")
+
     @classmethod
     def validate(cls):
         """Validate critical environment variables and log them."""

@@ -407,6 +407,24 @@ CREATE TABLE neon_auth.verification (
 
 
 --
+-- Name: api_keys; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.api_keys (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    key_hash text NOT NULL UNIQUE,
+    name text NOT NULL,
+    created_at timestamp with time zone DEFAULT NOW() NOT NULL,
+    expires_at timestamp with time zone,
+    last_used_at timestamp with time zone,
+    is_active boolean DEFAULT TRUE NOT NULL
+);
+
+ALTER TABLE ONLY public.api_keys
+    ADD CONSTRAINT api_keys_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: inference_models; Type: TABLE; Schema: public; Owner: -
 --
 

@@ -7,8 +7,10 @@ import time
 import uuid
 
 import grpc
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request, Depends
 from redis import Redis
+
+from gateway.routers.auth.router import get_current_api_key
 
 from gateway.preprocessing.main import process_and_validate_image_bytes
 from gateway.routers.modal_runner import run_modal_inference
@@ -214,9 +216,11 @@ def start_worker() -> None:
 @router.post(
     "",
     response_model=VLMResponse,
+    dependencies=[Depends(get_current_api_key)],
     responses={
         200: {"description": "Successful image processing."},
         400: {"description": "Bad Request - Invalid or empty image file or config."},
+        401: {"description": "Unauthorized - Invalid or missing API key."},
         413: {
             "description": "Payload Too Large - Image file size exceeds the allowed limit."
         },

@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from lib.utils.log import get_logger
 
 from gateway.routers.health_router import router as health_router
+from gateway.routers.auth.router import router as auth_router
 from gateway.routers.process_router import (
     router as process_router,
     start_worker,
@@ -51,6 +52,7 @@ app.add_middleware(
 )
 
 app.include_router(health_router)
+app.include_router(auth_router)
 app.include_router(process_router)
 
 
